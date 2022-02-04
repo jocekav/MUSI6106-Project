@@ -6,9 +6,8 @@ The plugin will have an intuitive GUI where users can upload an audio file to de
 The plugin is targeted at guitar players who want to record into a DAW with the sound of their ideal amps, and is especially useful for an artist on the go. It is easier to use than other amp simulators, as you either get less choice in tone or too many controls with standard amp simulation plugins. Our plugin gets straight to the tone you want, no fuss.
 
 
-## Implementation Plan and References
-<img width="378" alt="Screen Shot 2022-01-30 at 9 14 24 PM" src="https://user-images.githubusercontent.com/63812135/151730174-92bc3f79-4e5c-4c28-a47e-ff160b491869.png">
-
+## Implementation Plan
+<img width="378" alt="https://user-images.githubusercontent.com/63812135/152618658-73ae7faf-e3aa-4fb5-a6d5-635da2b4fc68.png">
 
 1. Build plugin backend
    1. Static wave shaper - MVP step 1
