@@ -7,7 +7,7 @@ The plugin is targeted at guitar players who want to record into a DAW with the 
 
 
 ## Implementation Plan
-<img width="378" alt="https://user-images.githubusercontent.com/63812135/152618658-73ae7faf-e3aa-4fb5-a6d5-635da2b4fc68.png">
+![MicrosoftTeams-image](https://user-images.githubusercontent.com/63812135/152618658-73ae7faf-e3aa-4fb5-a6d5-635da2b4fc68.png)
 
 1. Build plugin backend
    1. Static wave shaper - MVP step 1
