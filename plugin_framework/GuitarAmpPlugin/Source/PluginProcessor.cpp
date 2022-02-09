@@ -100,6 +100,8 @@ void GuitarAmpPluginAudioProcessor::prepareToPlay (double sampleRate, int sample
     prepare(sampleRate, samplesPerBlock);
     update();
     reset();
+    auto channels = getTotalNumInputChannels();
+    mixBuffer.setSize(channels, samplesPerBlock);
     isActive = true;
 }
 
@@ -148,6 +150,7 @@ void GuitarAmpPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     juce::ScopedNoDenormals noDenormals; // Zeros out very small values to save processing power
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
+    const auto numSamples = buffer.getNumSamples();
 
     // In case we have more outputs than inputs, this code clears any output
     // channels that didn't contain input data, (because these aren't
@@ -158,27 +161,24 @@ void GuitarAmpPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
+    //Apply input gain
+    m_inputVolume.applyGain(buffer, buffer.getNumSamples());
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
+        mixBuffer.copyFrom(channel, 0, buffer, channel, 0, numSamples);
         auto* channelData = buffer.getWritePointer (channel);
-        
-        juce::ignoreUnused(channelData);
-        
-        
-        
-        // Hard clip values to (-1.0,1.0)
+//        juce:dsp::AudioBlock<float> block (buffer);
+//        juce:dsp::ProcessContextReplacing<float> context (block);
         for (int sample = 0; sample<buffer.getNumSamples();++sample)
-        {    
+        {
+            
+            // Hard clip values to (-1.0,1.0)
             channelData[sample] = juce::jlimit(-1.f, 1.f, channelData[sample]);
         }
         // ..do something to the data...
     }
+    // Apply output gain
+    m_outputVolume.applyGain(buffer,buffer.getNumSamples());
 }
 
 //==============================================================================
@@ -235,13 +235,45 @@ void  GuitarAmpPluginAudioProcessor::prepare(double sampleRate, int samplesPerBl
 }
 void GuitarAmpPluginAudioProcessor::update() //update params when changed
 {
-    
-    
     mustUpdateParams = false;
+    // Get values from APVTS
+    auto prmVolIn = apvts.getRawParameterValue("VOL IN");
+    auto prmDrive = apvts.getRawParameterValue("DRIVE");
+    auto prmBlend = apvts.getRawParameterValue("BLEND");
+    auto prmVolOut = apvts.getRawParameterValue("VOL OUT");
+    
+    auto prmPreLPF = apvts.getRawParameterValue("PRELPF");
+    auto prmPreHPF = apvts.getRawParameterValue("PREHPF");
+    auto prmPostLPF = apvts.getRawParameterValue("POSTLPF");
+    auto prmPostHPF = apvts.getRawParameterValue("POSTHPF");
+
+    auto prmDistortionType = apvts.getRawParameterValue("TYPE");
+    
+    // Get values from the atomic float pointer
+    // Convert dB to gain
+    m_inputVolume.setTargetValue(juce::Decibels::decibelsToGain(prmVolIn->load()));
+    m_drive.setTargetValue(juce::Decibels::decibelsToGain(prmDrive->load()));
+    m_blend.setTargetValue(prmBlend->load());
+    m_outputVolume.setTargetValue(juce::Decibels::decibelsToGain(prmVolOut->load()));
+    m_preLPF.setTargetValue(prmPreLPF->load());
+    m_preHPF.setTargetValue(prmPreHPF->load());
+    m_postLPF.setTargetValue(prmPostLPF->load());
+    m_postHPF.setTargetValue(prmPostHPF->load());
+    
+    m_distortionType = prmDistortionType->load();
 }
 void GuitarAmpPluginAudioProcessor::reset()  // reset dsp params
 {
+    mixBuffer.applyGain(0.f);
+    m_inputVolume.reset(getSampleRate(),0.050);
+    m_drive.reset(getSampleRate(),0.050);
+    m_blend.reset(getSampleRate(),0.050);
+    m_outputVolume.reset(getSampleRate(),0.050);
     
+    m_preLPF.reset(getSampleRate(),0.050);
+    m_preHPF.reset(getSampleRate(),0.050);
+    m_postLPF.reset(getSampleRate(),0.050);
+    m_postHPF.reset(getSampleRate(),0.050);
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout GuitarAmpPluginAudioProcessor::createParameters()
@@ -258,7 +290,27 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAmpPluginAudioProcesso
 //    parameters.push_back(std::move(gainParam));
 
     // Add new parameters to vector
-    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("VOL", "Volume", juce::NormalisableRange< float > (-40.0f,40.0f), 0.0f, "dB", juce::AudioProcessorParameter::genericParameter, valueToTextFunction, textToValueFunction));
+    //================================================================================================
+    // AMPLIFIER PARAMETERS
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("VOL IN", "Input Volume", juce::NormalisableRange< float > (-40.0f,40.0f), 0.0f, "dB", juce::AudioProcessorParameter::genericParameter, valueToTextFunction, textToValueFunction));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("DRIVE", "Drive", juce::NormalisableRange< float > (0.0f,40.0f), 20.0f, "dB", juce::AudioProcessorParameter::genericParameter, valueToTextFunction, textToValueFunction));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("BLEND", "Blend", juce::NormalisableRange< float > (0.0f,100.0f), 100.0f, "%", juce::AudioProcessorParameter::genericParameter, valueToTextFunction, textToValueFunction));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("VOL OUT", "Output Volume", juce::NormalisableRange< float > (-40.0f,40.0f), 0.0f, "dB", juce::AudioProcessorParameter::genericParameter, valueToTextFunction, textToValueFunction));
+    
+    //================================================================================================
+    // FILTERING PARAMETERS
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("PRELPF", "Pre Low-Pass Filter", juce::NormalisableRange< float > (10.f, 20000.f, 0.f, 0.5f), 20000.0f, "Hz", juce::AudioProcessorParameter::genericParameter, valueToTextFunction, textToValueFunction));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("PREHPF", "Pre High-Pass Filter", juce::NormalisableRange< float > (10.f, 20000.f, 0.f, 0.5f), 10.0f, "Hz", juce::AudioProcessorParameter::genericParameter, valueToTextFunction, textToValueFunction));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("POSTLPF", "Post Low-Pass Filter", juce::NormalisableRange< float > (10.f, 20000.f, 0.f, 0.5f), 20000.0f, "Hz", juce::AudioProcessorParameter::genericParameter, valueToTextFunction, textToValueFunction));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("POSTHPF", "Post High-Pass Filter", juce::NormalisableRange< float > (10.f, 20000.f, 0.f, 0.5f), 10.0f, "Hz", juce::AudioProcessorParameter::genericParameter, valueToTextFunction, textToValueFunction));
+    
+    //================================================================================================
+    // DISTORTION TYPE
+    juce::StringArray strArray ( {"None", "Tanh", "ATan", "Hard Clipper", "Rectifier", "Sine"} );
+    parameters.push_back(std::make_unique<juce::AudioParameterChoice> ("TYPE", "Type", strArray, 1));
+    
+    //=================================================================================================
+    // PARAM RETURN
     return
     {
         parameters.begin(), parameters.end()

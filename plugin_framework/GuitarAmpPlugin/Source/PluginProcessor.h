@@ -17,6 +17,16 @@ class GuitarAmpPluginAudioProcessor  : public juce::AudioProcessor,
                                         public juce::ValueTree::Listener
 {
 public:
+    enum
+        {
+            AlgorithmNone = 0,
+            AlgorithmTanh,
+            AlgorithmAtan,
+            AlgorithmHardClipper,
+            AlgorithmRectifier,
+            AlgorithmSine
+        };
+    
     //==============================================================================
     GuitarAmpPluginAudioProcessor();
     ~GuitarAmpPluginAudioProcessor() override;
@@ -65,8 +75,24 @@ public:
     juce::AudioProcessorValueTreeState::ParameterLayout createParameters();
     
 private:
+    juce::AudioBuffer<float> mixBuffer;
     bool mustUpdateParams{false};
     bool isActive{false};
+    
+    // Member variables for params
+//    float m_inputVolume {0.f};
+//    float m_drive {0.f};
+//    float m_blend {0.f};
+//    float m_outputVolume {0.f};
+//    float m_preLPF {0};
+//    float m_preHPF {0};
+//    float m_postLPF {0};
+//    float m_postHPF {0};
+    int m_distortionType {0};
+    
+    juce::LinearSmoothedValue<float> m_inputVolume, m_outputVolume, m_drive, m_blend,m_preLPF,m_preHPF,m_postLPF,m_postHPF {0.f};
+    
+    juce::IIRFilter preLPF[2], preHPF[2], postLPF[2], postHPF[2];
     
     void valueTreePropertyChanged(juce::ValueTree &treeWhosePropertyHasChanged, const juce::Identifier &property) override
     {
