@@ -1,104 +1,111 @@
 /*
   ==============================================================================
 
-    This file contains the basic framework code for a JUCE plugin processor.
+    This file was auto-generated!
+
+    It contains the basic framework code for a JUCE plugin processor.
 
   ==============================================================================
 */
 
 #pragma once
 
-#include <JuceHeader.h>
+#include "../JuceLibraryCode/JuceHeader.h"
+
+
 
 //==============================================================================
 /**
 */
-class GuitarAmpPluginAudioProcessor  : public juce::AudioProcessor,
-                                        public juce::ValueTree::Listener
+class GuitarAmpPluginAudioProcessor  : public juce::AudioProcessor
 {
 public:
+    //==============================================================================
     enum
-        {
-            AlgorithmNone = 0,
-            AlgorithmTanh,
-            AlgorithmAtan,
-            AlgorithmHardClipper,
-            AlgorithmRectifier,
-            AlgorithmSine
-        };
-    
+    {
+        AlgorithmNone = 0,
+        AlgorithmTanh,
+        AlgorithmAtan,
+        AlgorithmHardClipper,
+        AlgorithmRectifier,
+        AlgorithmSine
+    };
+
     //==============================================================================
     GuitarAmpPluginAudioProcessor();
-    ~GuitarAmpPluginAudioProcessor() override;
+    ~GuitarAmpPluginAudioProcessor();
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
+    void reset() override;
     void releaseResources() override;
 
-   #ifndef JucePlugin_PreferredChannelConfigurations
-    bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
-   #endif
-
-    void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+    void processBlock (juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
 
     //==============================================================================
     juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override;
 
     //==============================================================================
-    const juce::String getName() const override;
-
-    bool acceptsMidi() const override;
-    bool producesMidi() const override;
-    bool isMidiEffect() const override;
+    const juce::String getName() const override { return JucePlugin_Name; }
+    
+    bool acceptsMidi() const override
+    {
+        #if JucePlugin_WantsMidiInput
+            return true;
+        #else
+            return false;
+        #endif
+    }
+    
+    bool producesMidi() const override
+    {
+        #if JucePlugin_ProducesMidiOutput
+            return true;
+        #else
+            return false;
+        #endif
+    }
+    
     double getTailLengthSeconds() const override;
 
     //==============================================================================
-    int getNumPrograms() override;
-    int getCurrentProgram() override;
-    void setCurrentProgram (int index) override;
-    const juce::String getProgramName (int index) override;
-    void changeProgramName (int index, const juce::String& newName) override;
+    int getNumPrograms() override { return 1; }
+    int getCurrentProgram() override { return 0; }
+    void setCurrentProgram (int /*index*/) override {}
+    const juce::String getProgramName (int /*index*/) override { return juce::String();}
+    void changeProgramName (int /*index*/, const juce::String& /*newName*/) override {}
 
     //==============================================================================
-    void getStateInformation (juce::MemoryBlock& destData) override;
-    void setStateInformation (const void* data, int sizeInBytes) override;
-    
-    //==============================================================================
-    
-    void init(); // Call once -- set initial values for DSP
-    void prepare(double sampleRate, int samplesPerBlock); // Pass sample rate and buffer size to DSP
-    void update(); //update params when changed
-    void reset() override; // reset dsp params
+    void getStateInformation (juce::MemoryBlock& /*destData*/) override {}
+    void setStateInformation (const void* /*data*/, int /*sizeInBytes*/) override {}
 
-    juce::AudioProcessorValueTreeState apvts;
-    juce::AudioProcessorValueTreeState::ParameterLayout createParameters();
-    
+    //==============================================================================
+    juce::AudioParameterFloat *prmInput, *prmDrive, *prmMix, *prmOutput;
+    juce::AudioParameterChoice *m_distortionType;
+
+    juce::AudioParameterFloat *prmPreLP, *prmPreHP;
+    juce::AudioParameterFloat *prmPostLP, *prmPostHP;
+
+    juce::AudioParameterFloat *prmEPfreq;
+    juce::AudioParameterFloat *prmEPgain;
+
 private:
-    juce::AudioBuffer<float> mixBuffer;
-    bool mustUpdateParams{false};
-    bool isActive{false};
-    
-    // Member variables for params
-//    float m_inputVolume {0.f};
-//    float m_drive {0.f};
-//    float m_blend {0.f};
-//    float m_outputVolume {0.f};
-//    float m_preLPF {0};
-//    float m_preHPF {0};
-//    float m_postLPF {0};
-//    float m_postHPF {0};
-    int m_distortionType {0};
-    
-    juce::LinearSmoothedValue<float> m_inputVolume, m_outputVolume, m_drive, m_blend,m_preLPF,m_preHPF,m_postLPF,m_postHPF {0.f};
-    
-    juce::IIRFilter preLPF[2], preHPF[2], postLPF[2], postHPF[2];
-    
-    void valueTreePropertyChanged(juce::ValueTree &treeWhosePropertyHasChanged, const juce::Identifier &property) override
-    {
-        mustUpdateParams = true;
-        
-    }
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GuitarAmpPluginAudioProcessor)
+    void updateProcessing();
+
+    //==============================================================================
+    bool isActive = false;
+
+    juce::LinearSmoothedValue<float> inputVolume, outputVolume;
+    juce::LinearSmoothedValue<float> driveVolume, dryVolume, wetVolume;
+
+    using Filter = juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>>;
+    Filter preLowPassFilter, preHighPassFilter, postLowPassFilter, postHighPassFilter;
+    Filter preEmphasisFilter, postEmphasisFilter;
+
+    juce::AudioBuffer<float> mixBuffer;
+
+    //==============================================================================
 };
+
