@@ -36,6 +36,22 @@
         <MODULEPATH id="juce_gui_extra" path="../../../JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
+    <CLION targetFolder="Builds/CLion" clionXcodeEnabled="1">
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path="/Users/vedant/Desktop/Programming/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="/Users/vedant/Desktop/Programming/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="/Users/vedant/Desktop/Programming/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="/Users/vedant/Desktop/Programming/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="/Users/vedant/Desktop/Programming/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="/Users/vedant/Desktop/Programming/JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="/Users/vedant/Desktop/Programming/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="/Users/vedant/Desktop/Programming/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="/Users/vedant/Desktop/Programming/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="/Users/vedant/Desktop/Programming/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="/Users/vedant/Desktop/Programming/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="/Users/vedant/Desktop/Programming/JUCE/modules"/>
+      </MODULEPATHS>
+    </CLION>
   </EXPORTFORMATS>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
