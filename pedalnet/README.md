@@ -11,7 +11,7 @@
  
  
  
-## Setup
+## Setup Tips
 ### Step 1
 make sure you installed these dependency:
 >torch==1.7.0
