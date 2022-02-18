@@ -1,4 +1,16 @@
 ﻿# PedalNet First Trial
+ ## Results
+ ### Predicted vs Actual Signal-1
+ ![alt text](https://github.com/jocekav/MUSI6106-Project/blob/shan/pedalnet/detail_signal_comparison_e2s_0.1413.png?raw=true)
+ 
+ ### Predicted vs Actual Signal-2
+ ![alt text](https://github.com/jocekav/MUSI6106-Project/blob/shan/pedalnet/signal_comparison_e2s_0.1413.png?raw=true)
+ 
+ ### Spectrogram Diff
+ ![alt text](https://github.com/jocekav/MUSI6106-Project/blob/shan/pedalnet/diff_spectrogram.png?raw=true)
+ 
+ 
+ 
 ## Setup
 ### Step 1
 make sure you installed these dependency:
