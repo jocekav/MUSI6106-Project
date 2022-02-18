@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.4)
 project("GuitarAmpPlugin")
 
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/../FRUT/cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/../FRUT/prefix/FRUT/cmake")
 include(Reprojucer)
 
 
@@ -14,7 +14,7 @@ set(GuitarAmpPlugin_jucer_FILE
 )
 
 
-set(JUCE_MODULES_GLOBAL_PATH "../JUCE/modules")
+set(JUCE_MODULES_GLOBAL_PATH "/Users/vedant/Desktop/Programming/JUCE/modules")
 
 
 jucer_project_begin(
@@ -147,6 +147,16 @@ jucer_project_module(
 jucer_project_module(
   juce_data_structures
   PATH "${JUCE_MODULES_GLOBAL_PATH}"
+)
+
+jucer_project_module(
+  juce_dsp
+  PATH "${JUCE_MODULES_GLOBAL_PATH}"
+  # JUCE_ASSERTION_FIRFILTER
+  # JUCE_DSP_USE_INTEL_MKL
+  # JUCE_DSP_USE_SHARED_FFTW
+  # JUCE_DSP_USE_STATIC_FFTW
+  # JUCE_DSP_ENABLE_SNAP_TO_ZERO
 )
 
 jucer_project_module(
