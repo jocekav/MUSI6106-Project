@@ -10,6 +10,14 @@
 
 #include <JuceHeader.h>
 
+enum Slope
+{
+    Slope_12,
+    Slope_24,
+    Slope_36,
+    Slope_48
+};
+
 struct ChainSettings
 {
     float fPeakFreq {0};
@@ -19,6 +27,10 @@ struct ChainSettings
     float fHighCutFreq{0};
     int iLowCutSlope{0};
     int iHighCutSlope{0};
+    
+    Slope lowCutSlope {Slope::Slope_12};
+    Slope highCutSlope {Slope::Slope_12};
+    
 };
 
 ChainSettings getChainSettings(juce::AudioProcessorValueTreeState &apTreeState);
