@@ -109,95 +109,25 @@ void EQ_v1AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     
     updatePeakFilter(chainSettings);
     
-    auto cutCoeffs = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(chainSettings.fLowCutFreq, sampleRate, 2 * (chainSettings.iLowCutSlope) + 1);
+    auto lowCutCoeffs = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(chainSettings.fLowCutFreq, sampleRate, 2 * (chainSettings.iLowCutSlope) + 1);
 
     auto &leftLowCut = LeftChain.get<ChainPositions::LowCut>();
     
-    // reset bypassed coeffs
-    leftLowCut.setBypassed<0>(true);
-    leftLowCut.setBypassed<1>(true);
-    leftLowCut.setBypassed<3>(true);
-    leftLowCut.setBypassed<4>(true);
-    
-    
-    //set coeffs to be used based on chain settings
-    switch (chainSettings.lowCutSlope)
-    {
-        case Slope_12:
-        {
-            *leftLowCut.get<0>().coefficients = *cutCoeffs[0];
-            leftLowCut.setBypassed<0>(false);
-            break;
-        }
-        case Slope_24:
-            *leftLowCut.get<0>().coefficients = *cutCoeffs[0];
-            leftLowCut.setBypassed<0>(false);
-            *leftLowCut.get<1>().coefficients = *cutCoeffs[1];
-            leftLowCut.setBypassed<1>(false);
-            break;
-        case Slope_36:
-            *leftLowCut.get<0>().coefficients = *cutCoeffs[0];
-            leftLowCut.setBypassed<0>(false);
-            *leftLowCut.get<1>().coefficients = *cutCoeffs[1];
-            leftLowCut.setBypassed<1>(false);
-            *leftLowCut.get<2>().coefficients = *cutCoeffs[2];
-            leftLowCut.setBypassed<2>(false);
-            break;
-        case Slope_48:
-            *leftLowCut.get<0>().coefficients = *cutCoeffs[0];
-            leftLowCut.setBypassed<0>(false);
-            *leftLowCut.get<1>().coefficients = *cutCoeffs[1];
-            leftLowCut.setBypassed<1>(false);
-            *leftLowCut.get<2>().coefficients = *cutCoeffs[2];
-            leftLowCut.setBypassed<2>(false);
-            *leftLowCut.get<3>().coefficients = *cutCoeffs[3];
-            leftLowCut.setBypassed<3>(false);
-            break;
-    }
+    updateCutFilter(leftLowCut, lowCutCoeffs, chainSettings.lowCutSlope);
     
     auto &rightLowCut = RightChain.get<ChainPositions::LowCut>();
     
-    // reset bypassed coeffs
-    rightLowCut.setBypassed<0>(true);
-    rightLowCut.setBypassed<1>(true);
-    rightLowCut.setBypassed<3>(true);
-    rightLowCut.setBypassed<4>(true);
+    updateCutFilter(rightLowCut, lowCutCoeffs, chainSettings.lowCutSlope);
     
+    auto highCutCoeffs = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(chainSettings.fHighCutFreq, sampleRate, 2 * (chainSettings.iHighCutSlope) + 1);
     
-    //set coeffs to be used based on chain settings
-    switch (chainSettings.lowCutSlope)
-    {
-        case Slope_12:
-        {
-            *rightLowCut.get<0>().coefficients = *cutCoeffs[0];
-            rightLowCut.setBypassed<0>(false);
-            break;
-        }
-        case Slope_24:
-            *rightLowCut.get<0>().coefficients = *cutCoeffs[0];
-            rightLowCut.setBypassed<0>(false);
-            *rightLowCut.get<1>().coefficients = *cutCoeffs[1];
-            rightLowCut.setBypassed<1>(false);
-            break;
-        case Slope_36:
-            *rightLowCut.get<0>().coefficients = *cutCoeffs[0];
-            rightLowCut.setBypassed<0>(false);
-            *rightLowCut.get<1>().coefficients = *cutCoeffs[1];
-            rightLowCut.setBypassed<1>(false);
-            *rightLowCut.get<2>().coefficients = *cutCoeffs[2];
-            rightLowCut.setBypassed<2>(false);
-            break;
-        case Slope_48:
-            *rightLowCut.get<0>().coefficients = *cutCoeffs[0];
-            rightLowCut.setBypassed<0>(false);
-            *rightLowCut.get<1>().coefficients = *cutCoeffs[1];
-            rightLowCut.setBypassed<1>(false);
-            *rightLowCut.get<2>().coefficients = *cutCoeffs[2];
-            rightLowCut.setBypassed<2>(false);
-            *rightLowCut.get<3>().coefficients = *cutCoeffs[3];
-            rightLowCut.setBypassed<3>(false);
-            break;
-    }
+    auto &leftHighCut = LeftChain.get<ChainPositions::HighCut>();
+    
+    updateCutFilter(leftHighCut, highCutCoeffs, chainSettings.highCutSlope);
+    
+    auto &rightHighCut = RightChain.get<ChainPositions::HighCut>();
+    
+    updateCutFilter(rightHighCut, highCutCoeffs, chainSettings.highCutSlope);
     
 }
 
@@ -256,92 +186,12 @@ void EQ_v1AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     auto cutCoeffs = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(chainSettings.fLowCutFreq, getSampleRate(), 2 * (chainSettings.iLowCutSlope) + 1);
 
     auto &leftLowCut = LeftChain.get<ChainPositions::LowCut>();
-    
-    // reset bypassed coeffs
-    leftLowCut.setBypassed<0>(true);
-    leftLowCut.setBypassed<1>(true);
-    leftLowCut.setBypassed<3>(true);
-    leftLowCut.setBypassed<4>(true);
-    
-    
-    //set coeffs to be used based on chain settings
-    switch (chainSettings.lowCutSlope)
-    {
-        case Slope_12:
-        {
-            *leftLowCut.get<0>().coefficients = *cutCoeffs[0];
-            leftLowCut.setBypassed<0>(false);
-            break;
-        }
-        case Slope_24:
-            *leftLowCut.get<0>().coefficients = *cutCoeffs[0];
-            leftLowCut.setBypassed<0>(false);
-            *leftLowCut.get<1>().coefficients = *cutCoeffs[1];
-            leftLowCut.setBypassed<1>(false);
-            break;
-        case Slope_36:
-            *leftLowCut.get<0>().coefficients = *cutCoeffs[0];
-            leftLowCut.setBypassed<0>(false);
-            *leftLowCut.get<1>().coefficients = *cutCoeffs[1];
-            leftLowCut.setBypassed<1>(false);
-            *leftLowCut.get<2>().coefficients = *cutCoeffs[2];
-            leftLowCut.setBypassed<2>(false);
-            break;
-        case Slope_48:
-            *leftLowCut.get<0>().coefficients = *cutCoeffs[0];
-            leftLowCut.setBypassed<0>(false);
-            *leftLowCut.get<1>().coefficients = *cutCoeffs[1];
-            leftLowCut.setBypassed<1>(false);
-            *leftLowCut.get<2>().coefficients = *cutCoeffs[2];
-            leftLowCut.setBypassed<2>(false);
-            *leftLowCut.get<3>().coefficients = *cutCoeffs[3];
-            leftLowCut.setBypassed<3>(false);
-            break;
-    }
+
+    updateCutFilter(leftLowCut, cutCoeffs, chainSettings.lowCutSlope);
     
     auto &rightLowCut = RightChain.get<ChainPositions::LowCut>();
     
-    // reset bypassed coeffs
-    rightLowCut.setBypassed<0>(true);
-    rightLowCut.setBypassed<1>(true);
-    rightLowCut.setBypassed<3>(true);
-    rightLowCut.setBypassed<4>(true);
-    
-    
-    //set coeffs to be used based on chain settings
-    switch (chainSettings.lowCutSlope)
-    {
-        case Slope_12:
-        {
-            *rightLowCut.get<0>().coefficients = *cutCoeffs[0];
-            rightLowCut.setBypassed<0>(false);
-            break;
-        }
-        case Slope_24:
-            *rightLowCut.get<0>().coefficients = *cutCoeffs[0];
-            rightLowCut.setBypassed<0>(false);
-            *rightLowCut.get<1>().coefficients = *cutCoeffs[1];
-            rightLowCut.setBypassed<1>(false);
-            break;
-        case Slope_36:
-            *rightLowCut.get<0>().coefficients = *cutCoeffs[0];
-            rightLowCut.setBypassed<0>(false);
-            *rightLowCut.get<1>().coefficients = *cutCoeffs[1];
-            rightLowCut.setBypassed<1>(false);
-            *rightLowCut.get<2>().coefficients = *cutCoeffs[2];
-            rightLowCut.setBypassed<2>(false);
-            break;
-        case Slope_48:
-            *rightLowCut.get<0>().coefficients = *cutCoeffs[0];
-            rightLowCut.setBypassed<0>(false);
-            *rightLowCut.get<1>().coefficients = *cutCoeffs[1];
-            rightLowCut.setBypassed<1>(false);
-            *rightLowCut.get<2>().coefficients = *cutCoeffs[2];
-            rightLowCut.setBypassed<2>(false);
-            *rightLowCut.get<3>().coefficients = *cutCoeffs[3];
-            rightLowCut.setBypassed<3>(false);
-            break;
-    }
+    updateCutFilter(rightLowCut, cutCoeffs, chainSettings.lowCutSlope);
     
     juce::dsp::AudioBlock<float> block(buffer);
     
@@ -355,6 +205,17 @@ void EQ_v1AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     
     LeftChain.process(leftContext);
     RightChain.process(rightContext);
+    
+    auto highCutCoeffs = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(chainSettings.fHighCutFreq, getSampleRate(), 2 * (chainSettings.iHighCutSlope) + 1);
+    
+    auto &leftHighCut = LeftChain.get<ChainPositions::HighCut>();
+    
+    updateCutFilter(leftHighCut, highCutCoeffs, chainSettings.highCutSlope);
+    
+    auto &rightHighCut = RightChain.get<ChainPositions::HighCut>();
+    
+    updateCutFilter(rightHighCut, highCutCoeffs, chainSettings.highCutSlope);
+    
 }
 
 //==============================================================================
