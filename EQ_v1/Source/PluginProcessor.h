@@ -100,6 +100,12 @@ private:
         HighCut
     };
     
+    void updatePeakFilter(const ChainSettings& chainSettings);
+    
+    // alias for coefficients pointer in Juce dsp
+    using Coeffs = Filter::CoefficientsPtr;
+
+    static void updateCoefficients(Coeffs &oldCoeffs, const Coeffs &newCoeffs);
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EQ_v1AudioProcessor)
 };
