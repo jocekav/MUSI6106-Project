@@ -11,7 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-
+#include <iostream>
 
 
 //==============================================================================
@@ -28,7 +28,8 @@ public:
         AlgorithmAtan,
         AlgorithmHardClipper,
         AlgorithmRectifier,
-        AlgorithmSine
+        AlgorithmSine,
+        AlgorithmTubeModel
     };
 
     //==============================================================================
@@ -69,6 +70,8 @@ public:
     
     double getTailLengthSeconds() const override;
 
+    float TriodeWaveshaper(float V_gk);
+
     //==============================================================================
     int getNumPrograms() override { return 1; }
     int getCurrentProgram() override { return 0; }
@@ -90,6 +93,7 @@ public:
     juce::AudioParameterFloat *prmEPfreq;
     juce::AudioParameterFloat *prmEPgain;
 
+
 private:
     //==============================================================================
     void updateProcessing();
@@ -103,9 +107,21 @@ private:
     using Filter = juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>>;
     Filter preLowPassFilter, preHighPassFilter, postLowPassFilter, postHighPassFilter;
     Filter preEmphasisFilter, postEmphasisFilter;
+    Filter tubeLowPassFilter, tubeHighPassFilter;
 
     juce::AudioBuffer<float> mixBuffer;
 
+    //Triode Params;
+    float mu = 100.0f;
+    float mu_inverse = 1 / mu;
+    float E_x = 1.4f;
+    int K_g = 1060;
+    int K_p = 600;
+    int K_vb = 300;
+    float V_ct = 0.5f;
+    int V_ak = 280;
+
+    float V_gk_cutoff = 5.5f;
+    float sqrt_K = static_cast<float> (sqrt(K_vb + (V_ak * V_ak)));
     //==============================================================================
 };
-
