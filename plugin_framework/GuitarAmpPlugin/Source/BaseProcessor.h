@@ -6,7 +6,7 @@
 //  Copyright © 2022 LL. All rights reserved.
 //
 #include <JuceHeader.h>
-#include <EqProcessor>
+#include "EqProcessor.h"
 
 #ifndef BaseProcessor_h
 #define BaseProcessor_h
