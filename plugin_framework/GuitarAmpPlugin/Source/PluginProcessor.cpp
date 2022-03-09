@@ -22,7 +22,7 @@ GuitarAmpPluginAudioProcessor::GuitarAmpPluginAudioProcessor()
     addParameter (prmOutput = new juce::AudioParameterFloat ("OUTPUT", "Output Gain", {-40.f, 40.f}, 0.f, "dB"));
 
     // -------------------------------------------------------------------------
-    juce::StringArray strArray ( {"None", "Tanh", "ATan", "Hard Clipper", "Rectifier", "Sine"} );
+    juce::StringArray strArray ( {"None", "Tanh", "ATan", "Hard Clipper", "Rectifier", "Sine", "Tube"});
     addParameter (m_distortionType = new juce::AudioParameterChoice ("TYPE", "Type", strArray, 1));
 
     // -------------------------------------------------------------------------
@@ -46,6 +46,20 @@ double GuitarAmpPluginAudioProcessor::getTailLengthSeconds() const
     return 0.0;
 }
 
+float GuitarAmpPluginAudioProcessor::TriodeWaveshaper(float V_gk)
+{
+    float E_1 = 0;
+    if (V_gk < V_gk_cutoff)
+    {
+        E_1 = (log(1 + exp(K_p * (mu_inverse + ((-1 * V_gk) + V_ct) / (sqrt_K)))));
+    }
+    else
+        E_1 = (log(1 + exp(K_p * (mu_inverse + ((-1 * V_gk_cutoff) + V_ct) / (sqrt_K)))));
+
+    return 22.8f * static_cast<float> (pow(E_1, E_x) / K_g);
+}
+
+
 //==============================================================================
 void GuitarAmpPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
@@ -60,6 +74,9 @@ void GuitarAmpPluginAudioProcessor::prepareToPlay (double sampleRate, int sample
     preEmphasisFilter.prepare (spec);
     postEmphasisFilter.prepare (spec);
     
+    tubeLowPassFilter.prepare(spec);
+    tubeHighPassFilter.prepare(spec);
+
     mixBuffer.setSize (channels, samplesPerBlock);
     
     updateProcessing();
@@ -196,6 +213,19 @@ void GuitarAmpPluginAudioProcessor::processBlock (juce::AudioSampleBuffer& buffe
                 channelData[i] = std::sin (channelData[i]);
         }
     }
+    else if (type == AlgorithmTubeModel)
+    {
+        
+        for (auto channel = 0; channel < numChannels; channel++)
+        {
+            auto* channelData = buffer.getWritePointer (channel);
+            
+            for (auto i = 0; i < numSamples; i++)
+                channelData[i] = GuitarAmpPluginAudioProcessor::TriodeWaveshaper(channelData[i]);
+        }
+        tubeLowPassFilter.process(context);
+        tubeHighPassFilter.process(context);
+    }
 
 
     // Post-Filtering
@@ -250,6 +280,11 @@ void GuitarAmpPluginAudioProcessor::updateProcessing()
                                                                                    1.f / sqrt (2.f), juce::Decibels::decibelsToGain (prmEPgain->get()));
     *postEmphasisFilter.state = *juce::dsp::IIR::Coefficients<float>::makeLowShelf (getSampleRate(), prmEPfreq->get(),
                                                                                     1.f / sqrt (2.f), juce::Decibels::decibelsToGain (-prmEPgain->get()));
+
+
+    *tubeLowPassFilter.state = *juce::dsp::IIR::Coefficients<float>::makeFirstOrderLowPass(getSampleRate(), 15000);
+    *tubeHighPassFilter.state = *juce::dsp::IIR::Coefficients<float>::makeFirstOrderHighPass(getSampleRate(), 45);
+   
 }
 
 //==============================================================================
