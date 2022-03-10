@@ -78,7 +78,9 @@ public:
     };
     CAmplifierIf();
     ~CAmplifierIf();
-    void prepareToPlay (double, int) override;
+    //TODO: write function to set distortion type (global value tree state param?)
+    void prepareToPlay (double sampleRate, int samplesPerBlock) override;
+    void reset() override;
     void releaseResources() override;
     void processBlock (juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
     void getStateInformation (juce::MemoryBlock&) override;
@@ -87,5 +89,5 @@ public:
     bool hasEditor() const override;
 private:
     juce::AudioParameterChoice m_distortionType;
-
+    float TriodeWaveshaper(float V_gk);
 };
