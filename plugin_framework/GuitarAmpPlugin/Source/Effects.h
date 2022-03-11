@@ -100,6 +100,9 @@ private:
     }
 };
 
+//================================================================================================================
+//  Amplifier Processor Node
+//================================================================================================================
 // TODO: Move functionality from Plugin processor to this
 //  1. Pre-Post LPF, HPF and Emphasis filters + params
 //  2. Mix buffer + params
@@ -150,4 +153,43 @@ private:
     Filter preLowPassFilter, preHighPassFilter, postLowPassFilter, postHighPassFilter;
     Filter preEmphasisFilter, postEmphasisFilter;
 
+};
+
+//================================================================================================================
+//  Gain Processor Node
+//================================================================================================================
+class CGainProcessor  : public ProcessorBase
+{
+public:
+    const juce::String getName() const override { return "Gain"; }
+    CGainProcessor();
+    void prepareToPlay(double sampleRate, int samplesPerBlock) override;
+    void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
+    void reset() override;
+    void update();
+private:
+//    juce::dsp::Gain<float> gain;
+    juce::AudioParameterFloat *m_pGain;
+    juce::LinearSmoothedValue<float> volume;
+    bool isActive;
+
+};
+
+//================================================================================================================
+//  Compressor Processor Node
+//================================================================================================================
+class CCompressorProcessor  : public ProcessorBase
+{
+public:
+    const juce::String getName() const override { return "Compressor"; }
+    CCompressorProcessor();
+    void prepareToPlay(double sampleRate, int samplesPerBlock) override;
+    void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
+    void reset() override;
+    void update();
+private:
+    juce::dsp::Compressor<float> compressor;
+    juce::AudioParameterFloat *m_pThreshold, *m_pRatio, *m_pAttack, *m_pRelease,*m_pMakeupGain;
+    juce::LinearSmoothedValue<float> threshold, ratio, attack, release, makeupgain;
+    bool isActive;
 };

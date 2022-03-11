@@ -9,6 +9,10 @@
 */
 
 #include "Effects.h"
+
+//================================================================================================================
+//  Amplifier Processor Node
+//================================================================================================================
 CAmplifierIf::CAmplifierIf()
 {
     addParameter (prmDrive = new juce::AudioParameterFloat ("DRIVE", "Drive", {0.f, 40.f}, 20.f, "dB"));
@@ -127,7 +131,7 @@ void CAmplifierIf::update()
 void CAmplifierIf::processBlock(juce::AudioSampleBuffer &buffer, juce::MidiBuffer &)
 {
     //TODO: Write CAmplifierIf processBlock
-    if (isActive == false)
+    if (!isActive)
         return;
     const auto totalNumInputChannels  = getTotalNumInputChannels();
     const auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -174,5 +178,99 @@ void CAmplifierIf::processBlock(juce::AudioSampleBuffer &buffer, juce::MidiBuffe
 
     for (auto channel = 0; channel < numChannels; channel++)
         buffer.addFrom(channel, 0, mixBuffer, channel, 0, numSamples);
+
+}
+
+//================================================================================================================
+//  Gain Processor Node
+//================================================================================================================
+
+CGainProcessor::CGainProcessor()
+{
+    addParameter (m_pGain = new juce::AudioParameterFloat ("INPUT", "Input Gain", {0.f, 40.f}, 0.f, "dB"));
+    isActive = true;
+}
+void CGainProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+{
+    update();
+}
+
+void CGainProcessor::processBlock (juce::AudioSampleBuffer& buffer, juce::MidiBuffer&)
+{
+    if (!isActive)
+        return;
+    const auto totalNumInputChannels  = getTotalNumInputChannels();
+    const auto totalNumOutputChannels = getTotalNumOutputChannels();
+
+    const auto numChannels = fmin (totalNumInputChannels, totalNumOutputChannels);
+    const auto numSamples = buffer.getNumSamples();
+    update();
+    volume.applyGain(buffer, numSamples);
+}
+
+void CGainProcessor::reset()
+{
+    volume.reset(getSampleRate(), 0.05);
+}
+
+void CGainProcessor::update()
+{
+    volume.setTargetValue(juce::Decibels::decibelsToGain (m_pGain->get()));
+}
+
+//================================================================================================================
+//  Compressor Processor Node
+//================================================================================================================
+CCompressorProcessor::CCompressorProcessor()
+{
+    addParameter (m_pAttack = new juce::AudioParameterFloat ("INPUT", "Input Gain", {0.f, 40.f}, 0.f, "dB"));
+    addParameter (m_pRelease = new juce::AudioParameterFloat ("INPUT", "Input Gain", {0.f, 40.f}, 0.f, "dB"));
+    addParameter (m_pThreshold = new juce::AudioParameterFloat ("INPUT", "Input Gain", {0.f, 40.f}, 0.f, "dB"));
+    addParameter (m_pRatio = new juce::AudioParameterFloat ("INPUT", "Input Gain", {0.f, 40.f}, 0.f, "dB"));
+    addParameter (m_pMakeupGain = new juce::AudioParameterFloat ("INPUT", "Input Gain", {0.f, 40.f}, 0.f, "dB"));
+    isActive = true;
+}
+
+void CCompressorProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
+{
+    juce::dsp::ProcessSpec spec { sampleRate, static_cast<juce::uint32> (samplesPerBlock), 2 };
+    compressor.prepare (spec);
+    update();
+}
+
+void CCompressorProcessor::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer &)
+{
+    if (!isActive)
+        return;
+    const auto totalNumInputChannels  = getTotalNumInputChannels();
+    const auto totalNumOutputChannels = getTotalNumOutputChannels();
+    const auto numChannels = fmin (totalNumInputChannels, totalNumOutputChannels);
+    const auto numSamples = buffer.getNumSamples();
+    update();
+    juce::dsp::AudioBlock<float> block (buffer);
+    juce::dsp::ProcessContextReplacing<float> context (block);
+
+    compressor.process(context);
+    makeupgain.applyGain(buffer, numSamples);
+}
+
+void CCompressorProcessor::reset()
+{
+    compressor.reset();
+    makeupgain.reset(getSampleRate(), 0.05);
+}
+
+void CCompressorProcessor::update()
+{
+    threshold.setTargetValue(juce::Decibels::decibelsToGain (m_pThreshold->get()));
+    ratio.setTargetValue(juce::Decibels::decibelsToGain (m_pRatio->get()));
+    attack.setTargetValue(juce::Decibels::decibelsToGain (m_pAttack->get()));
+    release.setTargetValue(juce::Decibels::decibelsToGain (m_pRelease->get()));
+    makeupgain.setTargetValue(juce::Decibels::decibelsToGain (m_pMakeupGain->get()));
+
+    compressor.setThreshold(threshold.getNextValue());
+    compressor.setRatio(ratio.getNextValue());
+    compressor.setAttack(attack.getNextValue());
+    compressor.setRelease(release.getNextValue());
 
 }
