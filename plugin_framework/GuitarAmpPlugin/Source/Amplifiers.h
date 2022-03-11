@@ -13,34 +13,71 @@ class CDistortionBase
 {
 public:
     virtual void process (juce::AudioSampleBuffer& buffer) = 0;
-    void update(int numChannels, int numSamples); // NO UPDATE REQUIRED FOR ANY OF THE STATIC/TUBE WAVESHAPERS
+    void update(double sampleRate, int numChannels, int numSamples); // NO UPDATE REQUIRED FOR ANY OF THE STATIC/TUBE WAVESHAPERS
+    void reset();
 protected:
-    CDistortionBase(int numChannels, int numSamples);
-    int m_iNumChannels;
-    int m_iNumSamples;
+    CDistortionBase(double sampleRate, int numChannels, int numSamples);
+    ~CDistortionBase(){reset();}
+    double m_fSampleRate = 44100;
+    int m_iNumChannels = 0;
+    int m_iNumSamples = 0;
+    bool m_bisInitialised = false;
+
+    float mu = 100.0f;
+    float mu_inverse = 1 / mu;
+    float E_x = 1.4f;
+    int K_g = 1060;
+    int K_p = 600;
+    int K_vb = 300;
+    float V_ct = 0.5f;
+    int V_ak = 280;
+
+    float V_gk_cutoff = 5.5f;
+    float sqrt_K = static_cast<float> (sqrt(K_vb + (V_ak * V_ak)));
 };
 
-CDistortionBase::CDistortionBase(int numChannels, int numSamples)
+CDistortionBase::CDistortionBase(double sampleRate, int numChannels, int numSamples)
 {
-    update(numChannels, numSamples);
+    update(sampleRate, numChannels, numSamples);
+    m_bisInitialised = true;
 }
 
-void CDistortionBase::update(int numChannels, int numSamples)
+void CDistortionBase::update(double sampleRate, int numChannels, int numSamples)
 {
+    m_fSampleRate = sampleRate;
     m_iNumChannels = numChannels;
     m_iNumSamples = numSamples;
 }
 
+void CDistortionBase::reset()
+{
+    m_iNumChannels = 0;
+    m_iNumSamples  = 0;
+    m_bisInitialised = false;
+}
+
+
 //==========================================================================
-class CTanhDist : protected CDistortionBase
+class CNoDist : public CDistortionBase
 {
 public:
     void process(juce::AudioSampleBuffer& buffer) override;
-private:
-    CTanhDist(int numChannels, int numSamples);
+    CNoDist();
 };
 
-CTanhDist::CTanhDist(int numChannels, int numSamples) : CDistortionBase(numChannels, numSamples){}
+void CNoDist::process(juce::AudioSampleBuffer &buffer)
+{
+    return;
+}
+//==========================================================================
+class CTanhDist : public CDistortionBase
+{
+public:
+    void process(juce::AudioSampleBuffer& buffer) override;
+    CTanhDist(double sampleRate, int numChannels, int numSamples);
+};
+
+CTanhDist::CTanhDist(double sampleRate, int numChannels, int numSamples) : CDistortionBase(sampleRate, numChannels, numSamples){}
 
 void CTanhDist::process(juce::AudioSampleBuffer& buffer)
 {
@@ -54,15 +91,14 @@ void CTanhDist::process(juce::AudioSampleBuffer& buffer)
 }
 
 //==========================================================================
-class CAtanDist : protected CDistortionBase
+class CAtanDist : public CDistortionBase
 {
 public:
-    CAtanDist(int numChannels, int numSamples);
+    CAtanDist(double sampleRate, int numChannels, int numSamples);
     void process(juce::AudioSampleBuffer& buffer) override;
-private:
 };
 
-CAtanDist::CAtanDist(int numChannels, int numSamples) : CDistortionBase(numChannels, numSamples){}
+CAtanDist::CAtanDist(double sampleRate, int numChannels, int numSamples) : CDistortionBase(sampleRate, numChannels, numSamples) {}
 
 void CAtanDist::process(juce::AudioSampleBuffer &buffer)
 {
@@ -79,15 +115,14 @@ void CAtanDist::process(juce::AudioSampleBuffer &buffer)
 
 
 //==========================================================================
-class CHardClipper: protected CDistortionBase
+class CHardClipper: public CDistortionBase
 {
 public:
     void process(juce::AudioSampleBuffer& buffer) override;
-private:
-    CHardClipper(int numChannels, int numSamples);
+    CHardClipper(double sampleRate, int numChannels, int numSamples);
 };
 
-CHardClipper::CHardClipper(int numChannels, int numSamples): CDistortionBase(numChannels, numSamples){}
+CHardClipper::CHardClipper(double sampleRate, int numChannels, int numSamples) : CDistortionBase(sampleRate, numChannels, numSamples) {}
 
 void CHardClipper::process(juce::AudioSampleBuffer &buffer)
 {
@@ -102,15 +137,14 @@ void CHardClipper::process(juce::AudioSampleBuffer &buffer)
 
 
 //==========================================================================
-class CRectifier: protected CDistortionBase
+class CRectifier: public CDistortionBase
 {
 public:
     void process(juce::AudioSampleBuffer& buffer) override;
-private:
-    CRectifier(int numChannels, int numSamples);
+    CRectifier(double sampleRate, int numChannels, int numSamples);
 };
 
-CRectifier::CRectifier(int numChannels, int numSamples): CDistortionBase(numChannels, numSamples){}
+CRectifier::CRectifier(double sampleRate, int numChannels, int numSamples) : CDistortionBase(sampleRate, numChannels, numSamples) {}
 
 void CRectifier::process(juce::AudioSampleBuffer &buffer)
 {
@@ -125,15 +159,14 @@ void CRectifier::process(juce::AudioSampleBuffer &buffer)
 
 
 //==========================================================================
-class CSine: protected CDistortionBase
+class CSine: public CDistortionBase
 {
 public:
     void process(juce::AudioSampleBuffer& buffer) override;
-private:
-    CSine(int numChannels, int numSamples);
+    CSine(double sampleRate, int numChannels, int numSamples);
 };
 
-CSine::CSine(int numChannels, int numSamples) : CDistortionBase(numChannels, numSamples){}
+CSine::CSine(double sampleRate, int numChannels, int numSamples) : CDistortionBase(sampleRate, numChannels, numSamples) {}
 
 void CSine::process(juce::AudioSampleBuffer &buffer)
 {
@@ -148,28 +181,15 @@ void CSine::process(juce::AudioSampleBuffer &buffer)
 
 
 //==========================================================================
-class CTubeModel: protected CDistortionBase
+class CTubeModel: public CDistortionBase
 {
 public:
     float TriodeWaveshaper(float V_gk);
     void process(juce::AudioSampleBuffer& buffer) override;
-private:
-    CTubeModel(int numChannels, int numSamples);
-    //Triode Params;
-    float mu = 100.0f;
-    float mu_inverse = 1 / mu;
-    float E_x = 1.4f;
-    int K_g = 1060;
-    int K_p = 600;
-    int K_vb = 300;
-    float V_ct = 0.5f;
-    int V_ak = 280;
-
-    float V_gk_cutoff = 5.5f;
-    float sqrt_K = static_cast<float> (sqrt(K_vb + (V_ak * V_ak)));
+    CTubeModel(double sampleRate, int numChannels, int numSamples);
 };
 
-CTubeModel::CTubeModel(int numChannels, int numSamples): CDistortionBase(numChannels, numSamples) {}
+CTubeModel::CTubeModel(double sampleRate, int numChannels, int numSamples) : CDistortionBase(sampleRate, numChannels, numSamples) {}
 
 float CTubeModel::TriodeWaveshaper(float V_gk)
 {

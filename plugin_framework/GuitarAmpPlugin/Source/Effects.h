@@ -118,16 +118,36 @@ public:
         AlgorithmSine,
         AlgorithmTubeModel
     };
+    CAmplifierIf();
     void update();
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void reset() override;
     void processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer&) override;
     // TODO: Add apvts and parameters for dist type, pre lp, post lp, pre hp, post hp, drive
 private:
+    bool isActive = false;
+
+    double m_dSampleRate;
+    int m_iNumChannels, m_iNumSamples;
     CDistortionBase *m_pCDistortion;
-    juce::AudioProcessorValueTreeState apvts;
+//    juce::AudioProcessorValueTreeState apvts;
 
     //PARAMS
     DistortionAlgorithm distType;
+    juce::AudioParameterFloat *prmDrive, *prmMix;
+    juce::AudioParameterChoice *m_distortionType;
+
+    juce::AudioParameterFloat *prmPreLP, *prmPreHP;
+    juce::AudioParameterFloat *prmPostLP, *prmPostHP;
+
+    juce::AudioParameterFloat *prmEPfreq;
+    juce::AudioParameterFloat *prmEPgain;
+
+    juce::AudioBuffer<float> mixBuffer;
+    juce::LinearSmoothedValue<float> driveVolume, dryVolume, wetVolume;
+
+    using Filter = juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>>;
+    Filter preLowPassFilter, preHighPassFilter, postLowPassFilter, postHighPassFilter;
+    Filter preEmphasisFilter, postEmphasisFilter;
 
 };
