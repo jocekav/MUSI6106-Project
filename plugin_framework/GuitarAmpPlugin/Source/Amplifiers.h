@@ -7,117 +7,154 @@
 
 #ifndef GUITARAMPPLUGIN_AMPLIFIERS_H
 #define GUITARAMPPLUGIN_AMPLIFIERS_H
-class CWaveShaper : public ProcessorBase
+
+//==========================================================================
+class CDistortionBase
 {
 public:
-    enum
-    {
-        AlgorithmNone = 0,
-        AlgorithmTanh,
-        AlgorithmAtan,
-        AlgorithmHardClipper,
-        AlgorithmRectifier,
-        AlgorithmSine,
-        AlgorithmTubeModel
-    };
-    CWaveShaper();
-    ~CWaveShaper();
-    void prepareToPlay (double sampleRate, int samplesPerBlock) override;
-    void reset() override;
-    void releaseResources() override;
-    void processBlock (juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
-    void getStateInformation (juce::MemoryBlock&) override;
-    void setStateInformation (const void*, int) override;
-    juce::AudioProcessorEditor* createEditor() override;
-    bool hasEditor() const override;
-private:
-
+    virtual void process (juce::AudioSampleBuffer& buffer) = 0;
+    void update(int numChannels, int numSamples); // NO UPDATE REQUIRED FOR ANY OF THE STATIC/TUBE WAVESHAPERS
+protected:
+    CDistortionBase(int numChannels, int numSamples);
+    int m_iNumChannels;
+    int m_iNumSamples;
 };
 
-void CWaveShaper::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer &)
+CDistortionBase::CDistortionBase(int numChannels, int numSamples)
 {
-    //const auto type = m_distortionType->getIndex(); // TODO: figure out value tree state implementation to get this value
-    int numChannels = buffer.getNumChannels();
-    int numSamples = buffer.getNumSamples();
-    if (type == AlgorithmTanh)
+    update(numChannels, numSamples);
+}
+
+void CDistortionBase::update(int numChannels, int numSamples)
+{
+    m_iNumChannels = numChannels;
+    m_iNumSamples = numSamples;
+}
+
+//==========================================================================
+class CTanhDist : protected CDistortionBase
+{
+public:
+    void process(juce::AudioSampleBuffer& buffer) override;
+private:
+    CTanhDist(int numChannels, int numSamples);
+};
+
+CTanhDist::CTanhDist(int numChannels, int numSamples) : CDistortionBase(numChannels, numSamples){}
+
+void CTanhDist::process(juce::AudioSampleBuffer& buffer)
+{
+    for (auto channel = 0; channel < m_iNumChannels; channel++)
     {
-        for (auto channel = 0; channel < numChannels; channel++)
-        {
-            auto* channelData = buffer.getWritePointer (channel);
+        auto* channelData = buffer.getWritePointer (channel);
 
-            for (auto i = 0; i < numSamples; i++)
-                channelData[i] = std::tanh (channelData[i]);
-        }
-    }
-    else if (type == AlgorithmAtan)
-    {
-        const auto factor = 2.f / juce::MathConstants<float>::pi;
-
-        for (auto channel = 0; channel < numChannels; channel++)
-        {
-            auto* channelData = buffer.getWritePointer (channel);
-
-            for (auto i = 0; i < numSamples; i++)
-                channelData[i] = std::atan (channelData[i]) * factor;
-        }
-    }
-    else if (type == AlgorithmHardClipper)
-    {
-        for (auto channel = 0; channel < numChannels; channel++)
-        {
-            auto* channelData = buffer.getWritePointer (channel);
-
-            for (auto i = 0; i < numSamples; i++)
-                channelData[i] = juce::jlimit (-1.f, 1.f, channelData[i]);
-        }
-    }
-    else if (type == AlgorithmRectifier)
-    {
-        for (auto channel = 0; channel < numChannels; channel++)
-        {
-            auto* channelData = buffer.getWritePointer (channel);
-
-            for (auto i = 0; i < numSamples; i++)
-                channelData[i] = std::abs (channelData[i]);
-        }
-    }
-    else if (type == AlgorithmSine)
-    {
-        for (auto channel = 0; channel < numChannels; channel++)
-        {
-            auto* channelData = buffer.getWritePointer (channel);
-
-            for (auto i = 0; i < numSamples; i++)
-                channelData[i] = std::sin (channelData[i]);
-        }
+        for (auto i = 0; i < m_iNumSamples; i++)
+            channelData[i] = std::tanh (channelData[i]); //Process the sample and place back in the buffer
     }
 }
 
-CWaveShaper::CWaveShaper() {}
-CWaveShaper::~CWaveShaper() {}
-void CWaveShaper::prepareToPlay(double sampleRate, int samplesPerBlock) {}
-void CWaveShaper::reset() {}
-void CWaveShaper::releaseResources() {}
-void CWaveShaper::getStateInformation(juce::MemoryBlock &) {}
-void CWaveShaper::setStateInformation(const void *, int) {}
-juce::AudioProcessorEditor *CWaveShaper::createEditor() {}
-bool CWaveShaper::hasEditor() const {}
-
-
-class CTubeModel : public ProcessorBase
+//==========================================================================
+class CAtanDist : protected CDistortionBase
 {
 public:
-    void prepareToPlay (double sampleRate, int samplesPerBlock) override;
-    void reset() override;
-    void releaseResources() override;
-    void processBlock (juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
-    void getStateInformation (juce::MemoryBlock&) override;
-    void setStateInformation (const void*, int) override;
-    juce::AudioProcessorEditor* createEditor() override;
-    bool hasEditor() const override;
-
+    CAtanDist(int numChannels, int numSamples);
+    void process(juce::AudioSampleBuffer& buffer) override;
 private:
+};
+
+CAtanDist::CAtanDist(int numChannels, int numSamples) : CDistortionBase(numChannels, numSamples){}
+
+void CAtanDist::process(juce::AudioSampleBuffer &buffer)
+{
+    const auto factor = 2.f / juce::MathConstants<float>::pi;
+
+    for (auto channel = 0; channel < m_iNumChannels; channel++)
+    {
+        auto* channelData = buffer.getWritePointer (channel);
+
+        for (auto i = 0; i < m_iNumSamples; i++)
+            channelData[i] = std::atan (channelData[i]) * factor;
+    }
+}
+
+
+//==========================================================================
+class CHardClipper: protected CDistortionBase
+{
+public:
+    void process(juce::AudioSampleBuffer& buffer) override;
+private:
+    CHardClipper(int numChannels, int numSamples);
+};
+
+CHardClipper::CHardClipper(int numChannels, int numSamples): CDistortionBase(numChannels, numSamples){}
+
+void CHardClipper::process(juce::AudioSampleBuffer &buffer)
+{
+    for (auto channel = 0; channel < m_iNumChannels; channel++)
+    {
+        auto* channelData = buffer.getWritePointer (channel);
+
+        for (auto i = 0; i < m_iNumSamples; i++)
+            channelData[i] = juce::jlimit (-1.f, 1.f, channelData[i]);
+    }
+}
+
+
+//==========================================================================
+class CRectifier: protected CDistortionBase
+{
+public:
+    void process(juce::AudioSampleBuffer& buffer) override;
+private:
+    CRectifier(int numChannels, int numSamples);
+};
+
+CRectifier::CRectifier(int numChannels, int numSamples): CDistortionBase(numChannels, numSamples){}
+
+void CRectifier::process(juce::AudioSampleBuffer &buffer)
+{
+    for (auto channel = 0; channel < m_iNumChannels; channel++)
+    {
+        auto* channelData = buffer.getWritePointer (channel);
+
+        for (auto i = 0; i < m_iNumSamples; i++)
+            channelData[i] = std::abs (channelData[i]);
+    }
+}
+
+
+//==========================================================================
+class CSine: protected CDistortionBase
+{
+public:
+    void process(juce::AudioSampleBuffer& buffer) override;
+private:
+    CSine(int numChannels, int numSamples);
+};
+
+CSine::CSine(int numChannels, int numSamples) : CDistortionBase(numChannels, numSamples){}
+
+void CSine::process(juce::AudioSampleBuffer &buffer)
+{
+    for (auto channel = 0; channel < m_iNumChannels; channel++)
+    {
+        auto* channelData = buffer.getWritePointer (channel);
+
+        for (auto i = 0; i < m_iNumSamples; i++)
+            channelData[i] = std::sin (channelData[i]);
+    }
+}
+
+
+//==========================================================================
+class CTubeModel: protected CDistortionBase
+{
+public:
     float TriodeWaveshaper(float V_gk);
+    void process(juce::AudioSampleBuffer& buffer) override;
+private:
+    CTubeModel(int numChannels, int numSamples);
     //Triode Params;
     float mu = 100.0f;
     float mu_inverse = 1 / mu;
@@ -131,6 +168,9 @@ private:
     float V_gk_cutoff = 5.5f;
     float sqrt_K = static_cast<float> (sqrt(K_vb + (V_ak * V_ak)));
 };
+
+CTubeModel::CTubeModel(int numChannels, int numSamples): CDistortionBase(numChannels, numSamples) {}
+
 float CTubeModel::TriodeWaveshaper(float V_gk)
 {
     float E_1 = 0;
@@ -144,7 +184,17 @@ float CTubeModel::TriodeWaveshaper(float V_gk)
     return 22.8f * static_cast<float> (pow(E_1, E_x) / K_g);
 }
 
+void CTubeModel::process(juce::AudioSampleBuffer &buffer)
+{
+    for (auto channel = 0; channel < m_iNumChannels; channel++)
+    {
+        auto* channelData = buffer.getWritePointer (channel);
 
+        for (auto i = 0; i < m_iNumSamples; i++)
+            channelData[i] = TriodeWaveshaper(channelData[i]);
+    }
+    //TODO Thiago: Is the low pass specifically for the tube required or can it be done as a post lpf/hpf within the If?
+}
 
 
 #endif //GUITARAMPPLUGIN_AMPLIFIERS_H
