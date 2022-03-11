@@ -193,3 +193,23 @@ private:
     juce::LinearSmoothedValue<float> threshold, ratio, attack, release, makeupgain;
     bool isActive;
 };
+
+//================================================================================================================
+//  Reverb Processor Node
+//================================================================================================================
+class CReverbProcessor  : public ProcessorBase
+{
+public:
+    const juce::String getName() const override { return "Reverb"; }
+    CReverbProcessor();
+    void prepareToPlay(double sampleRate, int samplesPerBlock) override;
+    void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
+    void reset() override;
+    void update();
+private:
+    juce::Reverb reverb;
+    juce::Reverb::Parameters reverbParams;
+    juce::AudioParameterFloat *m_pBlend, *m_pRoomSize, *m_pDamping;
+    juce::LinearSmoothedValue<float> dry, wet, roomsize, damping;
+    bool isActive;
+};

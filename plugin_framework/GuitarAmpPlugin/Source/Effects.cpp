@@ -187,7 +187,7 @@ void CAmplifierIf::processBlock(juce::AudioSampleBuffer &buffer, juce::MidiBuffe
 
 CGainProcessor::CGainProcessor()
 {
-    addParameter (m_pGain = new juce::AudioParameterFloat ("INPUT", "Input Gain", {0.f, 40.f}, 0.f, "dB"));
+    addParameter (m_pGain = new juce::AudioParameterFloat ("INPUT", "Input Gain", {-20.f, 40.f}, 0.f, "dB"));
     isActive = true;
 }
 void CGainProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
@@ -223,11 +223,11 @@ void CGainProcessor::update()
 //================================================================================================================
 CCompressorProcessor::CCompressorProcessor()
 {
-    addParameter (m_pAttack = new juce::AudioParameterFloat ("INPUT", "Input Gain", {0.f, 40.f}, 0.f, "dB"));
-    addParameter (m_pRelease = new juce::AudioParameterFloat ("INPUT", "Input Gain", {0.f, 40.f}, 0.f, "dB"));
-    addParameter (m_pThreshold = new juce::AudioParameterFloat ("INPUT", "Input Gain", {0.f, 40.f}, 0.f, "dB"));
-    addParameter (m_pRatio = new juce::AudioParameterFloat ("INPUT", "Input Gain", {0.f, 40.f}, 0.f, "dB"));
-    addParameter (m_pMakeupGain = new juce::AudioParameterFloat ("INPUT", "Input Gain", {0.f, 40.f}, 0.f, "dB"));
+    addParameter (m_pAttack = new juce::AudioParameterFloat ("ATTACK", "Attack", {0.5f, 1000.f}, 100.f, "ms"));
+    addParameter (m_pRelease = new juce::AudioParameterFloat ("RELEASE", "Release", {0.5f, 1000.f}, 100.f, "ms"));
+    addParameter (m_pThreshold = new juce::AudioParameterFloat ("THRESHOLD", "Threshold", {-40.f, 0.f}, 0.f, "dB"));
+    addParameter (m_pRatio = new juce::AudioParameterFloat ("RATIO", "Ratio", {1.f, 40.f}, 0.f, "dB"));
+    addParameter (m_pMakeupGain = new juce::AudioParameterFloat ("MAKEUPGAIN", "Makeup Gain", {-10.f, 40.f}, 0.f, "dB"));
     isActive = true;
 }
 
@@ -268,9 +268,63 @@ void CCompressorProcessor::update()
     release.setTargetValue(juce::Decibels::decibelsToGain (m_pRelease->get()));
     makeupgain.setTargetValue(juce::Decibels::decibelsToGain (m_pMakeupGain->get()));
 
+    //TODO: Check if we need to use next value or current value, or if this even makes a difference
     compressor.setThreshold(threshold.getNextValue());
     compressor.setRatio(ratio.getNextValue());
     compressor.setAttack(attack.getNextValue());
     compressor.setRelease(release.getNextValue());
+
+}
+
+//================================================================================================================
+//  Compressor Processor Node
+//================================================================================================================
+CReverbProcessor::CReverbProcessor()
+{
+    addParameter (m_pBlend = new juce::AudioParameterFloat ("BLEND", "Wet/Dry", {0.f, 1.f}, 0.25f, "%"));
+    addParameter (m_pRoomSize = new juce::AudioParameterFloat ("ROOMSIZE", "Room Size", {0.f, 1.f}, 0.2f, ""));
+    addParameter (m_pDamping = new juce::AudioParameterFloat ("DAMPING", "Damping", {0.f, 1.f}, 0.f, ""));
+    isActive = true;
+}
+
+void CReverbProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
+{
+    reverb.reset();
+    update();
+}
+
+void CReverbProcessor::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer &)
+{
+    if (!isActive)
+        return;
+    const auto totalNumInputChannels  = getTotalNumInputChannels();
+    const auto totalNumOutputChannels = getTotalNumOutputChannels();
+    const auto numChannels = fmin (totalNumInputChannels, totalNumOutputChannels);
+    const auto numSamples = buffer.getNumSamples();
+    update();
+    if (numChannels == 1)
+        reverb.processMono (buffer.getWritePointer (0), buffer.getNumSamples());
+    else if (numChannels == 2)
+        reverb.processStereo (buffer.getWritePointer (0), buffer.getWritePointer (1), buffer.getNumSamples());
+}
+
+void CReverbProcessor::reset()
+{
+    reverb.reset();
+}
+
+void CReverbProcessor::update()
+{
+    wet.setTargetValue(juce::Decibels::decibelsToGain (m_pBlend->get()));
+    roomsize.setTargetValue(juce::Decibels::decibelsToGain (m_pRoomSize->get()));
+    damping.setTargetValue(juce::Decibels::decibelsToGain (m_pDamping->get()));
+    dry.setTargetValue(1-wet.getCurrentValue());
+
+    reverbParams.wetLevel = wet.getNextValue();
+    reverbParams.dryLevel = dry.getNextValue();
+    reverbParams.damping = damping.getNextValue();
+    reverbParams.roomSize = roomsize.getNextValue();
+
+    reverb.setParameters(reverbParams);
 
 }
