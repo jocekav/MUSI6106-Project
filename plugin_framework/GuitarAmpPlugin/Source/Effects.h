@@ -13,48 +13,7 @@
 #include "PluginProcessor.h"
 #include "ErrorDef.h"
 #include "BaseProcessor.h"
-
-
-//==============================================================================
-class ProcessorBase : public juce::AudioProcessor
-{
-public:
-    //==============================================================================
-    ProcessorBase()
-        : AudioProcessor(BusesProperties().withInput("Input", juce::AudioChannelSet::stereo())
-            .withOutput("Output", juce::AudioChannelSet::stereo()))
-    {}
-
-    //==============================================================================
-    void prepareToPlay(double, int) override {}
-    void releaseResources() override {}
-    void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override {}
-
-    //==============================================================================
-    juce::AudioProcessorEditor* createEditor() override { return nullptr; }
-    bool hasEditor() const override { return false; }
-
-    //==============================================================================
-    const juce::String getName() const override { return {}; }
-    bool acceptsMidi() const override { return false; }
-    bool producesMidi() const override { return false; }
-    double getTailLengthSeconds() const override { return 0; }
-
-    //==============================================================================
-    int getNumPrograms() override { return 0; }
-    int getCurrentProgram() override { return 0; }
-    void setCurrentProgram(int) override {}
-    const juce::String getProgramName(int) override { return {}; }
-    void changeProgramName(int, const juce::String&) override {}
-
-    //==============================================================================
-    void getStateInformation(juce::MemoryBlock&) override {}
-    void setStateInformation(const void*, int) override {}
-
-private:
-    //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ProcessorBase)
-};
+#include "Amplifiers.h"
 
 
 //==============================================================================
@@ -141,61 +100,15 @@ private:
     }
 };
 
-class CAmplifierDistortion //: public juce::AudioProcessor
-=======
-//class CAmplifierDistortion //: public juce::AudioProcessor
-//{
-//public:
-//    enum class DistortionType
-//    {
-//        AlgorithmNone = 0,
-//        AlgorithmTanh,
-//        AlgorithmAtan,
-//        AlgorithmHardClipper,
-//        AlgorithmRectifier,
-//        AlgorithmSine,
-//        AlgorithmTubeModel
-//    };
-////    Error_t create(CAmplifierDistortion*& pCInstance);
-//    Error_t resetDistortion();
-//    Error_t prepare(juce::dsp::ProcessSpec spec, int channels, int samplesPerBlock);
-//    Error_t updateProcessing();
-//    Error_t process(juce::AudioSampleBuffer& buffer, int numChannels, int numInputChannels, int numOutputChannels);
-//
-//private:
-//    CAmplifierDistortion(juce::AudioParameterFloat *prmPreLP, juce::AudioParameterFloat *prmPreHP, juce::AudioParameterFloat *prmPreLP);
-//    ~CAmplifierDistortion();
-//    bool isActive = true;
-//
-//
-//
-//
-//    juce::AudioBuffer<float> mixBuffer;
-//
-//    using Filter = juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>>;
-//    Filter preLowPassFilter, preHighPassFilter, postLowPassFilter, postHighPassFilter;
-//    Filter preEmphasisFilter, postEmphasisFilter;
-//    Filter tubeLowPassFilter, tubeHighPassFilter;
-//
-//    //Triode Params;
-//    float mu = 100.0f;
-//    float mu_inverse = 1 / mu;
-//    float E_x = 1.4f;
-//    int K_g = 1060;
-//    int K_p = 600;
-//    int K_vb = 300;
-//    float V_ct = 0.5f;
-//    int V_ak = 280;
-//
-//    float V_gk_cutoff = 5.5f;
-//    float sqrt_K = static_cast<float> (sqrt(K_vb + (V_ak * V_ak)));
-//    float TriodeWaveshaper(float V_gk);
-//};
-
+// TODO: Move functionality from Plugin processor to this
+//  1. Pre-Post LPF, HPF and Emphasis filters + params
+//  2. Mix buffer + params
+//  Instantiate distortion type algorithm based on distType
+//  processBlock - copy to mix buff, prefiltering, distortion, post filtering, wet-dry mix
 class CAmplifierIf : public ProcessorBase
 {
 public:
-    enum
+    enum class DistortionAlgorithm
     {
         AlgorithmNone = 0,
         AlgorithmTanh,
@@ -205,18 +118,16 @@ public:
         AlgorithmSine,
         AlgorithmTubeModel
     };
-    CAmplifierIf();
-    ~CAmplifierIf();
-    //TODO: write function to set distortion type (global value tree state param?)
+    void update();
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void reset() override;
-    void releaseResources() override;
-    void processBlock (juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
-    void getStateInformation (juce::MemoryBlock&) override;
-    void setStateInformation (const void*, int) override;
-    juce::AudioProcessorEditor* createEditor() override;
-    bool hasEditor() const override;
+    void processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer&) override;
+    // TODO: Add apvts and parameters for dist type, pre lp, post lp, pre hp, post hp, drive
 private:
-    juce::AudioParameterChoice m_distortionType;
-    float TriodeWaveshaper(float V_gk);
+    CDistortionBase *m_pCDistortion;
+    juce::AudioProcessorValueTreeState apvts;
+
+    //PARAMS
+    DistortionAlgorithm distType;
+
 };
