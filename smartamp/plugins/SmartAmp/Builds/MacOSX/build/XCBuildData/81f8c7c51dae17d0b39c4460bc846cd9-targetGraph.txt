@@ -1,0 +1,4 @@
+Target dependency graph (2 targets)
+SmartAmp - Shared Code in SmartAmp, no dependencies
+SmartAmp - AU in SmartAmp, depends on:
+SmartAmp - Shared Code in SmartAmp (explicit)

@@ -1,0 +1,61 @@
+{
+  "_buildCommand2" : {
+    "command" : "prepareForIndexing",
+    "enableIndexBuildArena" : false,
+    "targets" : null
+  },
+  "buildCommand" : "build",
+  "configuredTargets" : [
+    {
+      "guid" : "be110e30b4b5f5229eeda88f6c47b654ba25c61ce9d28e04a86600aefa1a4760"
+    },
+    {
+      "guid" : "be110e30b4b5f5229eeda88f6c47b654dcce50199946ede9e9bd9be3589dd745"
+    }
+  ],
+  "containerPath" : "/Users/shanjiang/Documents/GitHub/SmartGuitarAmp/plugins/SmartAmp/Builds/MacOSX/SmartAmp.xcodeproj",
+  "continueBuildingAfterErrors" : true,
+  "enableIndexBuildArena" : false,
+  "hideShellScriptEnvironment" : false,
+  "parameters" : {
+    "action" : "build",
+    "activeArchitecture" : "arm64",
+    "activeRunDestination" : {
+      "disableOnlyActiveArch" : false,
+      "platform" : "macosx",
+      "sdk" : "macosx12.1",
+      "sdkVariant" : "macos",
+      "supportedArchitectures" : [
+        "arm64e",
+        "arm64",
+        "x86_64"
+      ],
+      "targetArchitecture" : "arm64"
+    },
+    "arenaInfo" : {
+      "buildIntermediatesPath" : "",
+      "buildProductsPath" : "",
+      "derivedDataPath" : "/Users/shanjiang/Library/Developer/Xcode/DerivedData",
+      "indexDataStoreFolderPath" : "/Users/shanjiang/Library/Developer/Xcode/DerivedData/SmartAmp-hiqtbefkpapuooctpajqokwjuuur/Index/DataStore",
+      "indexEnableDataStore" : true,
+      "indexPCHPath" : "/Users/shanjiang/Library/Developer/Xcode/DerivedData/SmartAmp-hiqtbefkpapuooctpajqokwjuuur/Index/PrecompiledHeaders",
+      "pchPath" : ""
+    },
+    "configurationName" : "Release",
+    "overrides" : {
+      "synthesized" : {
+        "table" : {
+          "ENABLE_PREVIEWS" : "NO"
+        }
+      }
+    }
+  },
+  "schemeCommand" : "launch",
+  "schemeCommand2" : "launch",
+  "shouldCollectMetrics" : false,
+  "showNonLoggedProgress" : true,
+  "useDryRun" : false,
+  "useImplicitDependencies" : true,
+  "useLegacyBuildLocations" : false,
+  "useParallelTargets" : true
+}
