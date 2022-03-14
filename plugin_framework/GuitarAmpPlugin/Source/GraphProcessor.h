@@ -173,6 +173,14 @@ private:
 
         connectAudioNodes();
         connectMidiNodes();
+        
+        for (int channel = 0; channel < 2; ++channel)           // [9]
+        {
+            mainProcessor->addConnection ({ { audioInputNode->nodeID,         channel },
+                                            { eqNode->nodeID, channel } });
+            mainProcessor->addConnection ({ { eqNode->nodeID,  channel },
+                                            { audioOutputNode->nodeID,        channel } });
+        }
     }
 
     void updateGraph()
@@ -185,6 +193,7 @@ private:
 
         juce::ReferenceCountedArray<Node> slots;
         slots.add (slot1Node);
+        
 
         for (int i = 0; i < 1; ++i)
         {
@@ -211,15 +220,9 @@ private:
                 }
 
 //                slots.set (i, mainProcessor->addNode (eqProcessor));
-//                slots.set (i, mainProcessor -> addConnection(eqNode));
-                (*dynamic_cast<EQ_v1AudioProcessor*>(eqNode -> getProcessor())). updateEqParams(
-                                                                          apTreeState.getRawParameterValue("LowCutFreq") -> load(),
-                                                                          apTreeState.getRawParameterValue("HighCutFreq") -> load(),
-                                                                          apTreeState.getRawParameterValue("PeakFreq") -> load(),
-                                                                          apTreeState.getRawParameterValue("PeakGain") -> load(),
-                                                                          apTreeState.getRawParameterValue("PeakQ") -> load(),
-                                                                          apTreeState.getRawParameterValue("LowCutSlope") -> load(),
-                                                                          apTreeState.getRawParameterValue("HighCutSlope") -> load());
+                slots.set (i, eqNode);
+//                mainProcessor -> addConnection(eqNode->nodeID, );
+                
                 hasChanged = true;
             }
         }
@@ -264,7 +267,6 @@ private:
                                                     { audioOutputNode->nodeID,        channel } });
                 }
             }
-
             connectMidiNodes();
 
             for (auto node : mainProcessor->getNodes())                 // [10]

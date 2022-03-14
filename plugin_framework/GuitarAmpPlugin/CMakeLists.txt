@@ -14,7 +14,7 @@ set(GuitarAmpPlugin_jucer_FILE
 )
 
 
-set(JUCE_MODULES_GLOBAL_PATH "/Users/vedant/Desktop/Programming/JUCE/modules")
+set(JUCE_MODULES_GLOBAL_PATH "../JUCE/modules")
 
 
 jucer_project_begin(
