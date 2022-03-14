@@ -69,6 +69,17 @@ jucer_project_files("GuitarAmpPlugin/Source"
   .         .         .         "Source/PluginEditor.h"
 )
 
+jucer_project_files("GuitarAmpPlugin/Source"
+# Compile   Xcode     Binary    File
+#           Resource  Resource
+  .         .         .         "Source/Amplifiers.h"
+  .         .         .         "Source/BaseProcessor.h"
+  x         .         .         "Source/Effects.cpp"
+  .         .         .         "Source/Effects.h"
+  .         .         .         "Source/EqProcessor.h"
+  .         .         .         "Source/ErrorDef.h"
+)
+
 jucer_project_module(
   juce_audio_basics
   PATH "${JUCE_MODULES_GLOBAL_PATH}"
