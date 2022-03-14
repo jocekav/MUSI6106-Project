@@ -45,8 +45,8 @@ jucer_audio_plugin_settings(
   PLUGIN_NAME "GuitarAmpPlugin"
   PLUGIN_DESCRIPTION "GuitarAmpPlugin"
   PLUGIN_MANUFACTURER "LL"
-  PLUGIN_MANUFACTURER_CODE "Manu"
-  PLUGIN_CODE "Uotb"
+  PLUGIN_MANUFACTURER_CODE "GrpB"
+  PLUGIN_CODE "gtra"
   # PLUGIN_CHANNEL_CONFIGURATIONS
   PLUGIN_AAX_IDENTIFIER "com.LL.GuitarAmpPlugin"
   PLUGIN_AU_EXPORT_PREFIX "GuitarAmpPluginAU"
@@ -67,6 +67,17 @@ jucer_project_files("GuitarAmpPlugin/Source"
   .         .         .         "Source/PluginProcessor.h"
   x         .         .         "Source/PluginEditor.cpp"
   .         .         .         "Source/PluginEditor.h"
+)
+
+jucer_project_files("GuitarAmpPlugin"
+# Compile   Xcode     Binary    File
+#           Resource  Resource
+  .         .         .         "Source/Amplifiers.h"
+  .         .         .         "Source/BaseProcessor.h"
+  x         .         .         "Source/Effects.cpp"
+  .         .         .         "Source/Effects.h"
+  .         .         .         "Source/EqProcessor.h"
+  .         .         .         "Source/ErrorDef.h"
 )
 
 jucer_project_module(
@@ -195,6 +206,7 @@ jucer_project_module(
 
 jucer_export_target(
   "Xcode (MacOSX)"
+  TARGET_PROJECT_FOLDER "Builds/MacOSX" # used by HEADER_SEARCH_PATHS
 )
 
 jucer_export_target_configuration(
@@ -202,6 +214,8 @@ jucer_export_target_configuration(
   NAME "Debug"
   DEBUG_MODE ON
   BINARY_NAME "GuitarAmpPlugin"
+  HEADER_SEARCH_PATHS
+    "/Source/Eigen/"
 )
 
 jucer_export_target_configuration(

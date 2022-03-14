@@ -13,12 +13,18 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="AjrPl9" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
+    <FILE id="r3PlAf" name="Amplifiers.h" compile="0" resource="0" file="Source/Amplifiers.h"/>
+    <FILE id="bVg24u" name="BaseProcessor.h" compile="0" resource="0" file="Source/BaseProcessor.h"/>
+    <FILE id="yJ5DxC" name="Effects.cpp" compile="1" resource="0" file="Source/Effects.cpp"/>
+    <FILE id="zkeFIS" name="Effects.h" compile="0" resource="0" file="Source/Effects.h"/>
+    <FILE id="ixs7s9" name="EqProcessor.h" compile="0" resource="0" file="Source/EqProcessor.h"/>
+    <FILE id="TdG2my" name="ErrorDef.h" compile="0" resource="0" file="Source/ErrorDef.h"/>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" targetName="GuitarAmpPlugin"/>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="GuitarAmpPlugin" headerPath="/Source/Eigen"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="GuitarAmpPlugin"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
@@ -37,23 +43,6 @@
         <MODULEPATH id="juce_dsp" path="../../../JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
-    <CLION targetFolder="Builds/CLion" clionXcodeEnabled="1">
-      <MODULEPATHS>
-        <MODULEPATH id="juce_audio_basics" path="/Users/vedant/Desktop/Programming/JUCE/modules"/>
-        <MODULEPATH id="juce_audio_devices" path="/Users/vedant/Desktop/Programming/JUCE/modules"/>
-        <MODULEPATH id="juce_audio_formats" path="/Users/vedant/Desktop/Programming/JUCE/modules"/>
-        <MODULEPATH id="juce_audio_plugin_client" path="/Users/vedant/Desktop/Programming/JUCE/modules"/>
-        <MODULEPATH id="juce_audio_processors" path="/Users/vedant/Desktop/Programming/JUCE/modules"/>
-        <MODULEPATH id="juce_audio_utils" path="/Users/vedant/Desktop/Programming/JUCE/modules"/>
-        <MODULEPATH id="juce_core" path="/Users/vedant/Desktop/Programming/JUCE/modules"/>
-        <MODULEPATH id="juce_data_structures" path="/Users/vedant/Desktop/Programming/JUCE/modules"/>
-        <MODULEPATH id="juce_events" path="/Users/vedant/Desktop/Programming/JUCE/modules"/>
-        <MODULEPATH id="juce_graphics" path="/Users/vedant/Desktop/Programming/JUCE/modules"/>
-        <MODULEPATH id="juce_gui_basics" path="/Users/vedant/Desktop/Programming/JUCE/modules"/>
-        <MODULEPATH id="juce_gui_extra" path="/Users/vedant/Desktop/Programming/JUCE/modules"/>
-        <MODULEPATH id="juce_dsp" path="../../../JUCE/modules"/>
-      </MODULEPATHS>
-    </CLION>
   </EXPORTFORMATS>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
