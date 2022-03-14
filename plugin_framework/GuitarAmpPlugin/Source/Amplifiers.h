@@ -22,18 +22,6 @@ protected:
     int m_iNumChannels = 0;
     int m_iNumSamples = 0;
     bool m_bisInitialised = false;
-
-    float mu = 100.0f;
-    float mu_inverse = 1 / mu;
-    float E_x = 1.4f;
-    int K_g = 1060;
-    int K_p = 600;
-    int K_vb = 300;
-    float V_ct = 0.5f;
-    int V_ak = 280;
-
-    float V_gk_cutoff = 5.5f;
-    float sqrt_K = static_cast<float> (sqrt(K_vb + (V_ak * V_ak)));
 };
 
 CDistortionBase::CDistortionBase(double sampleRate, int numChannels, int numSamples)
@@ -187,6 +175,18 @@ public:
     float TriodeWaveshaper(float V_gk);
     void process(juce::AudioSampleBuffer& buffer) override;
     CTubeModel(double sampleRate, int numChannels, int numSamples);
+private:
+    float mu = 100.0f;
+    float mu_inverse = 1 / mu;
+    float E_x = 1.4f;
+    int K_g = 1060;
+    int K_p = 600;
+    int K_vb = 300;
+    float V_ct = 0.5f;
+    int V_ak = 280;
+
+    float V_gk_cutoff = 5.5f;
+    float sqrt_K = static_cast<float> (sqrt(K_vb + (V_ak * V_ak)));
 };
 
 CTubeModel::CTubeModel(double sampleRate, int numChannels, int numSamples) : CDistortionBase(sampleRate, numChannels, numSamples) {}
