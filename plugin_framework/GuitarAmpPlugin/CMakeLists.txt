@@ -215,7 +215,7 @@ jucer_export_target_configuration(
   DEBUG_MODE ON
   BINARY_NAME "GuitarAmpPlugin"
   HEADER_SEARCH_PATHS
-    "/Source/Eigen/"
+    "/Source/Eigen"
 )
 
 jucer_export_target_configuration(
@@ -223,6 +223,22 @@ jucer_export_target_configuration(
   NAME "Release"
   DEBUG_MODE OFF
   BINARY_NAME "GuitarAmpPlugin"
+)
+
+jucer_export_target(
+  "Visual Studio 2022"
+)
+
+jucer_export_target_configuration(
+  "Visual Studio 2022"
+  NAME "Debug"
+  DEBUG_MODE ON
+)
+
+jucer_export_target_configuration(
+  "Visual Studio 2022"
+  NAME "Release"
+  DEBUG_MODE OFF
 )
 
 jucer_project_end()
