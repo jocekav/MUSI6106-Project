@@ -6,10 +6,12 @@
 //  Copyright © 2022 LL. All rights reserved.
 //
 #include <JuceHeader.h>
-#include <BaseProcessor.h>
 
 #ifndef EqProcessor_h
 #define EqProcessor_h
+
+class ProcessorBase;
+#include "BaseProcessor.h"
 
 //==============================================================================
 
@@ -26,11 +28,11 @@ enum Slope
 
 struct ChainSettings
 {
-    float fPeakFreq {0};
-    float fPeakGainInDbs{0};
+    float fPeakFreq {7500};
+    float fPeakGainInDbs{1};
     float fPeakQuality{1};
-    float fLowCutFreq{0};
-    float fHighCutFreq{0};
+    float fLowCutFreq{20};
+    float fHighCutFreq{20000};
     int iLowCutSlope{0};
     int iHighCutSlope{0};
     
@@ -38,9 +40,22 @@ struct ChainSettings
     Slope highCutSlope {Slope::Slope_12};
     
 };
-
-ChainSettings getChainSettings(juce::AudioProcessorValueTreeState &apTreeState);
-
+//
+//ChainSettings getChainSettings(juce::AudioProcessorValueTreeState &apTreeState)
+//{
+//    ChainSettings settings;
+//
+//    // returns a unit within the defined range rather than normalized
+//    settings.fLowCutFreq = apTreeState.getRawParameterValue("LowCutFreq") -> load();
+//    settings.fHighCutFreq = apTreeState.getRawParameterValue("HighCutFreq") -> load();
+//    settings.fPeakFreq = apTreeState.getRawParameterValue("PeakFreq") -> load();
+//    settings.fPeakGainInDbs = apTreeState.getRawParameterValue("PeakGain") -> load(*);
+//    settings.fPeakQuality = apTreeState.getRawParameterValue("PeakQ") -> load();
+//    settings.iLowCutSlope = apTreeState.getRawParameterValue("LowCutSlope") -> load();
+//    settings.iHighCutSlope = apTreeState.getRawParameterValue("HighCutSlope") -> load();
+//
+//    return settings;
+//}
 //==============================================================================
 /**
 */
@@ -48,6 +63,8 @@ class EQ_v1AudioProcessor  : public ProcessorBase
 {
 public:
     //==============================================================================
+    ChainSettings m_EqParams;
+    
     EQ_v1AudioProcessor()
 //    #ifndef JucePlugin_PreferredChannelConfigurations
 //         : AudioProcessor (BusesProperties()
@@ -60,10 +77,32 @@ public:
 //                           )
 //    #endif
     {
+        ChainSettings m_EqParams;
+        
+        // set lowest range to 20hz and highest to 20000hz and default to 20hz for low cut frequency
+        m_EqParams.fLowCutFreq = 20.0f;
+        m_EqParams.fHighCutFreq = 20000.0f;
+        m_EqParams.fPeakFreq = 750.0f;
+        m_EqParams.fPeakGainInDbs = 0.0f;
+        m_EqParams.fPeakQuality = 1.0f;
+        m_EqParams.iLowCutSlope = Slope::Slope_12;
+        m_EqParams.iHighCutSlope = Slope::Slope_12;
+
     }
     
     ~EQ_v1AudioProcessor()
     {
+    }
+    
+    void updateEqParams(float lowCutFreq, float highCutFreq, float peakFreq, float peakGainInDbs, float peakQuality, int lowCutSlope, int highCutSlope)
+    {
+        m_EqParams.fLowCutFreq = lowCutFreq;
+        m_EqParams.fHighCutFreq = highCutFreq;
+        m_EqParams.fPeakFreq = peakFreq;
+        m_EqParams.fPeakGainInDbs = peakGainInDbs;
+        m_EqParams.fPeakQuality = peakQuality;
+        m_EqParams.iLowCutSlope = lowCutSlope;
+        m_EqParams.iHighCutSlope = highCutSlope;
     }
     //==============================================================================
 
@@ -102,49 +141,105 @@ bool isBusesLayoutSupported (const BusesLayout& layouts) const override
        #endif
     }
 //  ==============================================================================
-    juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
+    void processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages) override
     {
-        juce::AudioProcessorValueTreeState::ParameterLayout layout;
+        juce::ScopedNoDenormals noDenormals;
+        auto totalNumInputChannels  = getTotalNumInputChannels();
+        auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    // set lowest range to 20hz and highest to 20000hz and default to 20hz for low cut frequency
-        layout.add(std::make_unique<juce::AudioParameterFloat>("LowCutFreq", "LowCutFreq", juce::NormalisableRange<float>(20, 20000, 1, 0.25), 20));
+        // In case we have more outputs than inputs, this code clears any output
+        // channels that didn't contain input data, (because these aren't
+        // guaranteed to be empty - they may contain garbage).
+        // This is here to avoid people getting screaming feedback
+        // when they first compile a plugin, but obviously you don't need to keep
+        // this code if your algorithm always overwrites all the output channels.
+        for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+            buffer.clear (i, 0, buffer.getNumSamples());
 
-    // set lowest range to 20hz and highest to 20000hz and default to 20000hz for high cut frequency
-        layout.add(std::make_unique<juce::AudioParameterFloat>("HighCutFreq", "HighCutFreq", juce::NormalisableRange<float>(20, 20000, 1, 0.25), 20000));
+//        auto chainSettings = getChainSettings(apTreeState);
 
-    // set lowest range to 20hz and highest to 20000hz and default to 20hz for peak frequency, adjust skew to sound better to user
-        layout.add(std::make_unique<juce::AudioParameterFloat>("PeakFreq", "PeakFreq", juce::NormalisableRange<float>(20, 20000, 1, 0.25), 750));
+        
+        updatePeakFilter(m_EqParams);
+        
+        
+        auto cutCoeffs = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(m_EqParams.fLowCutFreq, getSampleRate(), 2 * (m_EqParams.iLowCutSlope) + 1);
 
-    // set lowest range to -24 and highest to 24 and default to 0 for peak gain with 0.5 step size
-        layout.add(std::make_unique<juce::AudioParameterFloat>("PeakGain", "PeakGain", juce::NormalisableRange<float>(-24, 24, 0.5, 1), 0));
+        auto &leftLowCut = LeftChain.get<ChainPositions::LowCut>();
 
-    // set lowest range to 0.1 and highest to 10 and default to 2 for peak Q value with 0.05 step size
-        layout.add(std::make_unique<juce::AudioParameterFloat>("PeakQ", "PeakQ", juce::NormalisableRange<float>(0.1, 10, 0.05, 1), 1));
+        updateCutFilter(leftLowCut, cutCoeffs, m_EqParams.lowCutSlope);
+        
+        auto &rightLowCut = RightChain.get<ChainPositions::LowCut>();
+        
+        updateCutFilter(rightLowCut, cutCoeffs, m_EqParams.lowCutSlope);
+        
+        juce::dsp::AudioBlock<float> block(buffer);
+        
+        // separate input buffer into 2 channels
+        auto leftBlock = block.getSingleChannelBlock(0);
+        auto rightBlock = block.getSingleChannelBlock(1);
+        
+        // set up left and right context to pass to left and right chain
+        juce::dsp::ProcessContextReplacing<float> leftContext(leftBlock);
+        juce::dsp::ProcessContextReplacing<float> rightContext(rightBlock);
+        
+        LeftChain.process(leftContext);
+        RightChain.process(rightContext);
+        
+        auto highCutCoeffs = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(m_EqParams.fHighCutFreq, getSampleRate(), 2 * (m_EqParams.iHighCutSlope) + 1);
+        
+        auto &leftHighCut = LeftChain.get<ChainPositions::HighCut>();
+        
+        updateCutFilter(leftHighCut, highCutCoeffs, m_EqParams.highCutSlope);
+        
+        auto &rightHighCut = RightChain.get<ChainPositions::HighCut>();
+        
+        updateCutFilter(rightHighCut, highCutCoeffs, m_EqParams.highCutSlope);
+        
+    }
+    
+    //==============================================================================
+    void prepareToPlay (double sampleRate, int samplesPerBlock) override
+    {
+        juce::dsp::ProcessSpec processSpec;
+        
+        processSpec.maximumBlockSize = samplesPerBlock;
+        
+        // mono chain only has 1 channel
+        processSpec.numChannels = 1;
+        
+        processSpec.sampleRate = sampleRate;
+        
+        LeftChain.prepare(processSpec);
+        RightChain.prepare(processSpec);
+        
+//        auto chainSettings = getChainSettings(apTreeState);
+        
+        updatePeakFilter(m_EqParams);
+        
+        auto lowCutCoeffs = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(m_EqParams.fLowCutFreq, sampleRate, 2 * (m_EqParams.iLowCutSlope) + 1);
 
-    // filter choice uses string array and filter slopes will be multiples of 12 per db/octave
-        juce::StringArray stringArray;
-        for (int i = 0; i < 4; i++)
-        {
-            juce::String buildStr;
-            buildStr << (12 + (i * 12));
-            buildStr << " db/Oct";
-            stringArray.add(buildStr);
-        }
-
-    // make lowcut slope params
-        layout.add(std::make_unique<juce::AudioParameterChoice>("LowCutSlope", "LowCutSlope", stringArray, 0));
-
-    // make highcut slope params
-        layout.add(std::make_unique<juce::AudioParameterChoice>("HighCutSlope", "HighCutSlope", stringArray, 0));
-
-
-
-        return layout;
+        auto &leftLowCut = LeftChain.get<ChainPositions::LowCut>();
+        
+        updateCutFilter(leftLowCut, lowCutCoeffs, m_EqParams.lowCutSlope);
+        
+        auto &rightLowCut = RightChain.get<ChainPositions::LowCut>();
+        
+        updateCutFilter(rightLowCut, lowCutCoeffs, m_EqParams.lowCutSlope);
+        
+        auto highCutCoeffs = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(m_EqParams.fHighCutFreq, sampleRate, 2 * (m_EqParams.iHighCutSlope) + 1);
+        
+        auto &leftHighCut = LeftChain.get<ChainPositions::HighCut>();
+        
+        updateCutFilter(leftHighCut, highCutCoeffs, m_EqParams.highCutSlope);
+        
+        auto &rightHighCut = RightChain.get<ChainPositions::HighCut>();
+        
+        updateCutFilter(rightHighCut, highCutCoeffs, m_EqParams.highCutSlope);
+        
     }
     
     
-    
-    juce::AudioProcessorValueTreeState apTreeState {*this, nullptr, "Parameters", createParameterLayout()};
+
 private:
     // create aliases to make code easier to write and follow; establish filter chains
     using Filter = juce::dsp::IIR::Filter<float>;
@@ -227,101 +322,6 @@ private:
                     leftLowCut.template setBypassed<3>(false);
                     break;
             }
-    }
-    void processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages) override
-    {
-        juce::ScopedNoDenormals noDenormals;
-        auto totalNumInputChannels  = getTotalNumInputChannels();
-        auto totalNumOutputChannels = getTotalNumOutputChannels();
-
-        // In case we have more outputs than inputs, this code clears any output
-        // channels that didn't contain input data, (because these aren't
-        // guaranteed to be empty - they may contain garbage).
-        // This is here to avoid people getting screaming feedback
-        // when they first compile a plugin, but obviously you don't need to keep
-        // this code if your algorithm always overwrites all the output channels.
-        for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-            buffer.clear (i, 0, buffer.getNumSamples());
-
-        auto chainSettings = getChainSettings(apTreeState);
-        
-        updatePeakFilter(chainSettings);
-        
-        
-        auto cutCoeffs = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(chainSettings.fLowCutFreq, getSampleRate(), 2 * (chainSettings.iLowCutSlope) + 1);
-
-        auto &leftLowCut = LeftChain.get<ChainPositions::LowCut>();
-
-        updateCutFilter(leftLowCut, cutCoeffs, chainSettings.lowCutSlope);
-        
-        auto &rightLowCut = RightChain.get<ChainPositions::LowCut>();
-        
-        updateCutFilter(rightLowCut, cutCoeffs, chainSettings.lowCutSlope);
-        
-        juce::dsp::AudioBlock<float> block(buffer);
-        
-        // separate input buffer into 2 channels
-        auto leftBlock = block.getSingleChannelBlock(0);
-        auto rightBlock = block.getSingleChannelBlock(1);
-        
-        // set up left and right context to pass to left and right chain
-        juce::dsp::ProcessContextReplacing<float> leftContext(leftBlock);
-        juce::dsp::ProcessContextReplacing<float> rightContext(rightBlock);
-        
-        LeftChain.process(leftContext);
-        RightChain.process(rightContext);
-        
-        auto highCutCoeffs = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(chainSettings.fHighCutFreq, getSampleRate(), 2 * (chainSettings.iHighCutSlope) + 1);
-        
-        auto &leftHighCut = LeftChain.get<ChainPositions::HighCut>();
-        
-        updateCutFilter(leftHighCut, highCutCoeffs, chainSettings.highCutSlope);
-        
-        auto &rightHighCut = RightChain.get<ChainPositions::HighCut>();
-        
-        updateCutFilter(rightHighCut, highCutCoeffs, chainSettings.highCutSlope);
-        
-    }
-    
-    //==============================================================================
-    void prepareToPlay (double sampleRate, int samplesPerBlock) override
-    {
-        juce::dsp::ProcessSpec processSpec;
-        
-        processSpec.maximumBlockSize = samplesPerBlock;
-        
-        // mono chain only has 1 channel
-        processSpec.numChannels = 1;
-        
-        processSpec.sampleRate = sampleRate;
-        
-        LeftChain.prepare(processSpec);
-        RightChain.prepare(processSpec);
-        
-        auto chainSettings = getChainSettings(apTreeState);
-        
-        updatePeakFilter(chainSettings);
-        
-        auto lowCutCoeffs = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(chainSettings.fLowCutFreq, sampleRate, 2 * (chainSettings.iLowCutSlope) + 1);
-
-        auto &leftLowCut = LeftChain.get<ChainPositions::LowCut>();
-        
-        updateCutFilter(leftLowCut, lowCutCoeffs, chainSettings.lowCutSlope);
-        
-        auto &rightLowCut = RightChain.get<ChainPositions::LowCut>();
-        
-        updateCutFilter(rightLowCut, lowCutCoeffs, chainSettings.lowCutSlope);
-        
-        auto highCutCoeffs = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(chainSettings.fHighCutFreq, sampleRate, 2 * (chainSettings.iHighCutSlope) + 1);
-        
-        auto &leftHighCut = LeftChain.get<ChainPositions::HighCut>();
-        
-        updateCutFilter(leftHighCut, highCutCoeffs, chainSettings.highCutSlope);
-        
-        auto &rightHighCut = RightChain.get<ChainPositions::HighCut>();
-        
-        updateCutFilter(rightHighCut, highCutCoeffs, chainSettings.highCutSlope);
-        
     }
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EQ_v1AudioProcessor)

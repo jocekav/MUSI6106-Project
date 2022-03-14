@@ -8,7 +8,7 @@ The plugin is targeted at guitar players who want to record into a DAW with the 
 
 ## Implementation Plan
 ### Signal Flow Diagram
-![MicrosoftTeams-image](https://user-images.githubusercontent.com/63812135/152618658-73ae7faf-e3aa-4fb5-a6d5-635da2b4fc68.png)
+![plot](https://github.com/jocekav/MUSI6106-Project/blob/main/GuitarAmpPlugin.png)
 
 ### Class Structure Diagram
 ![plot](https://github.com/jocekav/MUSI6106-Project/blob/main/Guitar%20Amp%20Class%20Structure.jpg)
