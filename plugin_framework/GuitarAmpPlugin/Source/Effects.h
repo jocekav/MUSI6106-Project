@@ -213,7 +213,7 @@ public:
 private:
     juce::Reverb reverb;
     juce::Reverb::Parameters reverbParams;
-    juce::AudioParameterFloat *m_pBlend, *m_pRoomSize, *m_pDamping;
+//    juce::AudioParameterFloat *m_pBlend, *m_pRoomSize, *m_pDamping;
     juce::LinearSmoothedValue<float> dry, wet, roomsize, damping;
     bool isActive;
 };

@@ -288,9 +288,9 @@ void CCompressorProcessor::update()
 //================================================================================================================
 CReverbProcessor::CReverbProcessor()
 {
-    addParameter (m_pBlend = new juce::AudioParameterFloat ("BLEND", "Wet/Dry", {0.f, 1.f}, 0.25f, "%"));
-    addParameter (m_pRoomSize = new juce::AudioParameterFloat ("ROOMSIZE", "Room Size", {0.f, 1.f}, 0.2f, ""));
-    addParameter (m_pDamping = new juce::AudioParameterFloat ("DAMPING", "Damping", {0.f, 1.f}, 0.f, ""));
+//    addParameter (m_pBlend = new juce::AudioParameterFloat ("BLEND", "Wet/Dry", {0.f, 1.f}, 0.25f, "%"));
+//    addParameter (m_pRoomSize = new juce::AudioParameterFloat ("ROOMSIZE", "Room Size", {0.f, 1.f}, 0.2f, ""));
+//    addParameter (m_pDamping = new juce::AudioParameterFloat ("DAMPING", "Damping", {0.f, 1.f}, 0.f, ""));
     isActive = true;
 }
 
@@ -322,11 +322,11 @@ void CReverbProcessor::reset()
 
 void CReverbProcessor::update()
 {
-    wet.setTargetValue(juce::Decibels::decibelsToGain (m_pBlend->get()));
-    roomsize.setTargetValue(juce::Decibels::decibelsToGain (m_pRoomSize->get()));
-    damping.setTargetValue(juce::Decibels::decibelsToGain (m_pDamping->get()));
-    dry.setTargetValue(1-wet.getCurrentValue());
-
+//    wet.setTargetValue(juce::Decibels::decibelsToGain (m_pBlend->get()));
+//    roomsize.setTargetValue(juce::Decibels::decibelsToGain (m_pRoomSize->get()));
+//    damping.setTargetValue(juce::Decibels::decibelsToGain (m_pDamping->get()));
+//    dry.setTargetValue(1-wet.getCurrentValue());
+//
     reverbParams.wetLevel = wet.getNextValue();
     reverbParams.dryLevel = dry.getNextValue();
     reverbParams.damping = damping.getNextValue();
@@ -337,8 +337,8 @@ void CReverbProcessor::update()
 }
 void CReverbProcessor::updateParams(float blend, float roomSize, float dampingValue)
 {
-    wet.setTargetValue(juce::Decibels::decibelsToGain (blend));
-    roomsize.setTargetValue(juce::Decibels::decibelsToGain (roomSize));
-    damping.setTargetValue(juce::Decibels::decibelsToGain (dampingValue));
     dry.setTargetValue(1-blend);
+    wet.setTargetValue(blend);
+    roomsize.setTargetValue(roomSize);
+    damping.setTargetValue(dampingValue);
 }

@@ -57,13 +57,14 @@ public:
         layout.add(std::make_unique<juce::AudioParameterChoice>("HighCutSlope", "HighCutSlope", stringArray, 0));
         
         // Gain Params
-        layout.add(std::make_unique<juce::AudioParameterFloat>("InputGain", "InputGain", juce::NormalisableRange<float>(-20, 40, 0.5, 1), 0));
+        layout.add(std::make_unique<juce::AudioParameterFloat>("InputGain", "InputGain", juce::NormalisableRange<float>(-20, 40, 0.1, 1), 0));
 
         // Reverb Params
-
         layout.add(std::make_unique<juce::AudioParameterFloat>("rvbBlend", "Wet/Dry", juce::NormalisableRange<float>(0.f, 1.f), 0.25f,"%"));
         layout.add(std::make_unique<juce::AudioParameterFloat>("rvbRoomSize", "Room Size", juce::NormalisableRange<float>(0.f, 1.f), 0.2f,""));
         layout.add(std::make_unique<juce::AudioParameterFloat>("rvbDamping", "Damping", juce::NormalisableRange<float>(0.f, 1.f), 0,""));
+
+
         return layout;
     }
     
@@ -85,23 +86,6 @@ public:
     }
 
     //==============================================================================
-    void prepareToPlay (double sampleRate, int samplesPerBlock) override
-    {
-        mainProcessor->setPlayConfigDetails (getMainBusNumInputChannels(),
-                                             getMainBusNumOutputChannels(),
-                                             sampleRate, samplesPerBlock);
-
-//        eqProcessor -> prepareToPlay(sampleRate, samplesPerBlock);
-        
-        mainProcessor->prepareToPlay (sampleRate, samplesPerBlock);
-
-        initialiseGraph();
-        update();
-    }
-    void releaseResources() override
-    {
-        mainProcessor->releaseResources();
-    }
 
     void update()
     {
@@ -115,18 +99,31 @@ public:
                 apTreeState.getRawParameterValue("HighCutSlope") -> load());
 
         (*dynamic_cast<CGainProcessor*>(gainNode -> getProcessor())).updateParam(apTreeState.getRawParameterValue("InputGain")-> load());
-        (*dynamic_cast<CReverbProcessor*>(reverbNode->getProcessor())).updateParams(
-                apTreeState.getRawParameterValue("rvbBlend")-> load(),
-                apTreeState.getRawParameterValue("rvbRoomSize")-> load(),
-                apTreeState.getRawParameterValue("rbvDamping")-> load()
-        );
+//        (*dynamic_cast<CReverbProcessor*>(reverbNode->getProcessor())).updateParams(
+//                apTreeState.getRawParameterValue("rvbBlend")-> load(),
+//                apTreeState.getRawParameterValue("rvbRoomSize")-> load(),
+//                apTreeState.getRawParameterValue("rbvDamping")-> load()
+//        );
+    }
+
+    void prepareToPlay (double sampleRate, int samplesPerBlock) override
+    {
+        mainProcessor->setPlayConfigDetails (getMainBusNumInputChannels(),
+                                             getMainBusNumOutputChannels(),
+                                             sampleRate, samplesPerBlock);
+        mainProcessor->prepareToPlay (sampleRate, samplesPerBlock);
+        initialiseGraph();
+        update();
+    }
+    void releaseResources() override
+    {
+        mainProcessor->releaseResources();
     }
 
     void processBlock (juce::AudioSampleBuffer& buffer, juce::MidiBuffer& midiMessages) override
     {
         for (int i = getTotalNumInputChannels(); i < getTotalNumOutputChannels(); ++i)
             buffer.clear (i, 0, buffer.getNumSamples());
-//        eqProcessor -> processBlock(buffer, midiMessages);
         update();
         mainProcessor->processBlock (buffer, midiMessages);
     }
