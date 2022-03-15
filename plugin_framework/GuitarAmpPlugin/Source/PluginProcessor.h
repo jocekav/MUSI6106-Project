@@ -70,7 +70,7 @@ public:
     
     double getTailLengthSeconds() const override;
 
-    float TriodeWaveshaper(float V_gk);
+//    float TriodeWaveshaper(float V_gk);
 
     //==============================================================================
     int getNumPrograms() override { return 1; }
