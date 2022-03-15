@@ -13,12 +13,15 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="AjrPl9" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
+    <FILE id="dd5t7c" name="Amplifiers.cpp" compile="1" resource="0" file="Source/Amplifiers.cpp"/>
     <FILE id="r3PlAf" name="Amplifiers.h" compile="0" resource="0" file="Source/Amplifiers.h"/>
     <FILE id="bVg24u" name="BaseProcessor.h" compile="0" resource="0" file="Source/BaseProcessor.h"/>
     <FILE id="yJ5DxC" name="Effects.cpp" compile="1" resource="0" file="Source/Effects.cpp"/>
     <FILE id="zkeFIS" name="Effects.h" compile="0" resource="0" file="Source/Effects.h"/>
     <FILE id="ixs7s9" name="EqProcessor.h" compile="0" resource="0" file="Source/EqProcessor.h"/>
     <FILE id="TdG2my" name="ErrorDef.h" compile="0" resource="0" file="Source/ErrorDef.h"/>
+    <FILE id="djB71A" name="GraphProcessor.h" compile="0" resource="0"
+          file="Source/GraphProcessor.h"/>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
   <EXPORTFORMATS>

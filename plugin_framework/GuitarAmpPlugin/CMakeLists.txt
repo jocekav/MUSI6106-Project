@@ -14,7 +14,7 @@ set(GuitarAmpPlugin_jucer_FILE
 )
 
 
-set(JUCE_MODULES_GLOBAL_PATH "../JUCE/modules")
+set(JUCE_MODULES_GLOBAL_PATH "/Users/vedant/Desktop/Programming/JUCE/modules")
 
 
 jucer_project_begin(
@@ -72,12 +72,14 @@ jucer_project_files("GuitarAmpPlugin/Source"
 jucer_project_files("GuitarAmpPlugin"
 # Compile   Xcode     Binary    File
 #           Resource  Resource
+  x         .         .         "Source/Amplifiers.cpp"
   .         .         .         "Source/Amplifiers.h"
   .         .         .         "Source/BaseProcessor.h"
   x         .         .         "Source/Effects.cpp"
   .         .         .         "Source/Effects.h"
   .         .         .         "Source/EqProcessor.h"
   .         .         .         "Source/ErrorDef.h"
+  .         .         .         "Source/GraphProcessor.h"
 )
 
 jucer_project_module(
