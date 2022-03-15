@@ -206,7 +206,7 @@ void CGainProcessor::processBlock (juce::AudioSampleBuffer& buffer, juce::MidiBu
 
     const auto numChannels = fmin (totalNumInputChannels, totalNumOutputChannels);
     const auto numSamples = buffer.getNumSamples();
-    update();
+//    update();
     volume.applyGain(buffer, numSamples);
 }
 
