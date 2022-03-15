@@ -108,15 +108,15 @@ public:
         (*dynamic_cast<CReverbProcessor*>(reverbNode->getProcessor())).updateParams(
                 apTreeState.getRawParameterValue("rvbBlend")-> load(),
                 apTreeState.getRawParameterValue("rvbRoomSize")-> load(),
-                apTreeState.getRawParameterValue("rbvDamping")-> load()
+                apTreeState.getRawParameterValue("rvbDamping")-> load()
         );
-//        (*dynamic_cast<CCompressorProcessor*>(compressorNode->getProcessor())).updateParams(
-//                apTreeState.getRawParameterValue("compThreshold")->load(),
-//                apTreeState.getRawParameterValue("compRatio")->load(),
-//                apTreeState.getRawParameterValue("compAttack")->load(),
-//                apTreeState.getRawParameterValue("compRelease")->load(),
-//                apTreeState.getRawParameterValue("compMakeupGain")->load()
-//                );
+        (*dynamic_cast<CCompressorProcessor*>(compressorNode->getProcessor())).updateParams(
+                apTreeState.getRawParameterValue("compThreshold")->load(),
+                apTreeState.getRawParameterValue("compRatio")->load(),
+                apTreeState.getRawParameterValue("compAttack")->load(),
+                apTreeState.getRawParameterValue("compRelease")->load(),
+                apTreeState.getRawParameterValue("compMakeupGain")->load()
+                );
     }
 
     void prepareToPlay (double sampleRate, int samplesPerBlock) override

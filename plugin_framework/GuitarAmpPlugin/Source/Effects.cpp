@@ -235,6 +235,13 @@ CCompressorProcessor::CCompressorProcessor()
 //    addParameter (m_pThreshold = new juce::AudioParameterFloat ("THRESHOLD", "Threshold", {-40.f, 0.f}, 0.f, "dB"));
 //    addParameter (m_pRatio = new juce::AudioParameterFloat ("RATIO", "Ratio", {1.f, 40.f}, 0.f, "dB"));
 //    addParameter (m_pMakeupGain = new juce::AudioParameterFloat ("MAKEUPGAIN", "Makeup Gain", {-10.f, 40.f}, 0.f, "dB"));
+
+    threshold = 0;
+    ratio = 1;
+    attack = 1;
+    release = 1;
+
+    this->update();
     isActive = true;
 }
 
@@ -242,7 +249,7 @@ void CCompressorProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     juce::dsp::ProcessSpec spec { sampleRate, static_cast<juce::uint32> (samplesPerBlock), 2 };
     compressor.prepare (spec);
-    update();
+    this->update();
 }
 
 void CCompressorProcessor::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer &)
@@ -302,6 +309,7 @@ CReverbProcessor::CReverbProcessor()
 //    addParameter (m_pBlend = new juce::AudioParameterFloat ("BLEND", "Wet/Dry", {0.f, 1.f}, 0.25f, "%"));
 //    addParameter (m_pRoomSize = new juce::AudioParameterFloat ("ROOMSIZE", "Room Size", {0.f, 1.f}, 0.2f, ""));
 //    addParameter (m_pDamping = new juce::AudioParameterFloat ("DAMPING", "Damping", {0.f, 1.f}, 0.f, ""));
+    this->update();
     isActive = true;
 }
 
