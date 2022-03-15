@@ -169,6 +169,7 @@ public:
     void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
     void reset() override;
     void update();
+    void updateParam(float fParamValue);
 private:
 //    juce::dsp::Gain<float> gain;
     juce::AudioParameterFloat *m_pGain;

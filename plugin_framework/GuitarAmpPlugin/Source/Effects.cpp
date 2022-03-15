@@ -30,6 +30,7 @@ CAmplifierIf::CAmplifierIf()
     addParameter (prmEPfreq = new juce::AudioParameterFloat ("EPFREQ", "Emph freq", {10.f, 20000.f, 0.f, 0.5f}, 700.f, "Hz"));
     addParameter (prmEPgain = new juce::AudioParameterFloat ("EPGAIN", "Emph gain", {-20.f, 20.f}, 0.f, "dB"));
 }
+
 void CAmplifierIf::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     distType = static_cast<DistortionAlgorithm>(m_distortionType->getIndex());
@@ -190,6 +191,7 @@ CGainProcessor::CGainProcessor()
     addParameter (m_pGain = new juce::AudioParameterFloat ("INPUT", "Input Gain", {-20.f, 40.f}, 0.f, "dB"));
     isActive = true;
 }
+
 void CGainProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     update();
@@ -216,6 +218,11 @@ void CGainProcessor::reset()
 void CGainProcessor::update()
 {
     volume.setTargetValue(juce::Decibels::decibelsToGain (m_pGain->get()));
+}
+
+void CGainProcessor::updateParam(float fParamValue)
+{
+    volume.setTargetValue(juce::Decibels::decibelsToGain(fParamValue));
 }
 
 //================================================================================================================
@@ -277,7 +284,7 @@ void CCompressorProcessor::update()
 }
 
 //================================================================================================================
-//  Compressor Processor Node
+//  Reverb Processor Node
 //================================================================================================================
 CReverbProcessor::CReverbProcessor()
 {
