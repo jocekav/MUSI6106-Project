@@ -284,8 +284,8 @@ private:
         // reset bypassed coeffs - bypass all
             leftLowCut.template setBypassed<0>(true);
             leftLowCut.template setBypassed<1>(true);
+            leftLowCut.template setBypassed<2>(true);
             leftLowCut.template setBypassed<3>(true);
-            leftLowCut.template setBypassed<4>(true);
         
         
             //set coeffs to be used based on chain settings
