@@ -78,6 +78,7 @@ jucer_project_files("GuitarAmpPlugin"
   .         .         .         "Source/Effects.h"
   .         .         .         "Source/EqProcessor.h"
   .         .         .         "Source/ErrorDef.h"
+  .         .         .         "Source/GraphProcessor.h"
 )
 
 jucer_project_module(
