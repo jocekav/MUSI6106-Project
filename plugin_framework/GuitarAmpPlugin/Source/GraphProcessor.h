@@ -111,9 +111,8 @@ public:
     {
         for (int i = getTotalNumInputChannels(); i < getTotalNumOutputChannels(); ++i)
             buffer.clear (i, 0, buffer.getNumSamples());
-        mainProcessor->processBlock (buffer, midiMessages);
 //        eqProcessor -> processBlock(buffer, midiMessages);
-        (*dynamic_cast<EQ_v1AudioProcessor*>(eqNode -> getProcessor())). updateEqParams(
+        (*dynamic_cast<EQ_v1AudioProcessor*>(eqNode->getProcessor())).updateEqParams(
                                                                   apTreeState.getRawParameterValue("LowCutFreq") -> load(),
                                                                   apTreeState.getRawParameterValue("HighCutFreq") -> load(),
                                                                   apTreeState.getRawParameterValue("PeakFreq") -> load(),
@@ -122,8 +121,9 @@ public:
                                                                   apTreeState.getRawParameterValue("LowCutSlope") -> load(),
                                                                   apTreeState.getRawParameterValue("HighCutSlope") -> load());
         
-        (*dynamic_cast<CGainProcessor*>(gainNode -> getProcessor())).
-        updateParam(apTreeState.getRawParameterValue("InputGain")-> load());
+        (*dynamic_cast<CGainProcessor*>(gainNode->getProcessor()))
+                                                    .updateParam(apTreeState.getRawParameterValue("InputGain")-> load());
+        mainProcessor->processBlock (buffer, midiMessages);
     }
 
     //==============================================================================
