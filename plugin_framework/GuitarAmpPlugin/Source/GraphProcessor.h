@@ -32,7 +32,13 @@ public:
     {
         juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
-    // EQ Params
+        // Noise Gate Params
+        layout.add(std::make_unique<juce::AudioParameterFloat>("gateThreshold", "Threshold", juce::NormalisableRange<float>(-40.f, 0.f), 0.f,"dB"));
+        layout.add(std::make_unique<juce::AudioParameterFloat>("gateRatio", "Ratio", juce::NormalisableRange<float>(1.0001f, 40.f), 2.f,""));
+        layout.add(std::make_unique<juce::AudioParameterFloat>("gateAttack", "Attack", juce::NormalisableRange<float>(0.f, 1000.f), 25.f,"ms"));
+        layout.add(std::make_unique<juce::AudioParameterFloat>("gateRelease", "Release", juce::NormalisableRange<float>(0.f, 1000.f), 25.f,"ms"));
+
+        // EQ Params
         layout.add(std::make_unique<juce::AudioParameterFloat>("LowCutFreq", "LowCutFreq", juce::NormalisableRange<float>(20, 20000, 1, 0.25), 20));
 
         layout.add(std::make_unique<juce::AudioParameterFloat>("HighCutFreq", "HighCutFreq", juce::NormalisableRange<float>(20, 20000, 1, 0.25), 20000));
@@ -70,6 +76,13 @@ public:
         layout.add(std::make_unique<juce::AudioParameterFloat>("compAttack", "Attack", juce::NormalisableRange<float>(0.f, 1000.f), 25.f,"ms"));
         layout.add(std::make_unique<juce::AudioParameterFloat>("compRelease", "Release", juce::NormalisableRange<float>(0.f, 1000.f), 25.f,"ms"));
         layout.add(std::make_unique<juce::AudioParameterFloat>("compMakeupGain", "Makeup Gain", juce::NormalisableRange<float>(0.f, 40.f), 0.f,"dB"));
+
+        // Phaser Params
+        layout.add(std::make_unique<juce::AudioParameterFloat>("phaserRate", "Rate", juce::NormalisableRange<float>(0.f, 2000.f), 0.f,"Hz"));
+        layout.add(std::make_unique<juce::AudioParameterFloat>("phaserDepth", "Depth", juce::NormalisableRange<float>(0.f, 1.f), 0.25f,""));
+        layout.add(std::make_unique<juce::AudioParameterFloat>("phaserFc", "Centre Frequency", juce::NormalisableRange<float>(0.f, 1000.f, 1, 0.25), 25.f,"Hz"));
+        layout.add(std::make_unique<juce::AudioParameterFloat>("phaserFeedback", "Feedback", juce::NormalisableRange<float>(-1.f, 1.f), 0.f,"%"));
+        layout.add(std::make_unique<juce::AudioParameterFloat>("phaserBlend", "Wet/Dry", juce::NormalisableRange<float>(0.f, 1.f), 0.25f,"%"));
 
         return layout;
     }

@@ -218,3 +218,41 @@ private:
     juce::LinearSmoothedValue<float> dry, wet, roomsize, damping;
     bool isActive;
 };
+
+//================================================================================================================
+//  Noise Gate Processor Node
+//================================================================================================================
+class CNoiseGateProcessor  : public ProcessorBase
+{
+public:
+    const juce::String getName() const override { return "Noise Gate"; }
+    CNoiseGateProcessor();
+    void prepareToPlay(double sampleRate, int samplesPerBlock) override;
+    void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
+    void reset() override;
+    void update();
+    void updateParams(float threshold, float ratio, float attack, float release);
+private:
+    juce::dsp::NoiseGate<float> noiseGate;
+    juce::LinearSmoothedValue<float> threshold, ratio, attack, release;
+    bool isActive;
+};
+
+//================================================================================================================
+//  Phaser Processor Node
+//================================================================================================================
+class CPhaserProcessor  : public ProcessorBase
+{
+public:
+    const juce::String getName() const override { return "Phaser"; }
+    CPhaserProcessor();
+    void prepareToPlay(double sampleRate, int samplesPerBlock) override;
+    void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
+    void reset() override;
+    void update();
+    void updateParams(float rate, float depth, float fc, float feedback, float blend);
+private:
+    juce::dsp::Phaser<float> phaser;
+    juce::LinearSmoothedValue<float> rate, depth, fc, feedback, blend;
+    bool isActive;
+};

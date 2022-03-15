@@ -218,6 +218,7 @@ jucer_export_target_configuration(
   BINARY_NAME "GuitarAmpPlugin"
   HEADER_SEARCH_PATHS
     "/Source/Eigen"
+  ENABLE_PLUGIN_COPY_STEP OFF
 )
 
 jucer_export_target_configuration(
