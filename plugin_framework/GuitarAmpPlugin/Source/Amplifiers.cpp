@@ -1,7 +1,7 @@
 //
 // Created by Vedant Kalbag on 14/03/22.
 //
-#import "Amplifiers.h"
+#include "Amplifiers.h"
 
 //==========================================================================
 CDistortionBase::CDistortionBase(double sampleRate, int numChannels, int numSamples)
