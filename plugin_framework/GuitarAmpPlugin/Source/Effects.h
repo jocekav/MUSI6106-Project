@@ -169,7 +169,7 @@ public:
     void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
     void reset() override;
     void update();
-    void updateParam(float fParamValue);
+    void updateParams(float fParamValue);
 private:
 //    juce::dsp::Gain<float> gain;
     juce::AudioParameterFloat *m_pGain;
@@ -190,9 +190,10 @@ public:
     void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
     void reset() override;
     void update();
+    void updateParams(float threshold, float ratio, float attack, float release, float makeupGainValue);
 private:
     juce::dsp::Compressor<float> compressor;
-    juce::AudioParameterFloat *m_pThreshold, *m_pRatio, *m_pAttack, *m_pRelease,*m_pMakeupGain;
+//    juce::AudioParameterFloat *m_pThreshold, *m_pRatio, *m_pAttack, *m_pRelease,*m_pMakeupGain;
     juce::LinearSmoothedValue<float> threshold, ratio, attack, release, makeupgain;
     bool isActive;
 };

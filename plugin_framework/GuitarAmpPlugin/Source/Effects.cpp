@@ -220,7 +220,7 @@ void CGainProcessor::update()
     volume.setTargetValue(juce::Decibels::decibelsToGain (m_pGain->get()));
 }
 
-void CGainProcessor::updateParam(float fParamValue)
+void CGainProcessor::updateParams(float fParamValue)
 {
     volume.setTargetValue(juce::Decibels::decibelsToGain(fParamValue));
 }
@@ -230,11 +230,11 @@ void CGainProcessor::updateParam(float fParamValue)
 //================================================================================================================
 CCompressorProcessor::CCompressorProcessor()
 {
-    addParameter (m_pAttack = new juce::AudioParameterFloat ("ATTACK", "Attack", {0.5f, 1000.f}, 100.f, "ms"));
-    addParameter (m_pRelease = new juce::AudioParameterFloat ("RELEASE", "Release", {0.5f, 1000.f}, 100.f, "ms"));
-    addParameter (m_pThreshold = new juce::AudioParameterFloat ("THRESHOLD", "Threshold", {-40.f, 0.f}, 0.f, "dB"));
-    addParameter (m_pRatio = new juce::AudioParameterFloat ("RATIO", "Ratio", {1.f, 40.f}, 0.f, "dB"));
-    addParameter (m_pMakeupGain = new juce::AudioParameterFloat ("MAKEUPGAIN", "Makeup Gain", {-10.f, 40.f}, 0.f, "dB"));
+//    addParameter (m_pAttack = new juce::AudioParameterFloat ("ATTACK", "Attack", {0.5f, 1000.f}, 100.f, "ms"));
+//    addParameter (m_pRelease = new juce::AudioParameterFloat ("RELEASE", "Release", {0.5f, 1000.f}, 100.f, "ms"));
+//    addParameter (m_pThreshold = new juce::AudioParameterFloat ("THRESHOLD", "Threshold", {-40.f, 0.f}, 0.f, "dB"));
+//    addParameter (m_pRatio = new juce::AudioParameterFloat ("RATIO", "Ratio", {1.f, 40.f}, 0.f, "dB"));
+//    addParameter (m_pMakeupGain = new juce::AudioParameterFloat ("MAKEUPGAIN", "Makeup Gain", {-10.f, 40.f}, 0.f, "dB"));
     isActive = true;
 }
 
@@ -253,7 +253,7 @@ void CCompressorProcessor::processBlock(juce::AudioSampleBuffer& buffer, juce::M
     const auto totalNumOutputChannels = getTotalNumOutputChannels();
     const auto numChannels = fmin (totalNumInputChannels, totalNumOutputChannels);
     const auto numSamples = buffer.getNumSamples();
-    update();
+//    update();
     juce::dsp::AudioBlock<float> block (buffer);
     juce::dsp::ProcessContextReplacing<float> context (block);
 
@@ -269,11 +269,11 @@ void CCompressorProcessor::reset()
 
 void CCompressorProcessor::update()
 {
-    threshold.setTargetValue(juce::Decibels::decibelsToGain (m_pThreshold->get()));
-    ratio.setTargetValue(juce::Decibels::decibelsToGain (m_pRatio->get()));
-    attack.setTargetValue(juce::Decibels::decibelsToGain (m_pAttack->get()));
-    release.setTargetValue(juce::Decibels::decibelsToGain (m_pRelease->get()));
-    makeupgain.setTargetValue(juce::Decibels::decibelsToGain (m_pMakeupGain->get()));
+//    threshold.setTargetValue(juce::Decibels::decibelsToGain (m_pThreshold->get()));
+//    ratio.setTargetValue(juce::Decibels::decibelsToGain (m_pRatio->get()));
+//    attack.setTargetValue(m_pAttack->get());
+//    release.setTargetValue(m_pRelease->get());
+//    makeupgain.setTargetValue(juce::Decibels::decibelsToGain (m_pMakeupGain->get()));
 
     //TODO: Check if we need to use next value or current value, or if this even makes a difference
     compressor.setThreshold(threshold.getNextValue());
@@ -281,6 +281,17 @@ void CCompressorProcessor::update()
     compressor.setAttack(attack.getNextValue());
     compressor.setRelease(release.getNextValue());
 
+}
+
+void CCompressorProcessor::updateParams(float thresholdValue, float ratioValue, float attackValue, float releaseValue, float makeupGainValue)
+{
+    threshold.setTargetValue(juce::Decibels::decibelsToGain(thresholdValue));
+    ratio.setTargetValue(ratioValue);
+    attack.setTargetValue(attackValue);
+    release.setTargetValue(releaseValue);
+    makeupgain.setTargetValue(juce::Decibels::decibelsToGain(makeupGainValue));
+
+    this->update();
 }
 
 //================================================================================================================
@@ -297,7 +308,7 @@ CReverbProcessor::CReverbProcessor()
 void CReverbProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     reverb.reset();
-    update();
+    this->update();
 }
 
 void CReverbProcessor::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer &)
@@ -308,7 +319,7 @@ void CReverbProcessor::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiB
     const auto totalNumOutputChannels = getTotalNumOutputChannels();
     const auto numChannels = fmin (totalNumInputChannels, totalNumOutputChannels);
     const auto numSamples = buffer.getNumSamples();
-    update();
+//    update();
     if (numChannels == 1)
         reverb.processMono (buffer.getWritePointer (0), buffer.getNumSamples());
     else if (numChannels == 2)
@@ -341,4 +352,5 @@ void CReverbProcessor::updateParams(float blend, float roomSize, float dampingVa
     wet.setTargetValue(blend);
     roomsize.setTargetValue(roomSize);
     damping.setTargetValue(dampingValue);
+    this->update();
 }

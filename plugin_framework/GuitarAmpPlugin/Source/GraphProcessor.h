@@ -64,6 +64,12 @@ public:
         layout.add(std::make_unique<juce::AudioParameterFloat>("rvbRoomSize", "Room Size", juce::NormalisableRange<float>(0.f, 1.f), 0.2f,""));
         layout.add(std::make_unique<juce::AudioParameterFloat>("rvbDamping", "Damping", juce::NormalisableRange<float>(0.f, 1.f), 0,""));
 
+        // Compressor Params
+        layout.add(std::make_unique<juce::AudioParameterFloat>("compThreshold", "Threshold", juce::NormalisableRange<float>(-40.f, 0.f), 0.f,"dB"));
+        layout.add(std::make_unique<juce::AudioParameterFloat>("compRatio", "Ratio", juce::NormalisableRange<float>(1.0001f, 40.f), 2.f,""));
+        layout.add(std::make_unique<juce::AudioParameterFloat>("compAttack", "Attack", juce::NormalisableRange<float>(0.f, 1000.f), 25.f,"ms"));
+        layout.add(std::make_unique<juce::AudioParameterFloat>("compRelease", "Release", juce::NormalisableRange<float>(0.f, 1000.f), 25.f,"ms"));
+        layout.add(std::make_unique<juce::AudioParameterFloat>("compMakeupGain", "Makeup Gain", juce::NormalisableRange<float>(0.f, 40.f), 0.f,"dB"));
 
         return layout;
     }
@@ -98,12 +104,19 @@ public:
                 apTreeState.getRawParameterValue("LowCutSlope") -> load(),
                 apTreeState.getRawParameterValue("HighCutSlope") -> load());
 
-        (*dynamic_cast<CGainProcessor*>(gainNode -> getProcessor())).updateParam(apTreeState.getRawParameterValue("InputGain")-> load());
-//        (*dynamic_cast<CReverbProcessor*>(reverbNode->getProcessor())).updateParams(
-//                apTreeState.getRawParameterValue("rvbBlend")-> load(),
-//                apTreeState.getRawParameterValue("rvbRoomSize")-> load(),
-//                apTreeState.getRawParameterValue("rbvDamping")-> load()
-//        );
+        (*dynamic_cast<CGainProcessor*>(gainNode -> getProcessor())).updateParams(apTreeState.getRawParameterValue("InputGain")-> load());
+        (*dynamic_cast<CReverbProcessor*>(reverbNode->getProcessor())).updateParams(
+                apTreeState.getRawParameterValue("rvbBlend")-> load(),
+                apTreeState.getRawParameterValue("rvbRoomSize")-> load(),
+                apTreeState.getRawParameterValue("rbvDamping")-> load()
+        );
+//        (*dynamic_cast<CCompressorProcessor*>(compressorNode->getProcessor())).updateParams(
+//                apTreeState.getRawParameterValue("compThreshold")->load(),
+//                apTreeState.getRawParameterValue("compRatio")->load(),
+//                apTreeState.getRawParameterValue("compAttack")->load(),
+//                apTreeState.getRawParameterValue("compRelease")->load(),
+//                apTreeState.getRawParameterValue("compMakeupGain")->load()
+//                );
     }
 
     void prepareToPlay (double sampleRate, int samplesPerBlock) override
@@ -163,6 +176,7 @@ private:
         eqNode = mainProcessor->addNode (std::make_unique<EQ_v1AudioProcessor>());
         gainNode = mainProcessor->addNode (std::make_unique<CGainProcessor>());
         reverbNode = mainProcessor->addNode(std::make_unique<CReverbProcessor>());
+        compressorNode = mainProcessor->addNode(std::make_unique<CCompressorProcessor>());
 
         
         for (int channel = 0; channel < 2; ++channel)
@@ -192,6 +206,15 @@ private:
             mainProcessor->addConnection ({ { midiInputNode->nodeID,         channel },
                                             { reverbNode->nodeID, channel } });
             mainProcessor->addConnection ({ { reverbNode->nodeID,  channel },
+                                            { midiOutputNode->nodeID,        channel } });
+
+            mainProcessor->addConnection ({ { audioInputNode->nodeID,         channel },
+                                            { compressorNode->nodeID, channel } });
+            mainProcessor->addConnection ({ { compressorNode->nodeID,  channel },
+                                            { audioOutputNode->nodeID,        channel } });
+            mainProcessor->addConnection ({ { midiInputNode->nodeID,         channel },
+                                            { compressorNode->nodeID, channel } });
+            mainProcessor->addConnection ({ { compressorNode->nodeID,  channel },
                                             { midiOutputNode->nodeID,        channel } });
         }
         
@@ -227,6 +250,7 @@ private:
     Node::Ptr eqNode;
     Node::Ptr gainNode;
     Node::Ptr reverbNode;
+    Node::Ptr compressorNode;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphProcessor)
