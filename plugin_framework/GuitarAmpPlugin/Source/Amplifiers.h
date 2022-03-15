@@ -52,6 +52,7 @@ public:
     void process(juce::AudioSampleBuffer& buffer) override;
     CNoDist();
 };
+CNoDist::CNoDist(): CDistortionBase(m_fSampleRate,m_iNumChannels, m_iNumSamples){}
 
 void CNoDist::process(juce::AudioSampleBuffer &buffer)
 {
