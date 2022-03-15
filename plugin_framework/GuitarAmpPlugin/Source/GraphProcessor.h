@@ -59,6 +59,11 @@ public:
         // Gain Params
         layout.add(std::make_unique<juce::AudioParameterFloat>("InputGain", "InputGain", juce::NormalisableRange<float>(-20, 40, 0.5, 1), 0));
 
+        // Reverb Params
+
+        layout.add(std::make_unique<juce::AudioParameterFloat>("rvbBlend", "Wet/Dry", juce::NormalisableRange<float>(0.f, 1.f), 0.25f,"%"));
+        layout.add(std::make_unique<juce::AudioParameterFloat>("rvbRoomSize", "Room Size", juce::NormalisableRange<float>(0.f, 1.f), 0.2f,""));
+        layout.add(std::make_unique<juce::AudioParameterFloat>("rvbDamping", "Damping", juce::NormalisableRange<float>(0.f, 1.f), 0,""));
         return layout;
     }
     
@@ -91,20 +96,30 @@ public:
         mainProcessor->prepareToPlay (sampleRate, samplesPerBlock);
 
         initialiseGraph();
-        (*dynamic_cast<EQ_v1AudioProcessor*>(eqNode -> getProcessor())). updateEqParams(
-                                                                  apTreeState.getRawParameterValue("LowCutFreq") -> load(),
-                                                                  apTreeState.getRawParameterValue("HighCutFreq") -> load(),
-                                                                  apTreeState.getRawParameterValue("PeakFreq") -> load(),
-                                                                  apTreeState.getRawParameterValue("PeakGain") -> load(),
-                                                                  apTreeState.getRawParameterValue("PeakQ") -> load(),
-                                                                  apTreeState.getRawParameterValue("LowCutSlope") -> load(),
-                                                                  apTreeState.getRawParameterValue("HighCutSlope") -> load());
-        
-        (*dynamic_cast<CGainProcessor*>(gainNode -> getProcessor())). updateParam(apTreeState.getRawParameterValue("InputGain")-> load());
+        update();
     }
     void releaseResources() override
     {
         mainProcessor->releaseResources();
+    }
+
+    void update()
+    {
+        (*dynamic_cast<EQ_v1AudioProcessor*>(eqNode -> getProcessor())). updateEqParams(
+                apTreeState.getRawParameterValue("LowCutFreq") -> load(),
+                apTreeState.getRawParameterValue("HighCutFreq") -> load(),
+                apTreeState.getRawParameterValue("PeakFreq") -> load(),
+                apTreeState.getRawParameterValue("PeakGain") -> load(),
+                apTreeState.getRawParameterValue("PeakQ") -> load(),
+                apTreeState.getRawParameterValue("LowCutSlope") -> load(),
+                apTreeState.getRawParameterValue("HighCutSlope") -> load());
+
+        (*dynamic_cast<CGainProcessor*>(gainNode -> getProcessor())).updateParam(apTreeState.getRawParameterValue("InputGain")-> load());
+        (*dynamic_cast<CReverbProcessor*>(reverbNode->getProcessor())).updateParams(
+                apTreeState.getRawParameterValue("rvbBlend")-> load(),
+                apTreeState.getRawParameterValue("rvbRoomSize")-> load(),
+                apTreeState.getRawParameterValue("rbvDamping")-> load()
+        );
     }
 
     void processBlock (juce::AudioSampleBuffer& buffer, juce::MidiBuffer& midiMessages) override
@@ -112,17 +127,7 @@ public:
         for (int i = getTotalNumInputChannels(); i < getTotalNumOutputChannels(); ++i)
             buffer.clear (i, 0, buffer.getNumSamples());
 //        eqProcessor -> processBlock(buffer, midiMessages);
-        (*dynamic_cast<EQ_v1AudioProcessor*>(eqNode->getProcessor())).updateEqParams(
-                                                                  apTreeState.getRawParameterValue("LowCutFreq") -> load(),
-                                                                  apTreeState.getRawParameterValue("HighCutFreq") -> load(),
-                                                                  apTreeState.getRawParameterValue("PeakFreq") -> load(),
-                                                                  apTreeState.getRawParameterValue("PeakGain") -> load(),
-                                                                  apTreeState.getRawParameterValue("PeakQ") -> load(),
-                                                                  apTreeState.getRawParameterValue("LowCutSlope") -> load(),
-                                                                  apTreeState.getRawParameterValue("HighCutSlope") -> load());
-        
-        (*dynamic_cast<CGainProcessor*>(gainNode->getProcessor()))
-                                                    .updateParam(apTreeState.getRawParameterValue("InputGain")-> load());
+        update();
         mainProcessor->processBlock (buffer, midiMessages);
     }
 
@@ -160,6 +165,7 @@ private:
         
         eqNode = mainProcessor->addNode (std::make_unique<EQ_v1AudioProcessor>());
         gainNode = mainProcessor->addNode (std::make_unique<CGainProcessor>());
+        reverbNode = mainProcessor->addNode(std::make_unique<CReverbProcessor>());
 
         
         for (int channel = 0; channel < 2; ++channel)
@@ -180,6 +186,15 @@ private:
             mainProcessor->addConnection ({ { midiInputNode->nodeID,         channel },
                                             { gainNode->nodeID, channel } });
             mainProcessor->addConnection ({ { gainNode->nodeID,  channel },
+                                            { midiOutputNode->nodeID,        channel } });
+
+            mainProcessor->addConnection ({ { audioInputNode->nodeID,         channel },
+                                            { reverbNode->nodeID, channel } });
+            mainProcessor->addConnection ({ { reverbNode->nodeID,  channel },
+                                            { audioOutputNode->nodeID,        channel } });
+            mainProcessor->addConnection ({ { midiInputNode->nodeID,         channel },
+                                            { reverbNode->nodeID, channel } });
+            mainProcessor->addConnection ({ { reverbNode->nodeID,  channel },
                                             { midiOutputNode->nodeID,        channel } });
         }
         
@@ -214,6 +229,7 @@ private:
     
     Node::Ptr eqNode;
     Node::Ptr gainNode;
+    Node::Ptr reverbNode;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphProcessor)

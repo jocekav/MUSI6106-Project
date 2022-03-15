@@ -209,6 +209,7 @@ public:
     void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
     void reset() override;
     void update();
+    void updateParams(float blend, float roomSize, float damping);
 private:
     juce::Reverb reverb;
     juce::Reverb::Parameters reverbParams;

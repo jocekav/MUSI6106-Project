@@ -335,3 +335,10 @@ void CReverbProcessor::update()
     reverb.setParameters(reverbParams);
 
 }
+void CReverbProcessor::updateParams(float blend, float roomSize, float dampingValue)
+{
+    wet.setTargetValue(juce::Decibels::decibelsToGain (blend));
+    roomsize.setTargetValue(juce::Decibels::decibelsToGain (roomSize));
+    damping.setTargetValue(juce::Decibels::decibelsToGain (dampingValue));
+    dry.setTargetValue(1-blend);
+}
