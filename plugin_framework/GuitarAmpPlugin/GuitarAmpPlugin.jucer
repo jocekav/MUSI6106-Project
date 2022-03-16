@@ -22,6 +22,8 @@
     <FILE id="TdG2my" name="ErrorDef.h" compile="0" resource="0" file="Source/ErrorDef.h"/>
     <FILE id="djB71A" name="GraphProcessor.h" compile="0" resource="0"
           file="Source/GraphProcessor.h"/>
+    <FILE id="twvnkc" name="tests.cpp" compile="1" resource="0" file="Source/tests.cpp"/>
+    <FILE id="eZQ4VY" name="tests.h" compile="0" resource="0" file="Source/tests.h"/>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
   <EXPORTFORMATS>
