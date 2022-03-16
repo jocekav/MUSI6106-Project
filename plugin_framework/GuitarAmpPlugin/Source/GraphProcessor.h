@@ -162,6 +162,7 @@ public:
                                              getMainBusNumOutputChannels(),
                                              sampleRate, samplesPerBlock);
         mainProcessor->prepareToPlay (sampleRate, samplesPerBlock);
+        mainProcessor->enableAllBuses();
         initialiseGraph();
         update();
     }
@@ -219,11 +220,6 @@ private:
         
         for (int channel = 0; channel < 2; ++channel)
         {
-//            addConnectionToNode(eqNode->nodeID, inputGainNode->noteID, channel);
-//            addConnectionToNode(inputGainNode->nodeID, channel);
-//            addConnectionToNode(reverbNode->nodeID, channel);
-//            addConnectionToNode(compressorNode->nodeID, channel);
-//            addConnectionToNode(outputGainNode->nodeID, channel);
             addConnectionToNode(audioInputNode->nodeID, inputGainNode->nodeID, channel);
             addConnectionToNode(inputGainNode->nodeID, amplifierNode->nodeID, channel);
             addConnectionToNode(amplifierNode->nodeID, eqNode->nodeID, channel);
@@ -231,9 +227,14 @@ private:
             addConnectionToNode(compressorNode->nodeID, reverbNode->nodeID, channel);
             addConnectionToNode(reverbNode->nodeID, outputGainNode->nodeID, channel);
             addConnectionToNode(outputGainNode->nodeID, audioOutputNode->nodeID, channel);
-//            addConnectionToNode(amplifierNode->nodeID, channel);
         }
-        
+        inputGainNode->getProcessor()->setPlayConfigDetails(getMainBusNumInputChannels(), getMainBusNumOutputChannels(), getSampleRate(), getBlockSize());
+        amplifierNode->getProcessor()->setPlayConfigDetails(getMainBusNumInputChannels(), getMainBusNumOutputChannels(), getSampleRate(), getBlockSize());
+        eqNode->getProcessor()->setPlayConfigDetails(getMainBusNumInputChannels(), getMainBusNumOutputChannels(), getSampleRate(), getBlockSize());
+        compressorNode->getProcessor()->setPlayConfigDetails(getMainBusNumInputChannels(), getMainBusNumOutputChannels(), getSampleRate(), getBlockSize());
+        reverbNode->getProcessor()->setPlayConfigDetails(getMainBusNumInputChannels(), getMainBusNumOutputChannels(), getSampleRate(), getBlockSize());
+        outputGainNode->getProcessor()->setPlayConfigDetails(getMainBusNumInputChannels(), getMainBusNumOutputChannels(), getSampleRate(), getBlockSize());
+
         connectAudioNodes();
         connectMidiNodes();
         
