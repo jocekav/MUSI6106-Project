@@ -15,9 +15,10 @@ public:
     virtual void process (juce::AudioSampleBuffer& buffer) = 0;
     void update(double sampleRate, int numChannels, int numSamples); // NO UPDATE REQUIRED FOR ANY OF THE STATIC/TUBE WAVESHAPERS
     void reset();
-protected:
-    CDistortionBase(double sampleRate, int numChannels, int numSamples);
+//    CDistortionBase(double sampleRate, int numChannels, int numSamples);
+    CDistortionBase();
     ~CDistortionBase(){reset();}
+protected:
     double m_fSampleRate = 44100;
     int m_iNumChannels = 0;
     int m_iNumSamples = 0;
@@ -37,7 +38,8 @@ class CTanhDist : public CDistortionBase
 {
 public:
     void process(juce::AudioSampleBuffer& buffer) override;
-    CTanhDist(double sampleRate, int numChannels, int numSamples);
+//    CTanhDist(double sampleRate, int numChannels, int numSamples);
+    CTanhDist(){};
 };
 
 //==========================================================================

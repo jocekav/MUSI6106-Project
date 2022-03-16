@@ -4,9 +4,10 @@
 #include "Amplifiers.h"
 
 //==========================================================================
-CDistortionBase::CDistortionBase(double sampleRate, int numChannels, int numSamples)
+//CDistortionBase::CDistortionBase(double sampleRate, int numChannels, int numSamples)
+CDistortionBase::CDistortionBase()
 {
-    update(sampleRate, numChannels, numSamples);
+//    update(sampleRate, numChannels, numSamples);
     m_bisInitialised = true;
 }
 
@@ -24,7 +25,7 @@ void CDistortionBase::reset()
     m_bisInitialised = false;
 }
 //==========================================================================
-CNoDist::CNoDist(): CDistortionBase(m_fSampleRate,m_iNumChannels, m_iNumSamples){}
+CNoDist::CNoDist(): CDistortionBase(){}
 
 void CNoDist::process(juce::AudioSampleBuffer &buffer)
 {
@@ -32,7 +33,7 @@ void CNoDist::process(juce::AudioSampleBuffer &buffer)
 }
 
 //==========================================================================
-CTanhDist::CTanhDist(double sampleRate, int numChannels, int numSamples) : CDistortionBase(sampleRate, numChannels, numSamples){}
+//CTanhDist::CTanhDist(double sampleRate, int numChannels, int numSamples) : CDistortionBase(){}//CDistortionBase(sampleRate, numChannels, numSamples){}
 
 void CTanhDist::process(juce::AudioSampleBuffer& buffer)
 {
@@ -46,7 +47,7 @@ void CTanhDist::process(juce::AudioSampleBuffer& buffer)
 }
 
 //==========================================================================
-CAtanDist::CAtanDist(double sampleRate, int numChannels, int numSamples) : CDistortionBase(sampleRate, numChannels, numSamples) {}
+CAtanDist::CAtanDist(double sampleRate, int numChannels, int numSamples) : CDistortionBase(){}//CDistortionBase(sampleRate, numChannels, numSamples) {}
 
 void CAtanDist::process(juce::AudioSampleBuffer &buffer)
 {
@@ -62,7 +63,7 @@ void CAtanDist::process(juce::AudioSampleBuffer &buffer)
 }
 
 //==========================================================================
-CHardClipper::CHardClipper(double sampleRate, int numChannels, int numSamples) : CDistortionBase(sampleRate, numChannels, numSamples) {}
+CHardClipper::CHardClipper(double sampleRate, int numChannels, int numSamples) : CDistortionBase(){}//CDistortionBase(sampleRate, numChannels, numSamples) {}
 
 void CHardClipper::process(juce::AudioSampleBuffer &buffer)
 {
@@ -76,7 +77,7 @@ void CHardClipper::process(juce::AudioSampleBuffer &buffer)
 }
 
 //==========================================================================
-CRectifier::CRectifier(double sampleRate, int numChannels, int numSamples) : CDistortionBase(sampleRate, numChannels, numSamples) {}
+CRectifier::CRectifier(double sampleRate, int numChannels, int numSamples) : CDistortionBase(){}//CDistortionBase(sampleRate, numChannels, numSamples) {}
 
 void CRectifier::process(juce::AudioSampleBuffer &buffer)
 {
@@ -90,7 +91,7 @@ void CRectifier::process(juce::AudioSampleBuffer &buffer)
 }
 
 //==========================================================================
-CSine::CSine(double sampleRate, int numChannels, int numSamples) : CDistortionBase(sampleRate, numChannels, numSamples) {}
+CSine::CSine(double sampleRate, int numChannels, int numSamples) : CDistortionBase(){}//CDistortionBase(sampleRate, numChannels, numSamples) {}
 
 void CSine::process(juce::AudioSampleBuffer &buffer)
 {
@@ -104,7 +105,7 @@ void CSine::process(juce::AudioSampleBuffer &buffer)
 }
 
 //==========================================================================
-CTubeModel::CTubeModel(double sampleRate, int numChannels, int numSamples) : CDistortionBase(sampleRate, numChannels, numSamples) {}
+CTubeModel::CTubeModel(double sampleRate, int numChannels, int numSamples) : CDistortionBase(){}//CDistortionBase(sampleRate, numChannels, numSamples) {}
 
 float CTubeModel::TriodeWaveshaper(float V_gk)
 {

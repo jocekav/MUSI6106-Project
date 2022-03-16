@@ -127,6 +127,7 @@ public:
     void update();
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void reset() override;
+    void updateParams(float driveValue, float blendValue, int ampType, float preLpfValue, float preHpfValue, float emphasisValue, float emphasisGainValue, float postLpfValue, float postHpfValue);
     void processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer&) override;
     // TODO: Add apvts and parameters for dist type, pre lp, post lp, pre hp, post hp, drive
 private:
@@ -139,14 +140,14 @@ private:
 
     //PARAMS
     DistortionAlgorithm distType;
-    juce::AudioParameterFloat *prmDrive, *prmMix;
-    juce::AudioParameterChoice *m_distortionType;
+//    juce::AudioParameterFloat *prmDrive, *prmMix;
+//    juce::AudioParameterChoice *m_distortionType;
 
-    juce::AudioParameterFloat *prmPreLP, *prmPreHP;
-    juce::AudioParameterFloat *prmPostLP, *prmPostHP;
-
-    juce::AudioParameterFloat *prmEPfreq;
-    juce::AudioParameterFloat *prmEPgain;
+//    juce::AudioParameterFloat *prmPreLP, *prmPreHP;
+//    juce::AudioParameterFloat *prmPostLP, *prmPostHP;
+//
+//    juce::AudioParameterFloat *prmEPfreq;
+//    juce::AudioParameterFloat *prmEPgain;
 
     juce::AudioBuffer<float> mixBuffer;
     juce::LinearSmoothedValue<float> driveVolume, dryVolume, wetVolume;
@@ -231,7 +232,7 @@ public:
     void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
     void reset() override;
     void update();
-    void updateParams(float threshold, float ratio, float attack, float release);
+    void updateParams(float thresholdValue, float ratioValue, float attackValue, float releaseValue);
 private:
     juce::dsp::NoiseGate<float> noiseGate;
     juce::LinearSmoothedValue<float> threshold, ratio, attack, release;
@@ -250,7 +251,7 @@ public:
     void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
     void reset() override;
     void update();
-    void updateParams(float rate, float depth, float fc, float feedback, float blend);
+    void updateParams(float rateValue, float depthValue, float fcValue, float feedbackValue, float blendValue);
 private:
     juce::dsp::Phaser<float> phaser;
     juce::LinearSmoothedValue<float> rate, depth, fc, feedback, blend;
