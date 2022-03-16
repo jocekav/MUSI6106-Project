@@ -46,7 +46,8 @@ public:
 class CAtanDist : public CDistortionBase
 {
 public:
-    CAtanDist(double sampleRate, int numChannels, int numSamples);
+//    CAtanDist(double sampleRate, int numChannels, int numSamples);
+    CAtanDist(){}
     void process(juce::AudioSampleBuffer& buffer) override;
 };
 
@@ -55,7 +56,8 @@ class CHardClipper: public CDistortionBase
 {
 public:
     void process(juce::AudioSampleBuffer& buffer) override;
-    CHardClipper(double sampleRate, int numChannels, int numSamples);
+//    CHardClipper(double sampleRate, int numChannels, int numSamples);
+    CHardClipper(){}
 };
 
 //==========================================================================
@@ -63,7 +65,8 @@ class CRectifier: public CDistortionBase
 {
 public:
     void process(juce::AudioSampleBuffer& buffer) override;
-    CRectifier(double sampleRate, int numChannels, int numSamples);
+//    CRectifier(double sampleRate, int numChannels, int numSamples);
+    CRectifier(){}
 };
 
 //==========================================================================
@@ -71,7 +74,8 @@ class CSine: public CDistortionBase
 {
 public:
     void process(juce::AudioSampleBuffer& buffer) override;
-    CSine(double sampleRate, int numChannels, int numSamples);
+//    CSine(double sampleRate, int numChannels, int numSamples);
+    CSine(){}
 };
 
 //==========================================================================
@@ -80,7 +84,8 @@ class CTubeModel: public CDistortionBase
 public:
     float TriodeWaveshaper(float V_gk);
     void process(juce::AudioSampleBuffer& buffer) override;
-    CTubeModel(double sampleRate, int numChannels, int numSamples);
+//    CTubeModel(double sampleRate, int numChannels, int numSamples);
+    CTubeModel(){}
 private:
     float mu = 100.0f;
     float mu_inverse = 1 / mu;
