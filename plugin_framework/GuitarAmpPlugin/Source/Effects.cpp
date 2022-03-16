@@ -110,27 +110,27 @@ void CAmplifierIf::update()
         }
         case (DistortionAlgorithm::AlgorithmAtan):
         {
-            m_pCDistortion = new CAtanDist(m_dSampleRate, m_iNumChannels, m_iNumSamples);
+            m_pCDistortion = new CAtanDist();//CAtanDist(m_dSampleRate, m_iNumChannels, m_iNumSamples);
             break;
         }
         case (DistortionAlgorithm::AlgorithmHardClipper):
         {
-            m_pCDistortion = new CHardClipper(m_dSampleRate, m_iNumChannels, m_iNumSamples);
+            m_pCDistortion = new CHardClipper();//CHardClipper(m_dSampleRate, m_iNumChannels, m_iNumSamples);
             break;
         }
         case (DistortionAlgorithm::AlgorithmRectifier):
         {
-            m_pCDistortion = new CRectifier(m_dSampleRate, m_iNumChannels, m_iNumSamples);
+            m_pCDistortion = new CRectifier();//CRectifier(m_dSampleRate, m_iNumChannels, m_iNumSamples);
             break;
         }
         case (DistortionAlgorithm::AlgorithmSine):
         {
-            m_pCDistortion = new CSine(m_dSampleRate, m_iNumChannels, m_iNumSamples);
+            m_pCDistortion = new CSine();//CSine(m_dSampleRate, m_iNumChannels, m_iNumSamples);
             break;
         }
         case (DistortionAlgorithm::AlgorithmTubeModel):
         {
-            m_pCDistortion = new CTubeModel(m_dSampleRate, m_iNumChannels, m_iNumSamples);
+            m_pCDistortion = new CTubeModel();//CTubeModel(m_dSampleRate, m_iNumChannels, m_iNumSamples);
             break;
         }
         case (DistortionAlgorithm::AlgorithmNone):
