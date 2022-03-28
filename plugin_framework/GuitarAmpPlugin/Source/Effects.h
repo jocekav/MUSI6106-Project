@@ -156,6 +156,9 @@ private:
     Filter preLowPassFilter, preHighPassFilter, postLowPassFilter, postHighPassFilter;
     Filter preEmphasisFilter, postEmphasisFilter;
 
+
+//    juce::dsp::WaveShaper<float> ws;
+
 };
 
 //================================================================================================================
@@ -256,4 +259,62 @@ private:
     juce::dsp::Phaser<float> phaser;
     juce::LinearSmoothedValue<float> rate, depth, fc, feedback, blend;
     bool isActive;
+};
+
+//================================================================================================================
+//  Cabinet IR Processor Node
+//================================================================================================================
+class CabSimProcessor : public ProcessorBase
+{
+public:
+    CabSimProcessor() {
+        auto dir = juce::File::getCurrentWorkingDirectory();
+
+        int numTries = 0;
+
+        while (!dir.getChildFile("Resources").exists() && numTries++ < 15)
+            dir = dir.getParentDirectory();
+
+        auto& convolution = convolutionCabSim;
+
+        convolution.loadImpulseResponse(dir.getChildFile("Resources").getChildFile("guitar_amp.wav"),
+                                        juce::dsp::Convolution::Stereo::yes,
+                                        juce::dsp::Convolution::Trim::no,
+                                        1024);
+
+    }
+
+    void prepareToPlay(double sampleRate, int samplesPerBlock) override
+    {
+        auto channels = static_cast<juce::uint32> (fmin(getMainBusNumInputChannels(), getMainBusNumOutputChannels()));
+
+        juce::dsp::ProcessSpec spec{ sampleRate, static_cast<juce::uint32> (samplesPerBlock) };
+        convolutionCabSim.prepare(spec);
+
+
+    }
+
+    void processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer&) override
+    {
+        auto totalNumInputChannels = getTotalNumInputChannels();
+        auto totalNumOutputChannels = getTotalNumOutputChannels();
+
+        for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+            buffer.clear(i, 0, buffer.getNumSamples());
+
+        auto block = juce::dsp::AudioBlock<float>(buffer);
+        auto context = juce::dsp::ProcessContextReplacing<float>(block);
+        convolutionCabSim.process(context);
+    }
+
+    void reset() override
+    {
+        convolutionCabSim.reset();
+    }
+
+    const juce::String getName() const override { return "CabSimulator"; }
+
+private:
+    juce::dsp::Convolution convolutionCabSim;
+
 };

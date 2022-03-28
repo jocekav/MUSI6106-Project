@@ -100,7 +100,7 @@ void CAmplifierIf::update()
 //    *postEmphasisFilter.state = *juce::dsp::IIR::Coefficients<float>::makeLowShelf (getSampleRate(), prmEPfreq->get(),1.f / sqrt (2.f), juce::Decibels::decibelsToGain (-prmEPgain->get()));
 //    *tubeLowPassFilter.state = *juce::dsp::IIR::Coefficients<float>::makeFirstOrderLowPass(getSampleRate(), 15000);
 //    *tubeHighPassFilter.state = *juce::dsp::IIR::Coefficients<float>::makeFirstOrderHighPass(getSampleRate(), 45);
-    // FIXME: Switch is going through every case, even though distType is set and finally instantiating CNoDist
+
     switch(distType)
     {
         case (DistortionAlgorithm::AlgorithmTanh):
