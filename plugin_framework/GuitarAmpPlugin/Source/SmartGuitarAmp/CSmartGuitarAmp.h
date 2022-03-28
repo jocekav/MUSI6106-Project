@@ -14,13 +14,13 @@ public:
     CSmartGuitarAmp(double sampleRate, int numChannels, int numSamples);
     void prepare(double sampleRate, int numSamples);
     void process(juce::AudioSampleBuffer& buffer) override;
-    void loadConfig(File configFile);
-    File loaded_tone;
+    void loadConfig(juce::File configFile);
+    juce::File loaded_tone;
     juce::String loaded_tone_name;
     
 private:
     WaveNet waveNet;
-    var dummyVar;
+    juce::var dummyVar;
 };
 
 CSmartGuitarAmp::CSmartGuitarAmp(double sampleRate, int numChannels, int numSamples) : CDistortionBase(sampleRate, numChannels, numSamples), waveNet(1, 1, 1, 1, "linear", { 1 })
@@ -38,7 +38,7 @@ void CSmartGuitarAmp::process(juce::AudioSampleBuffer &buffer)
     waveNet.process(buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), buffer.getNumSamples());
 }
 
-void CSmartGuitarAmp::loadConfig(File configFile)
+void CSmartGuitarAmp::loadConfig(juce::File configFile)
 {
     // suspendProcessing belongs to the audioprocessor class
     // not sure if necessary when it's working
