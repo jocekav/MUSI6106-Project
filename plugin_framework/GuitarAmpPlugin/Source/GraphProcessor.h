@@ -35,7 +35,7 @@ public:
         layout.add(std::make_unique<juce::AudioParameterFloat>("inputGain", "Input", juce::NormalisableRange<float>(-20, 40, 0.1, 1), 0));
 
         // Noise Gate Params
-        layout.add(std::make_unique<juce::AudioParameterFloat>("gateThreshold", "Threshold", juce::NormalisableRange<float>(-40.f, 0.f), 0.f,"dB"));
+        layout.add(std::make_unique<juce::AudioParameterFloat>("gateThreshold", "Threshold", juce::NormalisableRange<float>(-80.f, 0.f), -80.f,"dB"));
         layout.add(std::make_unique<juce::AudioParameterFloat>("gateRatio", "Ratio", juce::NormalisableRange<float>(1.0001f, 40.f), 2.f,""));
         layout.add(std::make_unique<juce::AudioParameterFloat>("gateAttack", "Attack", juce::NormalisableRange<float>(0.f, 1000.f), 25.f,"ms"));
         layout.add(std::make_unique<juce::AudioParameterFloat>("gateRelease", "Release", juce::NormalisableRange<float>(0.f, 1000.f), 25.f,"ms"));
@@ -177,6 +177,7 @@ public:
             buffer.clear (i, 0, buffer.getNumSamples());
         update();
         mainProcessor->processBlock (buffer, midiMessages);
+
     }
 
     //==============================================================================
