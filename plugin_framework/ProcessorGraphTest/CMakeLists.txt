@@ -26,13 +26,13 @@ jucer_project_begin(
 jucer_project_settings(
   PROJECT_NAME "ProcessorGraphTest"
   PROJECT_VERSION "1.0.0"
-  COMPANY_NAME "MUSI6106"
+  COMPANY_NAME "LL2"
   USE_GLOBAL_APPCONFIG_HEADER OFF
   ADD_USING_NAMESPACE_JUCE_TO_JUCE_HEADER OFF
   REPORT_JUCE_APP_USAGE ON # Required for closed source applications without an Indie or Pro JUCE license
   DISPLAY_THE_JUCE_SPLASH_SCREEN ON # Required for closed source applications without an Indie or Pro JUCE license
   PROJECT_TYPE "Audio Plug-in"
-  BUNDLE_IDENTIFIER "com.MUSI6106.ProcessorGraphTest"
+  BUNDLE_IDENTIFIER "com.LL2.ProcessorGraphTest"
   CXX_LANGUAGE_STANDARD "C++14"
 )
 
@@ -44,11 +44,11 @@ jucer_audio_plugin_settings(
   # PLUGIN_CHARACTERISTICS
   PLUGIN_NAME "ProcessorGraphTest"
   PLUGIN_DESCRIPTION "ProcessorGraphTest"
-  PLUGIN_MANUFACTURER "MUSI6106"
+  PLUGIN_MANUFACTURER "LL2"
   PLUGIN_MANUFACTURER_CODE "Manu"
   PLUGIN_CODE "Uht6"
   # PLUGIN_CHANNEL_CONFIGURATIONS
-  PLUGIN_AAX_IDENTIFIER "com.MUSI6106.ProcessorGraphTest"
+  PLUGIN_AAX_IDENTIFIER "com.LL2.ProcessorGraphTest"
   PLUGIN_AU_EXPORT_PREFIX "ProcessorGraphTestAU"
   PLUGIN_AU_MAIN_TYPE "kAudioUnitType_Effect"
   PLUGIN_VST3_CATEGORY
@@ -228,7 +228,7 @@ jucer_export_target_configuration(
   NAME "Debug"
   DEBUG_MODE ON
   BINARY_NAME "ProcessorGraphTest"
-  ENABLE_PLUGIN_COPY_STEP OFF
+  ENABLE_PLUGIN_COPY_STEP ON
 )
 
 jucer_export_target_configuration(

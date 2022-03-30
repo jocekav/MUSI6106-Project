@@ -168,12 +168,12 @@ void ProcessorGraphTestAudioProcessor::processBlock (juce::AudioBuffer<float>& b
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
     mainProcessor->processBlock(buffer, midiMessages);
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
-
-        // ..do something to the data...
-    }
+//    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+//    {
+//        auto* channelData = buffer.getWritePointer (channel);
+//
+//        // ..do something to the data...
+//    }
 }
 
 //==============================================================================
@@ -274,8 +274,8 @@ void ProcessorGraphTestAudioProcessor::initialiseAudioNodes(juce::ReferenceCount
     phaserNode = mainProcessor->addNode(std::make_unique<CPhaserProcessor>(&apvts));
     audioNodeList.add(phaserNode);
 
-    outputGainNode = mainProcessor->addNode(std::make_unique<CGainProcessor>(&apvts));
-    audioNodeList.add(outputGainNode);
+//    outputGainNode = mainProcessor->addNode(std::make_unique<CGainProcessor>(&apvts));
+//    audioNodeList.add(outputGainNode);
 
 }
 
@@ -292,7 +292,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout ProcessorGraphTestAudioProce
     CPhaserProcessor::addToParameterLayout(params);
 
     // TODO: Find a way to change the name of the parameter from gain to output gain - Can this be done in the GUI directly?
-    CGainProcessor::addToParameterLayout(params); // Output Gain
+//    CGainProcessor::addToParameterLayout(params); // Output Gain
 
 
 

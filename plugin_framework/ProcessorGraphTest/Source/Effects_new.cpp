@@ -27,7 +27,7 @@ CCompressorProcessor::CCompressorProcessor(juce::AudioProcessorValueTreeState* a
 void CCompressorProcessor::update()
 {
 
-    isBypassed = m_pAPVTS->getRawParameterValue("CompressorBypass");
+    isBypassed = m_pAPVTS->getRawParameterValue("CompressorBypass")->load();
     inputgain.setTargetValue(juce::Decibels::decibelsToGain (m_pAPVTS->getRawParameterValue("CompressorInputGain")->load()));
     threshold.setTargetValue(m_pAPVTS->getRawParameterValue("CompressorThreshold")->load());
     ratio.setTargetValue(m_pAPVTS->getRawParameterValue("CompressorRatio")->load());
@@ -142,7 +142,7 @@ CReverbProcessor::CReverbProcessor(juce::AudioProcessorValueTreeState* apvts)
 
 void CReverbProcessor::update()
 {
-    isBypassed = m_pAPVTS->getRawParameterValue("ReverbBypass");
+    isBypassed = m_pAPVTS->getRawParameterValue("ReverbBypass")->load();
     damping.setTargetValue(m_pAPVTS->getRawParameterValue("ReverbDamping")->load());
     roomsize.setTargetValue(m_pAPVTS->getRawParameterValue("ReverbRoomSize")->load());
 
@@ -210,7 +210,7 @@ CPhaserProcessor::CPhaserProcessor(juce::AudioProcessorValueTreeState* apvts)
 
 void CPhaserProcessor::update()
 {
-    isBypassed = m_pAPVTS->getRawParameterValue("PhaserBypass");
+    isBypassed = m_pAPVTS->getRawParameterValue("PhaserBypass")->load();
     rate.setTargetValue(m_pAPVTS->getRawParameterValue("PhaserRate")->load());
     depth.setTargetValue(m_pAPVTS->getRawParameterValue("PhaserDepth")->load());
     fc.setTargetValue(m_pAPVTS->getRawParameterValue("PhaserFc")->load());
@@ -271,7 +271,7 @@ CNoiseGateProcessor::CNoiseGateProcessor(juce::AudioProcessorValueTreeState* apv
 void CNoiseGateProcessor::update()
 {
 
-    isBypassed = m_pAPVTS->getRawParameterValue("NoiseGateBypass");
+    isBypassed = m_pAPVTS->getRawParameterValue("NoiseGateBypass")->load();
     threshold.setTargetValue(m_pAPVTS->getRawParameterValue("NoiseGateThreshold")->load());
     ratio.setTargetValue(m_pAPVTS->getRawParameterValue("NoiseGateRatio")->load());
     attack.setTargetValue(m_pAPVTS->getRawParameterValue("NoiseGateAttack")->load());

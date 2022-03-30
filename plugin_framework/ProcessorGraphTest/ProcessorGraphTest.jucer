@@ -2,7 +2,7 @@
 
 <JUCERPROJECT id="uhT6GQ" name="ProcessorGraphTest" projectType="audioplug"
               useAppConfig="0" addUsingNamespaceToJuceHeader="0" displaySplashScreen="1"
-              jucerFormatVersion="1" companyName="MUSI6106">
+              jucerFormatVersion="1" companyName="LL2">
   <MAINGROUP id="fGqIwO" name="ProcessorGraphTest">
     <GROUP id="{3FA84EEE-5627-4208-D559-19FFE996C292}" name="Source">
       <FILE id="i2mZbb" name="PluginProcessor.cpp" compile="1" resource="0"
@@ -42,7 +42,7 @@
     </VS2022>
     <XCODE_MAC targetFolder="Builds/MacOSX">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" targetName="ProcessorGraphTest" enablePluginBinaryCopyStep="0"/>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="ProcessorGraphTest" enablePluginBinaryCopyStep="1"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="ProcessorGraphTest"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
