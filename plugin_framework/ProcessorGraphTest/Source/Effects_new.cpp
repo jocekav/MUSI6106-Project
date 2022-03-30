@@ -7,15 +7,23 @@
 //================================================================================================================
 //  Compressor Processor Node
 //================================================================================================================
-void CCompressorProcessor::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params)
+void CCompressorProcessor::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params, std::string i = "0")
 {
-    params.push_back(std::make_unique<juce::AudioParameterBool>("CompressorBypass", "Bypass", false));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("CompressorInputGain", "Input Gain", -30.f, 30.f, 0.f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("CompressorThreshold", "Threshold", -60.f, 0.f, -6.f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("CompressorRatio", "Ratio", 1.f, 40.f, 1.f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("CompressorAttack", "Attack", 0.5f, 1000.f, 10.f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("CompressorRelease", "Release", 0.5f, 2000.f, 10.f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("CompressorMakeupGain", "Makeup Gain", -30.f, 30.f, 0.f));
+    std::string byp = "CompressorBypass_" + i;
+    std::string ipg = "CompressorInputGain_" + i;
+    std::string thr = "CompressorThreshold_" + i;
+    std::string rto = "CompressorRatio_" + i;
+    std::string atk = "CompressorAttack_" + i;
+    std::string rel = "CompressorRelease_" + i;
+    std::string mkg = "CompressorMakeupGain_" + i;
+
+    params.push_back(std::make_unique<juce::AudioParameterBool>(byp, "Bypass", false));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(ipg, "Input Gain", -30.f, 30.f, 0.f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(thr, "Threshold", -60.f, 0.f, -6.f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(rto, "Ratio", 1.f, 40.f, 1.f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(atk, "Attack", 0.5f, 1000.f, 10.f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(rel, "Release", 0.5f, 2000.f, 10.f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(mkg, "Makeup Gain", -30.f, 30.f, 0.f));
 }
 
 CCompressorProcessor::CCompressorProcessor(juce::AudioProcessorValueTreeState* apvts)
@@ -80,9 +88,10 @@ void CCompressorProcessor::reset()
 //================================================================================================================
 //  Gain Processor Node
 //================================================================================================================
-void CGainProcessor::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params)
+void CGainProcessor::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params, std::string i = "0")
 {
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("GainValue", "Gain", -30.f, 30.f, 0.f));
+    std::string gn = "GainValue_" + i;
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(gn, "Gain", -30.f, 30.f, 0.f));
 }
 
 CGainProcessor::CGainProcessor(juce::AudioProcessorValueTreeState* apvts)
@@ -126,12 +135,18 @@ void CGainProcessor::reset()
 //================================================================================================================
 //  Reverb Processor Node
 //================================================================================================================
-void CReverbProcessor::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params)
+void CReverbProcessor::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params, std::string i = "0")
 {
-    params.push_back(std::make_unique<juce::AudioParameterBool>("ReverbBypass", "Bypass", false));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("ReverbDamping", "Damping", 0.f, 1.f, 0.25f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("ReverbRoomSize", "Room Size", 0.f, 1.f, 0.2f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("ReverbBlend", "Blend", 0.f, 1.f, 0.25f));
+    std::string byp = "ReverbBypass_" + i;
+    std::string dmp = "ReverbDamping_" + i;
+    std::string rmsz = "ReverbRoomSize_" + i;
+    std::string blnd = "ReverbBlend_" + i;
+
+    params.push_back(std::make_unique<juce::AudioParameterBool>(byp, "Bypass", false));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(dmp, "Damping", 0.f, 1.f, 0.25f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(rmsz, "Room Size", 0.f, 1.f, 0.2f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(blnd, "Blend", 0.f, 1.f, 0.25f));
+
 }
 
 CReverbProcessor::CReverbProcessor(juce::AudioProcessorValueTreeState* apvts)
@@ -192,7 +207,7 @@ void CReverbProcessor::reset()
 //================================================================================================================
 //  Phaser Processor Node
 //================================================================================================================
-void CPhaserProcessor::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params)
+void CPhaserProcessor::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params, std::string i = "0") //TODO: Add additional argument i to append to the end of each parameter id
 {
     params.push_back(std::make_unique<juce::AudioParameterBool>("PhaserBypass", "Bypass", false));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("PhaserRate", "Rate", juce::NormalisableRange<float>(0.1f, 20.f), 0.f,"Hz"));
@@ -253,7 +268,7 @@ void CPhaserProcessor::reset()
 //================================================================================================================
 //  NoiseGate Processor Node
 //================================================================================================================
-void CNoiseGateProcessor::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params)
+void CNoiseGateProcessor::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params, std::string i = "0")
 {
     params.push_back(std::make_unique<juce::AudioParameterBool>("NoiseGateBypass", "Bypass", false));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("NoiseGateThreshold", "Threshold", -60.f, 0.f, -6.f));
