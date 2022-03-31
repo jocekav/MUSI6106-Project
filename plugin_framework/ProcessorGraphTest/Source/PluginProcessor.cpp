@@ -21,9 +21,23 @@ ProcessorGraphTestAudioProcessor::ProcessorGraphTestAudioProcessor()
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
                        ),mainProcessor(new juce::AudioProcessorGraph()),
-                       apvts{*this, nullptr, "Parameters",createParameterLayout()}
+                       apvts{*this, nullptr, "Parameters",createParameterLayout()},
+       processorSlot1 (new juce::AudioParameterChoice ("slot1",   "Slot 1",     processorChoices, 0)),
+       processorSlot2 (new juce::AudioParameterChoice ("slot2",   "Slot 2",     processorChoices, 0)),
+       processorSlot3 (new juce::AudioParameterChoice ("slot3",   "Slot 3",     processorChoices, 0)),
+       processorSlot4 (new juce::AudioParameterChoice ("slot4",   "Slot 4",     processorChoices, 0)),
+       processorSlot5 (new juce::AudioParameterChoice ("slot5",   "Slot 5",     processorChoices, 0)),
+       processorSlot6 (new juce::AudioParameterChoice ("slot6",   "Slot 6",     processorChoices, 0)),
+       processorSlot7 (new juce::AudioParameterChoice ("slot7",   "Slot 7",     processorChoices, 0))
 #endif
 {
+    addParameter (processorSlot1);
+    addParameter (processorSlot2);
+    addParameter (processorSlot3);
+    addParameter (processorSlot4);
+    addParameter (processorSlot5);
+    addParameter (processorSlot6);
+    addParameter (processorSlot7);
 }
 
 ProcessorGraphTestAudioProcessor::~ProcessorGraphTestAudioProcessor()
@@ -276,6 +290,7 @@ void ProcessorGraphTestAudioProcessor::initialiseAudioNodes(juce::ReferenceCount
 
 //    outputGainNode = mainProcessor->addNode(std::make_unique<CGainProcessor>(&apvts));
 //    audioNodeList.add(outputGainNode);
+mainProcessor->
 
 }
 

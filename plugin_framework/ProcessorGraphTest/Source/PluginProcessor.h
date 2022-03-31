@@ -66,6 +66,25 @@ public:
     Node::Ptr phaserNode;
     Node::Ptr outputGainNode;
 
+
+    // FOR FUTURE CODE TO CHANGE THE ORDER OF FX
+    juce::StringArray processorChoices { "Empty", "Noise Gate", "EQ", "Compressor", "Reverb", "Phaser", "Gain", "Amplifier" };
+    juce::AudioParameterChoice* processorSlot1;
+    juce::AudioParameterChoice* processorSlot2;
+    juce::AudioParameterChoice* processorSlot3;
+    juce::AudioParameterChoice* processorSlot4;
+    juce::AudioParameterChoice* processorSlot5;
+    juce::AudioParameterChoice* processorSlot6;
+    juce::AudioParameterChoice* processorSlot7;
+
+    Node::Ptr node1;
+    Node::Ptr node2;
+    Node::Ptr node3;
+    Node::Ptr node4;
+    Node::Ptr node5;
+    Node::Ptr node6;
+    Node::Ptr node7;
+
     juce::AudioProcessorValueTreeState apvts;
 private:
     //==============================================================================
@@ -83,6 +102,12 @@ private:
 
     juce::AudioProcessorGraph::Node::Ptr audioInputNode;
     juce::AudioProcessorGraph::Node::Ptr audioOutputNode;
+
+    ProcessorBase effect1;
+    ProcessorBase effect2;
+    ProcessorBase effect3;
+    ProcessorBase effect4;
+    ProcessorBase effect5;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProcessorGraphTestAudioProcessor)
 };
