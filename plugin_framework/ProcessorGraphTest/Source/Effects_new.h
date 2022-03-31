@@ -110,7 +110,7 @@ class CNoiseGateProcessor  : public ProcessorBase
 public:
     static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params, std::string i);
     static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params);
-    const juce::String getName() const override { return "Compressor"; }
+    const juce::String getName() const override { return "Noise Gate"; }
     CNoiseGateProcessor(juce::AudioProcessorValueTreeState* apvts);
 
     void prepareToPlay(double sampleRate, int samplesPerBlock) override;

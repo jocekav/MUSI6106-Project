@@ -162,6 +162,7 @@ bool ProcessorGraphTestAudioProcessor::isBusesLayoutSupported (const BusesLayout
 
 void ProcessorGraphTestAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
+    updateGraph();
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -262,9 +263,172 @@ void ProcessorGraphTestAudioProcessor::initialiseGraph()
     audioOutputNode = mainProcessor->addNode(std::make_unique<juce::AudioProcessorGraph::AudioGraphIOProcessor>(juce::AudioProcessorGraph::AudioGraphIOProcessor::audioOutputNode));
     midiInputNode = mainProcessor->addNode(std::make_unique<juce::AudioProcessorGraph::AudioGraphIOProcessor>(juce::AudioProcessorGraph::AudioGraphIOProcessor::midiInputNode));
     midiOutputNode = mainProcessor->addNode(std::make_unique<juce::AudioProcessorGraph::AudioGraphIOProcessor>(juce::AudioProcessorGraph::AudioGraphIOProcessor::midiOutputNode));
-    initialiseAudioNodes(audioNodeList);
-    connectAudioNodes(audioNodeList);
+//    initialiseAudioNodes(audioNodeList);
+//    connectAudioNodes(audioNodeList);
+    updateGraph();
     connectMidiNodes();
+}
+void ProcessorGraphTestAudioProcessor::updateGraph() {
+    bool hasChanged = false;
+    juce::Array<juce::AudioParameterChoice *> choices{processorSlot1,
+                                                      processorSlot2,
+                                                      processorSlot3,
+                                                      processorSlot4,
+                                                      processorSlot5,
+                                                      processorSlot6,
+                                                      processorSlot7};
+
+    juce::ReferenceCountedArray<Node> slots;
+    slots.add(node1);
+    slots.add(node2);
+    slots.add(node3);
+    slots.add(node4);
+    slots.add(node5);
+    slots.add(node6);
+    slots.add(node7);
+
+    for (int i = 0; i < 7; ++i)
+    {
+        auto &choice = choices.getReference(i);
+        auto slot = slots.getUnchecked(i);
+        if (choice->getIndex() == 0)            // [1]
+        {
+            if (slot != nullptr) {
+                mainProcessor->removeNode(slot.get());
+                slots.set(i, nullptr);
+                hasChanged = true;
+            }
+        } else if (choice->getIndex() == 1)       // [2]
+        {
+            if (slot != nullptr) {
+                if (slot->getProcessor()->getName() == "Noise Gate")
+                    continue;
+
+                mainProcessor->removeNode(slot.get());
+            }
+
+            slots.set(i, mainProcessor->addNode(std::make_unique<CNoiseGateProcessor>(&this->apvts)));
+            hasChanged = true;
+        } else if (choice->getIndex() == 2)       // [3]
+        {
+            if (slot != nullptr) {
+                if (slot->getProcessor()->getName() == "EQ")
+                    continue;
+
+                mainProcessor->removeNode(slot.get());
+            }
+
+//            slots.set (i, mainProcessor->addNode (std::make_unique<CEQProcessor>(&this->apvts)));
+            slots.set(i, nullptr);
+            hasChanged = true;
+        } else if (choice->getIndex() == 3)       // [4]
+        {
+            if (slot != nullptr) {
+                if (slot->getProcessor()->getName() == "Compressor")
+                    continue;
+
+                mainProcessor->removeNode(slot.get());
+            }
+
+            slots.set(i, mainProcessor->addNode(std::make_unique<CCompressorProcessor>(&this->apvts)));
+            hasChanged = true;
+        } else if (choice->getIndex() == 4)       // [5]
+        {
+            if (slot != nullptr) {
+                if (slot->getProcessor()->getName() == "Reverb")
+                    continue;
+
+                mainProcessor->removeNode(slot.get());
+            }
+
+            slots.set(i, mainProcessor->addNode(std::make_unique<CReverbProcessor>(&this->apvts)));
+            hasChanged = true;
+        } else if (choice->getIndex() == 5)       // [6]
+        {
+            if (slot != nullptr) {
+                if (slot->getProcessor()->getName() == "Phaser")
+                    continue;
+
+                mainProcessor->removeNode(slot.get());
+            }
+
+            slots.set(i, mainProcessor->addNode(std::make_unique<CPhaserProcessor>(&this->apvts)));
+            hasChanged = true;
+        } else if (choice->getIndex() == 6)       // [7]
+        {
+            if (slot != nullptr) {
+                if (slot->getProcessor()->getName() == "Gain")
+                    continue;
+
+                mainProcessor->removeNode(slot.get());
+            }
+
+            slots.set(i, mainProcessor->addNode(std::make_unique<CGainProcessor>(&this->apvts)));
+            hasChanged = true;
+        } else if (choice->getIndex() == 7)       // [8]
+        {
+            if (slot != nullptr) {
+                if (slot->getProcessor()->getName() == "Amplifier")
+                    continue;
+
+                mainProcessor->removeNode(slot.get());
+            }
+
+//            slots.set (i, mainProcessor->addNode (std::make_unique<CAmplifierProcessor>(&this->apvts)));
+            slots.set(i, nullptr);
+            hasChanged = true;
+        }
+        if (hasChanged) {
+            for (auto connection: mainProcessor->getConnections())     // [5]
+                mainProcessor->removeConnection(connection);
+
+            juce::ReferenceCountedArray<Node> activeSlots;
+
+            for (auto slot: slots) {
+                if (slot != nullptr) {
+                    activeSlots.add(slot);                             // [6]
+
+                    slot->getProcessor()->setPlayConfigDetails(getMainBusNumInputChannels(),
+                                                               getMainBusNumOutputChannels(),
+                                                               getSampleRate(), getBlockSize());
+                }
+            }
+
+            if (activeSlots.isEmpty())                                  // [7]
+            {
+                connectAudioNodes();
+            } else {
+                for (int i = 0; i < activeSlots.size() - 1; ++i)        // [8]
+                {
+                    for (int channel = 0; channel < 2; ++channel)
+                        mainProcessor->addConnection({{activeSlots.getUnchecked(i)->nodeID,     channel},
+                                                      {activeSlots.getUnchecked(i + 1)->nodeID, channel}});
+                }
+
+                for (int channel = 0; channel < 2; ++channel)           // [9]
+                {
+                    mainProcessor->addConnection({{audioInputNode->nodeID,         channel},
+                                                  {activeSlots.getFirst()->nodeID, channel}});
+                    mainProcessor->addConnection({{activeSlots.getLast()->nodeID, channel},
+                                                  {audioOutputNode->nodeID,       channel}});
+                }
+            }
+
+            connectMidiNodes();
+
+            for (auto node: mainProcessor->getNodes())                 // [10]
+                node->getProcessor()->enableAllBuses();
+        }
+    }
+}
+
+void ProcessorGraphTestAudioProcessor::connectAudioNodes()
+{
+    for (int channel = 0; channel < 2; ++channel)
+    {
+        mainProcessor->addConnection ({ { audioInputNode->nodeID,  channel },
+                                        { audioOutputNode->nodeID, channel } });
+    }
 }
 
 //==============================================================================
@@ -290,8 +454,6 @@ void ProcessorGraphTestAudioProcessor::initialiseAudioNodes(juce::ReferenceCount
 
 //    outputGainNode = mainProcessor->addNode(std::make_unique<CGainProcessor>(&apvts));
 //    audioNodeList.add(outputGainNode);
-mainProcessor->
-
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout ProcessorGraphTestAudioProcessor::createParameterLayout()
@@ -312,8 +474,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout ProcessorGraphTestAudioProce
     CGainProcessor::addToParameterLayout(params); // Input Gain
     CNoiseGateProcessor::addToParameterLayout(params);
 
-    CCompressorProcessor::addToParameterLayout(params); // Compressor Params
-    CReverbProcessor::addToParameterLayout(params); // Reverb Params
+    CCompressorProcessor::addToParameterLayout(params);
+    CReverbProcessor::addToParameterLayout(params);
     CPhaserProcessor::addToParameterLayout(params);
 
 //    TODO: Find a way to change the name of the parameter from gain to output gain
@@ -323,4 +485,5 @@ juce::AudioProcessorValueTreeState::ParameterLayout ProcessorGraphTestAudioProce
 
     return { params.begin() , params.end() };
 }
+
 

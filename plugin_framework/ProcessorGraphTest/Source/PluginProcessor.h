@@ -59,7 +59,6 @@ public:
     Node::Ptr inputGainNode;
     Node::Ptr noisegateNode;
 //    Node::Ptr eqNode;
-//    Node::Ptr gainNode;
     Node::Ptr compressorNode;
 //    Node::Ptr amplifierNode;
     Node::Ptr reverbNode;
@@ -67,7 +66,7 @@ public:
     Node::Ptr outputGainNode;
 
 
-    // FOR FUTURE CODE TO CHANGE THE ORDER OF FX
+    // TODO: FOR FUTURE CODE TO CHANGE THE ORDER OF FX
     juce::StringArray processorChoices { "Empty", "Noise Gate", "EQ", "Compressor", "Reverb", "Phaser", "Gain", "Amplifier" };
     juce::AudioParameterChoice* processorSlot1;
     juce::AudioParameterChoice* processorSlot2;
@@ -93,21 +92,16 @@ private:
 
     void initialiseAudioNodes(juce::ReferenceCountedArray<juce::AudioProcessorGraph::Node>& audioNodeList);
     void connectAudioNodes(juce::ReferenceCountedArray<juce::AudioProcessorGraph::Node>& audioNodeList);
+    void connectAudioNodes();
     void connectMidiNodes();
     void initialiseGraph();
-
+    void updateGraph();
 
     juce::AudioProcessorGraph::Node::Ptr midiInputNode;
     juce::AudioProcessorGraph::Node::Ptr midiOutputNode;
 
-    juce::AudioProcessorGraph::Node::Ptr audioInputNode;
-    juce::AudioProcessorGraph::Node::Ptr audioOutputNode;
-
-    ProcessorBase effect1;
-    ProcessorBase effect2;
-    ProcessorBase effect3;
-    ProcessorBase effect4;
-    ProcessorBase effect5;
+    Node::Ptr audioInputNode;
+    Node::Ptr audioOutputNode;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProcessorGraphTestAudioProcessor)
 };
