@@ -282,20 +282,28 @@ void ProcessorGraphTestAudioProcessor::initialiseAudioNodes(juce::ReferenceCount
 juce::AudioProcessorValueTreeState::ParameterLayout ProcessorGraphTestAudioProcessor::createParameterLayout()
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
-
-    // ADD PARAMS BELOW
-    CGainProcessor::addToParameterLayout(params,"0"); // Input Gain
-    CNoiseGateProcessor::addToParameterLayout(params,"0");
-
-    CCompressorProcessor::addToParameterLayout(params,"0"); // Compressor Params
-    CReverbProcessor::addToParameterLayout(params,"0"); // Reverb Params
-    CPhaserProcessor::addToParameterLayout(params,"0");
-
-    // TODO: Find a way to change the name of the parameter from gain to output gain
-//    CGainProcessor::addToParameterLayout(params, "1"); // Output Gain
     // FIXME: The current method of appending a number will break when accessing
     //  the parameter, since the update()has no way to know what the suffix
     //  is, or what the parameter names are
+
+    // ADD PARAMS BELOW
+//    CGainProcessor::addToParameterLayout(params,"0"); // Input Gain
+//    CNoiseGateProcessor::addToParameterLayout(params,"0");
+//
+//    CCompressorProcessor::addToParameterLayout(params,"0"); // Compressor Params
+//    CReverbProcessor::addToParameterLayout(params,"0"); // Reverb Params
+//    CPhaserProcessor::addToParameterLayout(params,"0");
+
+    CGainProcessor::addToParameterLayout(params); // Input Gain
+    CNoiseGateProcessor::addToParameterLayout(params);
+
+    CCompressorProcessor::addToParameterLayout(params); // Compressor Params
+    CReverbProcessor::addToParameterLayout(params); // Reverb Params
+    CPhaserProcessor::addToParameterLayout(params);
+
+//    TODO: Find a way to change the name of the parameter from gain to output gain
+//    CGainProcessor::addToParameterLayout(params, "1"); // Output Gain
+
 
 
     return { params.begin() , params.end() };
