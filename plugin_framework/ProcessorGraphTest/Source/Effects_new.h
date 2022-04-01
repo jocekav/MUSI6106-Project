@@ -13,11 +13,11 @@
 class CCompressorProcessor  : public ProcessorBase
 {
 public:
-    static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params, std::string i);
+    static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params, int i);
     static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params);
 
     const juce::String getName() const override { return "Compressor"; }
-    CCompressorProcessor(juce::AudioProcessorValueTreeState* apvts);
+    CCompressorProcessor(juce::AudioProcessorValueTreeState* apvts, int instanceNumber);
 
     void prepareToPlay(double sampleRate, int samplesPerBlock) override;
     void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
@@ -40,10 +40,10 @@ private:
 class CGainProcessor  : public ProcessorBase
 {
 public:
-    static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params, std::string i);
+    static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params, int i);
     static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params);
     const juce::String getName() const override { return "Gain"; }
-    CGainProcessor(juce::AudioProcessorValueTreeState* apvts);
+    CGainProcessor(juce::AudioProcessorValueTreeState* apvts, int instanceNumber);
     void prepareToPlay(double sampleRate, int samplesPerBlock) override;
     void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
     void reset() override;
@@ -53,6 +53,7 @@ private:
     juce::dsp::Gain<float> Gain;
     juce::LinearSmoothedValue<float> gain;
     bool isActive;
+    std::string suffix;
 };
 
 //================================================================================================================
@@ -61,10 +62,10 @@ private:
 class CReverbProcessor  : public ProcessorBase
 {
 public:
-    static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params, std::string i);
+    static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params, int i);
     static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params);
     const juce::String getName() const override { return "Reverb"; }
-    CReverbProcessor(juce::AudioProcessorValueTreeState* apvts);
+    CReverbProcessor(juce::AudioProcessorValueTreeState* apvts, int instanceNumber);
     void prepareToPlay(double sampleRate, int samplesPerBlock) override;
     void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
     void reset() override;
@@ -77,6 +78,7 @@ private:
     bool isBypassed = false;
     juce::LinearSmoothedValue<float> blend, dry, wet, roomsize, damping;
     bool isActive;
+    std::string suffix;
 };
 
 //================================================================================================================
@@ -85,10 +87,10 @@ private:
 class CPhaserProcessor  : public ProcessorBase
 {
 public:
-    static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params, std::string i);
+    static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params, int i);
     static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params);
     const juce::String getName() const override { return "Gain"; }
-    CPhaserProcessor(juce::AudioProcessorValueTreeState* apvts);
+    CPhaserProcessor(juce::AudioProcessorValueTreeState* apvts, int instanceNumber);
     void prepareToPlay(double sampleRate, int samplesPerBlock) override;
     void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
     void reset() override;
@@ -99,6 +101,7 @@ private:
     bool isBypassed = false;
     juce::LinearSmoothedValue<float> rate, depth, fc, feedback, blend;
     bool isActive;
+    std::string suffix;
 };
 
 //================================================================================================================
@@ -108,10 +111,10 @@ private:
 class CNoiseGateProcessor  : public ProcessorBase
 {
 public:
-    static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params, std::string i);
+    static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params, int i);
     static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params);
-    const juce::String getName() const override { return "Compressor"; }
-    CNoiseGateProcessor(juce::AudioProcessorValueTreeState* apvts);
+    const juce::String getName() const override { return "Noise Gate"; }
+    CNoiseGateProcessor(juce::AudioProcessorValueTreeState* apvts, int instanceNumber);
 
     void prepareToPlay(double sampleRate, int samplesPerBlock) override;
     void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
@@ -124,6 +127,7 @@ private:
     bool isBypassed = false;
     juce::LinearSmoothedValue<float> inputgain, threshold, ratio, attack, release, makeupgain;
     bool isActive;
+    std::string suffix;
 };
 
 

@@ -259,23 +259,23 @@ void ProcessorGraphTestAudioProcessor::initialiseGraph()
 
 void ProcessorGraphTestAudioProcessor::initialiseAudioNodes(juce::ReferenceCountedArray<juce::AudioProcessorGraph::Node>& audioNodeList)
 {
-    inputGainNode = mainProcessor->addNode(std::make_unique<CGainProcessor>(&apvts));
+    inputGainNode = mainProcessor->addNode(std::make_unique<CGainProcessor>(&apvts,0));
     audioNodeList.add(inputGainNode);
 
-    noisegateNode = mainProcessor->addNode(std::make_unique<CNoiseGateProcessor>(&apvts));
+    noisegateNode = mainProcessor->addNode(std::make_unique<CNoiseGateProcessor>(&apvts,0));
     audioNodeList.add(noisegateNode);
 
-    compressorNode = mainProcessor->addNode(std::make_unique<CCompressorProcessor>(&apvts));
+    compressorNode = mainProcessor->addNode(std::make_unique<CCompressorProcessor>(&apvts,0));
     audioNodeList.add(compressorNode);
 
-    reverbNode = mainProcessor->addNode(std::make_unique<CReverbProcessor>(&apvts));
+    reverbNode = mainProcessor->addNode(std::make_unique<CReverbProcessor>(&apvts,0));
     audioNodeList.add(reverbNode);
 
-    phaserNode = mainProcessor->addNode(std::make_unique<CPhaserProcessor>(&apvts));
+    phaserNode = mainProcessor->addNode(std::make_unique<CPhaserProcessor>(&apvts,0));
     audioNodeList.add(phaserNode);
 
-//    outputGainNode = mainProcessor->addNode(std::make_unique<CGainProcessor>(&apvts));
-//    audioNodeList.add(outputGainNode);
+    outputGainNode = mainProcessor->addNode(std::make_unique<CGainProcessor>(&apvts,1));
+    audioNodeList.add(outputGainNode);
 
 }
 
@@ -287,22 +287,22 @@ juce::AudioProcessorValueTreeState::ParameterLayout ProcessorGraphTestAudioProce
     //  is, or what the parameter names are
 
     // ADD PARAMS BELOW
-//    CGainProcessor::addToParameterLayout(params,"0"); // Input Gain
-//    CNoiseGateProcessor::addToParameterLayout(params,"0");
+    CGainProcessor::addToParameterLayout(params,0); // Input Gain
+    CNoiseGateProcessor::addToParameterLayout(params,0);
 //
-//    CCompressorProcessor::addToParameterLayout(params,"0"); // Compressor Params
-//    CReverbProcessor::addToParameterLayout(params,"0"); // Reverb Params
-//    CPhaserProcessor::addToParameterLayout(params,"0");
+    CCompressorProcessor::addToParameterLayout(params,0); // Compressor Params
+    CReverbProcessor::addToParameterLayout(params,0); // Reverb Params
+    CPhaserProcessor::addToParameterLayout(params,0);
 
-    CGainProcessor::addToParameterLayout(params); // Input Gain
-    CNoiseGateProcessor::addToParameterLayout(params);
-
-    CCompressorProcessor::addToParameterLayout(params); // Compressor Params
-    CReverbProcessor::addToParameterLayout(params); // Reverb Params
-    CPhaserProcessor::addToParameterLayout(params);
+//    CGainProcessor::addToParameterLayout(params); // Input Gain
+//    CNoiseGateProcessor::addToParameterLayout(params);
+//
+//    CCompressorProcessor::addToParameterLayout(params); // Compressor Params
+//    CReverbProcessor::addToParameterLayout(params); // Reverb Params
+//    CPhaserProcessor::addToParameterLayout(params);
 
 //    TODO: Find a way to change the name of the parameter from gain to output gain
-//    CGainProcessor::addToParameterLayout(params, "1"); // Output Gain
+    CGainProcessor::addToParameterLayout(params, 1); // Output Gain
 
 
 
