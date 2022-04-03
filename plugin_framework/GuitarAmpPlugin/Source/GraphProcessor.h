@@ -98,8 +98,6 @@ public:
     
     
     juce::AudioProcessorValueTreeState apTreeState {*this, nullptr, "Parameters", createParameterLayout()};
-    
-//    foleys::MagicProcessorState magicState { *this, apTreeState};
 
     //==============================================================================
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override
@@ -183,8 +181,8 @@ public:
     }
 
     //==============================================================================
-//    juce::AudioProcessorEditor* createEditor() override          { return new juce::GenericAudioProcessorEditor (*this); }
-//    bool hasEditor() const override                              { return true; }
+    juce::AudioProcessorEditor* createEditor() override          { return new juce::GenericAudioProcessorEditor (*this); }
+    bool hasEditor() const override                              { return true; }
 
     //==============================================================================
     const juce::String getName() const override                  { return "Graph Tutorial"; }
