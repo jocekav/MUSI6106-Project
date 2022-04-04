@@ -119,12 +119,39 @@ gateReleaseSlider(*audioProcessor.apTreeState.getParameter("gateRelease"), "s"),
 gateThresholdSliderAttachment(audioProcessor.apTreeState, "gateThreshold", gateThresholdSlider),
 gateRatioSliderAttachment(audioProcessor.apTreeState, "gateRatio", gateRatioSlider),
 gateAttackSliderAttachment(audioProcessor.apTreeState, "gateAttack", gateAttackSlider),
-gateReleaseSliderAttachment(audioProcessor.apTreeState, "gateRelease", gateReleaseSlider)
+gateReleaseSliderAttachment(audioProcessor.apTreeState, "gateRelease", gateReleaseSlider),
+
+ampDriveSlider(*audioProcessor.apTreeState.getParameter("ampDrive"), ""),
+ampBlendSlider(*audioProcessor.apTreeState.getParameter("ampBlend"), "%"),
+ampPreLpfSlider(*audioProcessor.apTreeState.getParameter("ampPreLPF"), "Hz"),
+ampPreHpfSlider(*audioProcessor.apTreeState.getParameter("ampPreHPF"), "Hz"),
+ampEmphasisFreqSlider(*audioProcessor.apTreeState.getParameter("ampEmphasis"), "Hz"),
+ampEmphasisGainSlider(*audioProcessor.apTreeState.getParameter("ampEmphasisGain"), "dB"),
+ampPostLpfSlider(*audioProcessor.apTreeState.getParameter("ampPostLPF"), "Hz"),
+ampPostHpfSlider(*audioProcessor.apTreeState.getParameter("ampPostHPF"), "Hz"),
+
+ampDriveSliderAttachment(audioProcessor.apTreeState, "ampDrive", ampDriveSlider),
+ampBlendSliderAttachment(audioProcessor.apTreeState, "ampBlend", ampBlendSlider),
+ampPreLpfSliderAttachment(audioProcessor.apTreeState, "ampPreLPF", ampPreLpfSlider),
+ampPreHpfSliderAttachment(audioProcessor.apTreeState, "ampPreHPF", ampPreHpfSlider),
+ampEmphasisFreqSliderAttachment(audioProcessor.apTreeState, "ampEmphasis", ampEmphasisFreqSlider),
+ampEmphasisGainSliderAttachment(audioProcessor.apTreeState, "ampEmphasisGain", ampEmphasisGainSlider),
+ampPostLpfSliderAttachment(audioProcessor.apTreeState, "ampPostLPF", ampPostLpfSlider),
+ampPostHpfSliderAttachment(audioProcessor.apTreeState, "ampPostHPF", ampPostHpfSlider),
+
+ampTypeComboBox("ampType"),
+ampTypeComboBoxAttachment(audioProcessor.apTreeState, "ampType", ampTypeComboBox)
+
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     
-    for (auto* comp : getComps())
+//    for (auto* comp : getNoiseGateComps())
+//    {
+//        addAndMakeVisible(comp);
+//    }
+    
+    for (auto* comp : getAmpComps())
     {
         addAndMakeVisible(comp);
     }
@@ -141,10 +168,8 @@ void GuitarAmpGUIAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.setColour(juce::Colour(35u, 33u, 33u));
-//    g.setColour(juce::Colours::darkgrey);
     g.fillAll ();
     g.setColour(juce::Colour(109u, 103u, 95u));
-//    g.setColour(juce::Colours::lightgrey);
     auto bounds = getLocalBounds();
     auto responseArea = bounds.removeFromBottom(bounds.getHeight() * 0.5);
     g.fillRect(bounds.getX() + 10, bounds.getY() + 10, bounds.getWidth() - 20, bounds.getHeight() - 20);
@@ -156,7 +181,8 @@ void GuitarAmpGUIAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
     
-    drawCompressor();
+//    drawCompressor();
+    drawAmp();
     
 }
 
@@ -196,10 +222,88 @@ void GuitarAmpGUIAudioProcessorEditor::drawCompressor()
     gateReleaseSliderLabel.setBounds(gateReleaseArea.getX() + 20, gateReleaseArea.getY() + gateReleaseArea.getHeight() - 40, gateReleaseArea.getWidth() - 40, 20);
     gateReleaseSliderLabel.setText("Release", juce::dontSendNotification);
     gateReleaseSliderLabel.setJustificationType (juce::Justification::centred);
-    
 }
 
-std::vector<juce::Component*> GuitarAmpGUIAudioProcessorEditor::getComps()
+void GuitarAmpGUIAudioProcessorEditor::drawAmp()
+{
+    auto bounds = getLocalBounds();
+    auto responseArea = bounds.removeFromBottom(bounds.getHeight() * 0.5);
+    
+    auto labelArea = bounds.removeFromTop(bounds.getHeight() * .33);
+    effectTitleLabel.setBounds(labelArea.getX() + 10, labelArea.getY() + 10, labelArea.getWidth() - 20, labelArea.getHeight() - 20);
+    effectTitleLabel.setFont(juce::Font(32.f, juce::Font::bold));
+    effectTitleLabel.setText("OUR AMP", juce::dontSendNotification);
+    effectTitleLabel.setColour (juce::Label::textColourId, juce::Colours::white);
+    effectTitleLabel.setJustificationType (juce::Justification::left);
+    
+//    auto ampDriveArea = bounds.removeFromLeft(bounds.getWidth() * 0.25);
+//    auto ampBlendArea = ampDriveArea.removeFromTop(bounds.getHeight() * 0.5);
+//    auto ampPreLpfArea = bounds.removeFromLeft(bounds.getWidth() * 0.33);
+//    auto ampPreHpfArea = ampPreLpfArea.removeFromTop(bounds.getHeight() * 0.5);
+//    auto ampEmphasisFreqArea = bounds.removeFromLeft(bounds.getWidth() * 0.5);
+//    auto ampEmphasisGainArea = ampEmphasisFreqArea.removeFromTop(bounds.getHeight() * 0.5);
+//    auto ampPostLpfArea = bounds.removeFromLeft(bounds.getWidth());
+//    auto ampPostHpfArea = ampPostLpfArea.removeFromTop(bounds.getHeight() * 0.5);
+    
+    auto ampDriveArea = bounds.removeFromLeft(bounds.getWidth() * 0.2);
+    auto ampBlendArea = ampDriveArea.removeFromTop(bounds.getHeight() * 0.5);
+    auto ampPreLpfArea = bounds.removeFromLeft(bounds.getWidth() * 0.25);
+    auto ampPreHpfArea = ampPreLpfArea.removeFromTop(bounds.getHeight() * 0.5);
+    auto ampEmphasisFreqArea = bounds.removeFromLeft(bounds.getWidth() * 0.33);
+    auto ampEmphasisGainArea = ampEmphasisFreqArea.removeFromTop(bounds.getHeight() * 0.5);
+    auto ampPostLpfArea = bounds.removeFromLeft(bounds.getWidth() * 0.5);
+    auto ampPostHpfArea = ampPostLpfArea.removeFromTop(bounds.getHeight() * 0.5);
+    
+    
+    ampDriveSlider.setBounds(ampDriveArea.getX(), ampDriveArea.getY() - 10, ampDriveArea.getWidth(), ampDriveArea.getHeight());
+    ampDriveSliderLabel.setBounds(ampDriveArea.getX(), ampDriveArea.getY() + ampDriveArea.getHeight() - 25, ampDriveArea.getWidth(), 10);
+    ampDriveSliderLabel.setText("Drive", juce::dontSendNotification);
+    ampDriveSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    ampBlendSlider.setBounds(ampBlendArea.getX(), ampBlendArea.getY() - 10, ampBlendArea.getWidth(), ampBlendArea.getHeight());
+    ampBlendSliderLabel.setBounds(ampBlendArea.getX(), ampBlendArea.getY() + ampBlendArea.getHeight() - 25, ampBlendArea.getWidth(), 10);
+    ampBlendSliderLabel.setText("Blend", juce::dontSendNotification);
+    ampBlendSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    ampPreLpfSlider.setBounds(ampPreLpfArea.getX() - 20, ampPreLpfArea.getY() - 10, ampPreLpfArea.getWidth(), ampPreLpfArea.getHeight());
+    ampPreLpfSliderLabel.setBounds(ampPreLpfArea.getX() - 20, ampPreLpfArea.getY() + ampPreLpfArea.getHeight() - 25, ampPreLpfArea.getWidth(), 10);
+    ampPreLpfSliderLabel.setText("Pre-LPF", juce::dontSendNotification);
+    ampPreLpfSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    ampPreHpfSlider.setBounds(ampPreHpfArea.getX() - 20, ampPreHpfArea.getY() - 10, ampPreHpfArea.getWidth(), ampPreHpfArea.getHeight());
+    ampPreHpfSliderLabel.setBounds(ampPreHpfArea.getX() - 20, ampPreHpfArea.getY() + ampPreHpfArea.getHeight() - 25, ampPreHpfArea.getWidth(), 10);
+    ampPreHpfSliderLabel.setText("Pre-HPF", juce::dontSendNotification);
+    ampPreHpfSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    ampEmphasisFreqSlider.setBounds(ampEmphasisFreqArea.getX() - 20, ampEmphasisFreqArea.getY() - 10, ampEmphasisFreqArea.getWidth(), ampEmphasisFreqArea.getHeight());
+    ampEmphasisFreqSliderLabel.setBounds(ampEmphasisFreqArea.getX() - 20, ampEmphasisFreqArea.getY() + ampEmphasisFreqArea.getHeight() - 25, ampEmphasisFreqArea.getWidth(), 10);
+    ampEmphasisFreqSliderLabel.setText("Emphasis Freq", juce::dontSendNotification);
+    ampEmphasisFreqSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    ampEmphasisGainSlider.setBounds(ampEmphasisGainArea.getX() - 20, ampEmphasisGainArea.getY() - 10, ampEmphasisGainArea.getWidth(), ampEmphasisGainArea.getHeight());
+    ampEmphasisGainSliderLabel.setBounds(ampEmphasisGainArea.getX() - 20, ampEmphasisGainArea.getY() + ampEmphasisGainArea.getHeight() - 25, ampEmphasisGainArea.getWidth(), 10);
+    ampEmphasisGainSliderLabel.setText("Emphasis Gain", juce::dontSendNotification);
+    ampEmphasisGainSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    ampPostLpfSlider.setBounds(ampPostLpfArea.getX() - 20, ampPostLpfArea.getY() - 10, ampPostLpfArea.getWidth(), ampPostLpfArea.getHeight());
+    ampPostLpfSliderLabel.setBounds(ampPostLpfArea.getX() - 20, ampPostLpfArea.getY() + ampPostLpfArea.getHeight() - 25, ampPostLpfArea.getWidth(), 10);
+    ampPostLpfSliderLabel.setText("Post-LPF", juce::dontSendNotification);
+    ampPostLpfSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    ampPostHpfSlider.setBounds(ampPostHpfArea.getX() - 20, ampPostHpfArea.getY() - 10, ampPostHpfArea.getWidth(), ampPostHpfArea.getHeight());
+    ampPostHpfSliderLabel.setBounds(ampPostHpfArea.getX() - 20, ampPostHpfArea.getY() + ampPostHpfArea.getHeight() - 25, ampPostHpfArea.getWidth(), 10);
+    ampPostHpfSliderLabel.setText("Post-HPF", juce::dontSendNotification);
+    ampPostHpfSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    ampTypeComboBox.setBounds(bounds.getX() - 20, bounds.getY() + (bounds.getHeight() / 4), bounds.getWidth(), bounds.getHeight() / 4);
+    juce::StringArray strArray ( {"None", "Tanh", "ATan", "Hard Clipper", "Rectifier", "Sine", "Tube"});
+    for (int i = 0; i < strArray.size(); i++) {
+        ampTypeComboBox.addItem(strArray[i], i+1);
+    }
+
+}
+
+std::vector<juce::Component*> GuitarAmpGUIAudioProcessorEditor::getNoiseGateComps()
 {
     return
     {
@@ -212,5 +316,30 @@ std::vector<juce::Component*> GuitarAmpGUIAudioProcessorEditor::getComps()
         &gateRatioSliderLabel,
         &gateAttackSliderLabel,
         &gateReleaseSliderLabel
+    };
+}
+
+std::vector<juce::Component*> GuitarAmpGUIAudioProcessorEditor::getAmpComps()
+{
+    return
+    {
+        &ampDriveSlider,
+        &ampBlendSlider,
+        &ampPreLpfSlider,
+        &ampPreHpfSlider,
+        &ampEmphasisFreqSlider,
+        &ampEmphasisGainSlider,
+        &ampPostLpfSlider,
+        &ampPostHpfSlider,
+        &effectTitleLabel,
+        &ampDriveSliderLabel,
+        &ampBlendSliderLabel,
+        &ampPreLpfSliderLabel,
+        &ampPreHpfSliderLabel,
+        &ampEmphasisFreqSliderLabel,
+        &ampEmphasisGainSliderLabel,
+        &ampPostLpfSliderLabel,
+        &ampPostHpfSliderLabel,
+        &ampTypeComboBox
     };
 }
