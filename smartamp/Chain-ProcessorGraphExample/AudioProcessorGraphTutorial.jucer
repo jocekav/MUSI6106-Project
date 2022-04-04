@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT name="AudioProcessorGraphTutorial" companyName="JUCE" version="1.0.0"
+              userNotes="Explores the audio processor graph." companyWebsite="http://juce.com"
+              projectType="audioplug" pluginAUIsSandboxSafe="1" pluginManufacturer="JUCE"
+              pluginFormats="buildVST3,buildAU,buildStandalone" useAppConfig="0"
+              addUsingNamespaceToJuceHeader="1" id="uMDK1C" jucerFormatVersion="1">
+  <MAINGROUP id="q1J7ki" name="AudioProcessorGraphTutorial">
+    <GROUP id="{1010E9C6-BDB7-E91F-0F32-0102A8D0511E}" name="sga">
+      <FILE id="w5K4l4" name="Activations.cpp" compile="1" resource="0" file="Source/sga/Activations.cpp"/>
+      <FILE id="eIqixd" name="Activations.h" compile="0" resource="0" file="Source/sga/Activations.h"/>
+      <FILE id="P2FUOK" name="Amplifiers.h" compile="0" resource="0" file="Source/sga/Amplifiers.h"/>
+      <FILE id="rEitL8" name="Convolution.cpp" compile="1" resource="0" file="Source/sga/Convolution.cpp"/>
+      <FILE id="g01aP1" name="Convolution.h" compile="0" resource="0" file="Source/sga/Convolution.h"/>
+      <FILE id="W57ZJg" name="ConvolutionLayer.cpp" compile="1" resource="0"
+            file="Source/sga/ConvolutionLayer.cpp"/>
+      <FILE id="iKb5Ke" name="ConvolutionLayer.h" compile="0" resource="0"
+            file="Source/sga/ConvolutionLayer.h"/>
+      <FILE id="rvmPN0" name="ConvolutionStack.cpp" compile="1" resource="0"
+            file="Source/sga/ConvolutionStack.cpp"/>
+      <FILE id="HnaND5" name="ConvolutionStack.h" compile="0" resource="0"
+            file="Source/sga/ConvolutionStack.h"/>
+      <FILE id="bpQtqZ" name="Eq4Band.cpp" compile="1" resource="0" file="Source/sga/Eq4Band.cpp"/>
+      <FILE id="aPYn8Q" name="Eq4Band.h" compile="0" resource="0" file="Source/sga/Eq4Band.h"/>
+      <FILE id="gSLgik" name="ErrorDef.h" compile="0" resource="0" file="Source/sga/ErrorDef.h"/>
+      <FILE id="MwkE7P" name="myLookAndFeel.cpp" compile="1" resource="0"
+            file="Source/sga/myLookAndFeel.cpp"/>
+      <FILE id="EeD1zN" name="myLookAndFeel.h" compile="0" resource="0" file="Source/sga/myLookAndFeel.h"/>
+      <FILE id="CVLTqH" name="WaveNet.cpp" compile="1" resource="0" file="Source/sga/WaveNet.cpp"/>
+      <FILE id="n5YCxX" name="WaveNet.h" compile="0" resource="0" file="Source/sga/WaveNet.h"/>
+      <FILE id="mDrLt1" name="WaveNetLoader.cpp" compile="1" resource="0"
+            file="Source/sga/WaveNetLoader.cpp"/>
+      <FILE id="R2sL2h" name="WaveNetLoader.h" compile="0" resource="0" file="Source/sga/WaveNetLoader.h"/>
+    </GROUP>
+    <GROUP id="{75A280F1-7AC9-EF9D-6F8B-84ED8F2C5F7E}" name="Source">
+      <FILE id="a0ATgy" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+      <FILE id="mY8SX3" name="juce_TriodeWaveShaper.h" compile="0" resource="0"
+            file="Source/juce_TriodeWaveShaper.h"/>
+      <FILE id="llAc5Y" name="AudioProcessorGraph.h" compile="0" resource="0"
+            file="Source/AudioProcessorGraph.h"/>
+    </GROUP>
+  </MAINGROUP>
+  <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="0"
+            useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_dsp" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+  </MODULES>
+  <EXPORTFORMATS>
+    <XCODE_MAC targetFolder="Builds/MacOSX">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="AudioProcessorGraphTutorial"
+                       headerPath="/Users/shanjiang/Downloads/eigen-3.4.0" defines="JUCE_MODAL_LOOPS_PERMITTED=1"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="AudioProcessorGraphTutorial"
+                       defines="JUCE_MODAL_LOOPS_PERMITTED=1" headerPath="/Users/shanjiang/Downloads/eigen-3.4.0"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path=""/>
+        <MODULEPATH id="juce_audio_devices" path=""/>
+        <MODULEPATH id="juce_audio_formats" path=""/>
+        <MODULEPATH id="juce_audio_plugin_client" path=""/>
+        <MODULEPATH id="juce_audio_processors" path=""/>
+        <MODULEPATH id="juce_audio_utils" path=""/>
+        <MODULEPATH id="juce_core" path=""/>
+        <MODULEPATH id="juce_data_structures" path=""/>
+        <MODULEPATH id="juce_dsp" path=""/>
+        <MODULEPATH id="juce_events" path=""/>
+        <MODULEPATH id="juce_graphics" path=""/>
+        <MODULEPATH id="juce_gui_basics" path=""/>
+        <MODULEPATH id="juce_gui_extra" path=""/>
+      </MODULEPATHS>
+    </XCODE_MAC>
+    <VS2019 targetFolder="Builds/VisualStudio2019">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="AudioProcessorGraphTutorial"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="AudioProcessorGraphTutorial"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path=""/>
+        <MODULEPATH id="juce_audio_devices" path=""/>
+        <MODULEPATH id="juce_audio_formats" path=""/>
+        <MODULEPATH id="juce_audio_plugin_client" path=""/>
+        <MODULEPATH id="juce_audio_processors" path=""/>
+        <MODULEPATH id="juce_audio_utils" path=""/>
+        <MODULEPATH id="juce_core" path=""/>
+        <MODULEPATH id="juce_data_structures" path=""/>
+        <MODULEPATH id="juce_dsp" path=""/>
+        <MODULEPATH id="juce_events" path=""/>
+        <MODULEPATH id="juce_graphics" path=""/>
+        <MODULEPATH id="juce_gui_basics" path=""/>
+        <MODULEPATH id="juce_gui_extra" path=""/>
+      </MODULEPATHS>
+    </VS2019>
+    <LINUX_MAKE targetFolder="Builds/LinuxMakefile">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="AudioProcessorGraphTutorial"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="AudioProcessorGraphTutorial"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path=""/>
+        <MODULEPATH id="juce_audio_devices" path=""/>
+        <MODULEPATH id="juce_audio_formats" path=""/>
+        <MODULEPATH id="juce_audio_plugin_client" path=""/>
+        <MODULEPATH id="juce_audio_processors" path=""/>
+        <MODULEPATH id="juce_audio_utils" path=""/>
+        <MODULEPATH id="juce_core" path=""/>
+        <MODULEPATH id="juce_data_structures" path=""/>
+        <MODULEPATH id="juce_dsp" path=""/>
+        <MODULEPATH id="juce_events" path=""/>
+        <MODULEPATH id="juce_graphics" path=""/>
+        <MODULEPATH id="juce_gui_basics" path=""/>
+        <MODULEPATH id="juce_gui_extra" path=""/>
+      </MODULEPATHS>
+    </LINUX_MAKE>
+    <VS2022 targetFolder="Builds/VisualStudio2022">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug"/>
+        <CONFIGURATION isDebug="0" name="Release"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_devices" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_formats" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_processors" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_utils" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_core" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_data_structures" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_dsp" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_events" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_graphics" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_gui_basics" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_gui_extra" path="C:\JUCE\modules"/>
+      </MODULEPATHS>
+    </VS2022>
+  </EXPORTFORMATS>
+  <JUCEOPTIONS JUCE_VST3_CAN_REPLACE_VST2="0"/>
+</JUCERPROJECT>
