@@ -63,6 +63,7 @@ public:
     void drawNoiseGate();
     void drawAmp();
     void drawReverb();
+    void drawCompressor();
 
 private:
     // This reference is provided as a quick way for your editor to
@@ -131,6 +132,25 @@ private:
     rvbRoomSizeSliderLabel,
     rvbDampingSliderLabel;
     
+    // Compessor Components
+    CustomRotarySlider compThresholdSlider,
+    compRatioSlider,
+    compAttackSlider,
+    compReleaseSlider,
+    compMakeUpGainSlider;
+
+    APVTS::SliderAttachment compThresholdSliderAttachment,
+    compRatioSliderAttachment,
+    compAttackSliderAttachment,
+    compReleaseSliderAttachment,
+    compMakeUpGainSliderAttachment;
+
+    juce::Label compThresholdSliderLabel,
+    compRatioSliderLabel,
+    compAttackSliderLabel,
+    compReleaseSliderLabel,
+    compMakeUpGainSliderLabel;
+    
     juce::Label effectTitleLabel;
     
     std::vector<juce::Component*> getNoiseGateComps();
@@ -138,6 +158,8 @@ private:
     std::vector<juce::Component*> getAmpComps();
     
     std::vector<juce::Component*> getReverbComps();
+    
+    std::vector<juce::Component*> getCompressorComps();
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GuitarAmpGUIAudioProcessorEditor)
 };

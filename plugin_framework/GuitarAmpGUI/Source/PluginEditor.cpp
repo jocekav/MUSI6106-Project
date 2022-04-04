@@ -148,7 +148,19 @@ rvbDampingSlider(*audioProcessor.apTreeState.getParameter("rvbDamping"), ""),
 
 rvbBlendSliderAttachment(audioProcessor.apTreeState, "rvbBlend", rvbBlendSlider),
 rvbRoomSizeSliderAttachment(audioProcessor.apTreeState, "rvbRoomSize", rvbRoomSizeSlider),
-rvbDampingSliderAttachment(audioProcessor.apTreeState, "rvbDamping", rvbDampingSlider)
+rvbDampingSliderAttachment(audioProcessor.apTreeState, "rvbDamping", rvbDampingSlider),
+
+compThresholdSlider(*audioProcessor.apTreeState.getParameter("compThreshold"), "dB"),
+compRatioSlider(*audioProcessor.apTreeState.getParameter("compRatio"), ""),
+compAttackSlider(*audioProcessor.apTreeState.getParameter("compAttack"), "ms"),
+compReleaseSlider(*audioProcessor.apTreeState.getParameter("compRelease"), "ms"),
+compMakeUpGainSlider(*audioProcessor.apTreeState.getParameter("compMakeupGain"), "dB"),
+
+compThresholdSliderAttachment(audioProcessor.apTreeState, "compThreshold", compThresholdSlider),
+compRatioSliderAttachment(audioProcessor.apTreeState, "compRatio", compRatioSlider),
+compAttackSliderAttachment(audioProcessor.apTreeState, "compAttack", compAttackSlider),
+compReleaseSliderAttachment(audioProcessor.apTreeState, "compRelease", compReleaseSlider),
+compMakeUpGainSliderAttachment(audioProcessor.apTreeState, "compMakeupGain", compMakeUpGainSlider)
 
 
 {
@@ -165,7 +177,12 @@ rvbDampingSliderAttachment(audioProcessor.apTreeState, "rvbDamping", rvbDampingS
 //        addAndMakeVisible(comp);
 //    }
     
-    for (auto* comp : getReverbComps())
+//    for (auto* comp : getReverbComps())
+//    {
+//        addAndMakeVisible(comp);
+//    }
+    
+    for (auto* comp : getCompressorComps())
     {
         addAndMakeVisible(comp);
     }
@@ -197,7 +214,8 @@ void GuitarAmpGUIAudioProcessorEditor::resized()
     
 //    drawNoiseGate();
 //    drawAmp();
-    drawReverb();
+//    drawReverb();
+    drawCompressor();
     
 }
 
@@ -250,15 +268,6 @@ void GuitarAmpGUIAudioProcessorEditor::drawAmp()
     effectTitleLabel.setText("OUR AMP", juce::dontSendNotification);
     effectTitleLabel.setColour (juce::Label::textColourId, juce::Colours::white);
     effectTitleLabel.setJustificationType (juce::Justification::left);
-    
-//    auto ampDriveArea = bounds.removeFromLeft(bounds.getWidth() * 0.25);
-//    auto ampBlendArea = ampDriveArea.removeFromTop(bounds.getHeight() * 0.5);
-//    auto ampPreLpfArea = bounds.removeFromLeft(bounds.getWidth() * 0.33);
-//    auto ampPreHpfArea = ampPreLpfArea.removeFromTop(bounds.getHeight() * 0.5);
-//    auto ampEmphasisFreqArea = bounds.removeFromLeft(bounds.getWidth() * 0.5);
-//    auto ampEmphasisGainArea = ampEmphasisFreqArea.removeFromTop(bounds.getHeight() * 0.5);
-//    auto ampPostLpfArea = bounds.removeFromLeft(bounds.getWidth());
-//    auto ampPostHpfArea = ampPostLpfArea.removeFromTop(bounds.getHeight() * 0.5);
     
     auto ampDriveArea = bounds.removeFromLeft(bounds.getWidth() * 0.2);
     auto ampBlendArea = ampDriveArea.removeFromTop(bounds.getHeight() * 0.5);
@@ -351,6 +360,50 @@ void GuitarAmpGUIAudioProcessorEditor::drawReverb()
     
 }
 
+void GuitarAmpGUIAudioProcessorEditor::drawCompressor()
+{
+    auto bounds = getLocalBounds();
+    auto responseArea = bounds.removeFromBottom(bounds.getHeight() * 0.5);
+    
+    auto labelArea = bounds.removeFromTop(bounds.getHeight() * .33);
+    effectTitleLabel.setBounds(labelArea.getX() + 10, labelArea.getY() + 10, labelArea.getWidth() - 20, labelArea.getHeight() - 20);
+    effectTitleLabel.setFont(juce::Font(32.f, juce::Font::bold));
+    effectTitleLabel.setText("OUR COMPRESSOR", juce::dontSendNotification);
+    effectTitleLabel.setColour (juce::Label::textColourId, juce::Colours::white);
+    effectTitleLabel.setJustificationType (juce::Justification::left);
+    
+    auto compThresholdArea = bounds.removeFromLeft(bounds.getWidth() * 0.2);
+    auto compRatioArea = bounds.removeFromLeft(bounds.getWidth() * 0.25);
+    auto compAttackArea = bounds.removeFromLeft(bounds.getWidth() * 0.33);
+    auto compReleaseArea = bounds.removeFromLeft(bounds.getWidth() * 0.5);
+    auto compMakeUpGainArea = bounds.removeFromLeft(bounds.getWidth());
+    
+    compThresholdSlider.setBounds(compThresholdArea.getX() + 20, compThresholdArea.getY() + 20, compThresholdArea.getWidth() - 40, compThresholdArea.getHeight() - 40);
+    compThresholdSliderLabel.setBounds(compThresholdArea.getX() + 20, compThresholdArea.getY() + compThresholdArea.getHeight() - 40, compThresholdArea.getWidth() - 40, 20);
+    compThresholdSliderLabel.setText("Threshold", juce::dontSendNotification);
+    compThresholdSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    compRatioSlider.setBounds(compRatioArea.getX() + 20, compRatioArea.getY() + 20, compRatioArea.getWidth() - 40, compRatioArea.getHeight() - 40);
+    compRatioSliderLabel.setBounds(compRatioArea.getX() + 20, compRatioArea.getY() + compRatioArea.getHeight() - 40, compRatioArea.getWidth() - 40, 20);
+    compRatioSliderLabel.setText("Ratio", juce::dontSendNotification);
+    compRatioSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    compAttackSlider.setBounds(compAttackArea.getX() + 20, compAttackArea.getY() + 20, compAttackArea.getWidth() - 40, compAttackArea.getHeight() - 40);
+    compAttackSliderLabel.setBounds(compAttackArea.getX() + 20, compAttackArea.getY() + compAttackArea.getHeight() - 40, compAttackArea.getWidth() - 40, 20);
+    compAttackSliderLabel.setText("Attack", juce::dontSendNotification);
+    compAttackSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    compReleaseSlider.setBounds(compReleaseArea.getX() + 20, compReleaseArea.getY() + 20, compReleaseArea.getWidth() - 40, compReleaseArea.getHeight() - 40);
+    compReleaseSliderLabel.setBounds(compReleaseArea.getX() + 20, compReleaseArea.getY() + compReleaseArea.getHeight() - 40, compReleaseArea.getWidth() - 40, 20);
+    compReleaseSliderLabel.setText("Release", juce::dontSendNotification);
+    compReleaseSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    compMakeUpGainSlider.setBounds(compMakeUpGainArea.getX() + 20, compMakeUpGainArea.getY() + 20, compMakeUpGainArea.getWidth() - 40, compMakeUpGainArea.getHeight() - 40);
+    compMakeUpGainSliderLabel.setBounds(compMakeUpGainArea.getX() + 20, compMakeUpGainArea.getY() + compMakeUpGainArea.getHeight() - 40, compMakeUpGainArea.getWidth() - 40, 20);
+    compMakeUpGainSliderLabel.setText("Makeup Gain", juce::dontSendNotification);
+    compMakeUpGainSliderLabel.setJustificationType (juce::Justification::centred);
+}
+
 std::vector<juce::Component*> GuitarAmpGUIAudioProcessorEditor::getNoiseGateComps()
 {
     return
@@ -402,6 +455,24 @@ std::vector<juce::Component*> GuitarAmpGUIAudioProcessorEditor::getReverbComps()
         &rvbBlendSliderLabel,
         &rvbRoomSizeSliderLabel,
         &rvbDampingSliderLabel,
+        &effectTitleLabel
+    };
+}
+
+std::vector<juce::Component*> GuitarAmpGUIAudioProcessorEditor::getCompressorComps()
+{
+    return
+    {
+        &compThresholdSlider,
+        &compRatioSlider,
+        &compAttackSlider,
+        &compReleaseSlider,
+        &compMakeUpGainSlider,
+        &compThresholdSliderLabel,
+        &compRatioSliderLabel,
+        &compAttackSliderLabel,
+        &compReleaseSliderLabel,
+        &compMakeUpGainSliderLabel,
         &effectTitleLabel
     };
 }
