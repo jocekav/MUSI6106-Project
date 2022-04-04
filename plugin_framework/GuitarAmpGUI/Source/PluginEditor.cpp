@@ -187,6 +187,10 @@ compMakeUpGainSliderAttachment(audioProcessor.apTreeState, "compMakeupGain", com
         addAndMakeVisible(comp);
     }
     
+    addAndMakeVisible (switchEffectButton);
+    switchEffectButton.setButtonText ("Switch Effect");
+    switchEffectButton.addListener(this);
+    
     setSize (700, 500);
 }
 
@@ -204,6 +208,7 @@ void GuitarAmpGUIAudioProcessorEditor::paint (juce::Graphics& g)
     auto bounds = getLocalBounds();
     auto responseArea = bounds.removeFromBottom(bounds.getHeight() * 0.5);
     g.fillRect(bounds.getX() + 10, bounds.getY() + 10, bounds.getWidth() - 20, bounds.getHeight() - 20);
+    switchEffectButton.setBounds(responseArea);
     
 }
 
@@ -212,9 +217,9 @@ void GuitarAmpGUIAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
     
-//    drawNoiseGate();
-//    drawAmp();
-//    drawReverb();
+    drawNoiseGate();
+    drawAmp();
+    drawReverb();
     drawCompressor();
     
 }
@@ -404,6 +409,23 @@ void GuitarAmpGUIAudioProcessorEditor::drawCompressor()
     compMakeUpGainSliderLabel.setJustificationType (juce::Justification::centred);
 }
 
+void GuitarAmpGUIAudioProcessorEditor::buttonClicked (juce::Button* button)
+{
+    if (button == &switchEffectButton)
+    {
+        for (auto* comp : getReverbComps())
+        {
+            drawReverb();
+            addAndMakeVisible(comp);
+        }
+        for (auto* comp : getCompressorComps())
+        {
+            comp->setVisible(false);
+        }
+        effectTitleLabel.setVisible(true);
+    }
+}
+
 std::vector<juce::Component*> GuitarAmpGUIAudioProcessorEditor::getNoiseGateComps()
 {
     return
@@ -476,3 +498,4 @@ std::vector<juce::Component*> GuitarAmpGUIAudioProcessorEditor::getCompressorCom
         &effectTitleLabel
     };
 }
+

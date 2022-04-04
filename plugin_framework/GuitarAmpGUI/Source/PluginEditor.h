@@ -48,10 +48,12 @@ private:
     juce::String suffix;
 };
 
+
 //==============================================================================
 /**
 */
-class GuitarAmpGUIAudioProcessorEditor  : public juce::AudioProcessorEditor
+class GuitarAmpGUIAudioProcessorEditor  : public juce::AudioProcessorEditor,
+                                            public juce::Button::Listener
 {
 public:
     GuitarAmpGUIAudioProcessorEditor (GuitarAmpGUIAudioProcessor&);
@@ -60,6 +62,7 @@ public:
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
+    void buttonClicked (juce::Button* button);
     void drawNoiseGate();
     void drawAmp();
     void drawReverb();
@@ -69,6 +72,8 @@ private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     GuitarAmpGUIAudioProcessor& audioProcessor;
+    
+    juce::TextButton switchEffectButton;
     
     using APVTS = juce::AudioProcessorValueTreeState;
     
@@ -163,3 +168,29 @@ private:
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GuitarAmpGUIAudioProcessorEditor)
 };
+
+
+//class ButtonComponent   : public juce::Component,
+//                               public juce::Button::Listener
+//{
+//public:
+//    ButtonComponent()
+//    {
+//        // ...
+//    }
+//
+//    ~ButtonComponent()
+//    {
+//        // ...
+//    }
+//
+//    void resized() override
+//    {
+//        // ...
+//    }
+//
+//    void buttonClicked (juce::Button* button) override // [2]
+//    {
+//    }
+//}
+ 
