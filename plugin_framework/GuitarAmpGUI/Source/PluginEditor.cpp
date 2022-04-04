@@ -140,7 +140,16 @@ ampPostLpfSliderAttachment(audioProcessor.apTreeState, "ampPostLPF", ampPostLpfS
 ampPostHpfSliderAttachment(audioProcessor.apTreeState, "ampPostHPF", ampPostHpfSlider),
 
 ampTypeComboBox("ampType"),
-ampTypeComboBoxAttachment(audioProcessor.apTreeState, "ampType", ampTypeComboBox)
+ampTypeComboBoxAttachment(audioProcessor.apTreeState, "ampType", ampTypeComboBox),
+
+rvbBlendSlider(*audioProcessor.apTreeState.getParameter("rvbBlend"), "%"),
+rvbRoomSizeSlider(*audioProcessor.apTreeState.getParameter("rvbRoomSize"), ""),
+rvbDampingSlider(*audioProcessor.apTreeState.getParameter("rvbDamping"), ""),
+
+rvbBlendSliderAttachment(audioProcessor.apTreeState, "rvbBlend", rvbBlendSlider),
+rvbRoomSizeSliderAttachment(audioProcessor.apTreeState, "rvbRoomSize", rvbRoomSizeSlider),
+rvbDampingSliderAttachment(audioProcessor.apTreeState, "rvbDamping", rvbDampingSlider)
+
 
 {
     // Make sure that before the constructor has finished, you've set the
@@ -151,7 +160,12 @@ ampTypeComboBoxAttachment(audioProcessor.apTreeState, "ampType", ampTypeComboBox
 //        addAndMakeVisible(comp);
 //    }
     
-    for (auto* comp : getAmpComps())
+//    for (auto* comp : getAmpComps())
+//    {
+//        addAndMakeVisible(comp);
+//    }
+    
+    for (auto* comp : getReverbComps())
     {
         addAndMakeVisible(comp);
     }
@@ -181,12 +195,13 @@ void GuitarAmpGUIAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
     
-//    drawCompressor();
-    drawAmp();
+//    drawNoiseGate();
+//    drawAmp();
+    drawReverb();
     
 }
 
-void GuitarAmpGUIAudioProcessorEditor::drawCompressor()
+void GuitarAmpGUIAudioProcessorEditor::drawNoiseGate()
 {
     auto bounds = getLocalBounds();
     auto responseArea = bounds.removeFromBottom(bounds.getHeight() * 0.5);
@@ -194,7 +209,7 @@ void GuitarAmpGUIAudioProcessorEditor::drawCompressor()
     auto labelArea = bounds.removeFromTop(bounds.getHeight() * .33);
     effectTitleLabel.setBounds(labelArea.getX() + 10, labelArea.getY() + 10, labelArea.getWidth() - 20, labelArea.getHeight() - 20);
     effectTitleLabel.setFont(juce::Font(32.f, juce::Font::bold));
-    effectTitleLabel.setText("OUR COMPRESSOR", juce::dontSendNotification);
+    effectTitleLabel.setText("OUR NOISE GATE", juce::dontSendNotification);
     effectTitleLabel.setColour (juce::Label::textColourId, juce::Colours::white);
     effectTitleLabel.setJustificationType (juce::Justification::left);
     
@@ -303,6 +318,39 @@ void GuitarAmpGUIAudioProcessorEditor::drawAmp()
 
 }
 
+void GuitarAmpGUIAudioProcessorEditor::drawReverb()
+{
+    auto bounds = getLocalBounds();
+    auto responseArea = bounds.removeFromBottom(bounds.getHeight() * 0.5);
+    
+    auto labelArea = bounds.removeFromTop(bounds.getHeight() * .33);
+    effectTitleLabel.setBounds(labelArea.getX() + 10, labelArea.getY() + 10, labelArea.getWidth() - 20, labelArea.getHeight() - 20);
+    effectTitleLabel.setFont(juce::Font(32.f, juce::Font::bold));
+    effectTitleLabel.setText("OUR REVERB", juce::dontSendNotification);
+    effectTitleLabel.setColour (juce::Label::textColourId, juce::Colours::white);
+    effectTitleLabel.setJustificationType (juce::Justification::left);
+    
+    auto rvbBlendArea = bounds.removeFromLeft(bounds.getWidth() * 0.33);
+    auto rvbRoomSizeArea = bounds.removeFromLeft(bounds.getWidth() * 0.63);
+    auto rvbDampingArea = bounds.removeFromLeft(bounds.getWidth());
+    
+    rvbBlendSlider.setBounds(rvbBlendArea.getX() + 20, rvbBlendArea.getY() + 20, rvbBlendArea.getWidth() - 40, rvbBlendArea.getHeight() - 40);
+    rvbBlendSliderLabel.setBounds(rvbBlendArea.getX() + 20, rvbBlendArea.getY() + rvbBlendArea.getHeight() - 40, rvbBlendArea.getWidth() - 40, 20);
+    rvbBlendSliderLabel.setText("Blend", juce::dontSendNotification);
+    rvbBlendSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    rvbRoomSizeSlider.setBounds(rvbRoomSizeArea.getX() + 20, rvbRoomSizeArea.getY() + 20, rvbRoomSizeArea.getWidth() - 40, rvbRoomSizeArea.getHeight() - 40);
+    rvbRoomSizeSliderLabel.setBounds(rvbRoomSizeArea.getX() + 20, rvbRoomSizeArea.getY() + rvbRoomSizeArea.getHeight() - 40, rvbRoomSizeArea.getWidth() - 40, 20);
+    rvbRoomSizeSliderLabel.setText("Room Size", juce::dontSendNotification);
+    rvbRoomSizeSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    rvbDampingSlider.setBounds(rvbDampingArea.getX() + 20, rvbDampingArea.getY() + 20, rvbDampingArea.getWidth() - 40, rvbDampingArea.getHeight() - 40);
+    rvbDampingSliderLabel.setBounds(rvbDampingArea.getX() + 20, rvbDampingArea.getY() + rvbDampingArea.getHeight() - 40, rvbDampingArea.getWidth() - 40, 20);
+    rvbDampingSliderLabel.setText("Damping", juce::dontSendNotification);
+    rvbDampingSliderLabel.setJustificationType (juce::Justification::centred);
+    
+}
+
 std::vector<juce::Component*> GuitarAmpGUIAudioProcessorEditor::getNoiseGateComps()
 {
     return
@@ -341,5 +389,19 @@ std::vector<juce::Component*> GuitarAmpGUIAudioProcessorEditor::getAmpComps()
         &ampPostLpfSliderLabel,
         &ampPostHpfSliderLabel,
         &ampTypeComboBox
+    };
+}
+
+std::vector<juce::Component*> GuitarAmpGUIAudioProcessorEditor::getReverbComps()
+{
+    return
+    {
+        &rvbBlendSlider,
+        &rvbRoomSizeSlider,
+        &rvbDampingSlider,
+        &rvbBlendSliderLabel,
+        &rvbRoomSizeSliderLabel,
+        &rvbDampingSliderLabel,
+        &effectTitleLabel
     };
 }

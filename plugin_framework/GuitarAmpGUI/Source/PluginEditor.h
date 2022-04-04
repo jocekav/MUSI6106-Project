@@ -60,8 +60,9 @@ public:
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
-    void drawCompressor();
+    void drawNoiseGate();
     void drawAmp();
+    void drawReverb();
 
 private:
     // This reference is provided as a quick way for your editor to
@@ -116,13 +117,27 @@ private:
     
     juce::ComboBox ampTypeComboBox;
     APVTS::ComboBoxAttachment ampTypeComboBoxAttachment;
+    
+    // Reverb Components
+    CustomRotarySlider rvbBlendSlider,
+    rvbRoomSizeSlider,
+    rvbDampingSlider;
 
+    APVTS::SliderAttachment rvbBlendSliderAttachment,
+    rvbRoomSizeSliderAttachment,
+    rvbDampingSliderAttachment;
+
+    juce::Label rvbBlendSliderLabel,
+    rvbRoomSizeSliderLabel,
+    rvbDampingSliderLabel;
     
     juce::Label effectTitleLabel;
     
     std::vector<juce::Component*> getNoiseGateComps();
     
     std::vector<juce::Component*> getAmpComps();
+    
+    std::vector<juce::Component*> getReverbComps();
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GuitarAmpGUIAudioProcessorEditor)
 };
