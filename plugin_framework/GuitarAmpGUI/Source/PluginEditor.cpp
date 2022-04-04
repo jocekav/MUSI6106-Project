@@ -58,16 +58,6 @@ void LookAndFeel::drawRotarySlider (juce::Graphics& g,
         
         g.setColour(Colours::white);
         g.drawFittedText(text, r.toNearestInt(), juce::Justification::centred, 1);
-        
-        
-        text = "test";
-        strWidth = g.getCurrentFont().getStringWidth(text);
-        
-        r.setSize(strWidth + 4, customSlider->getTextHeight() + 2);
-        r.setCentre(bounds.getCentreX(), bounds.getY() + bounds.getHeight() + 30);
-        
-        g.setColour(Colours::white);
-        g.drawFittedText(text, r.toNearestInt(), juce::Justification::centred, 1);
 
     }
 
@@ -139,7 +129,6 @@ gateReleaseSliderAttachment(audioProcessor.apTreeState, "gateRelease", gateRelea
         addAndMakeVisible(comp);
     }
     
-    
     setSize (700, 500);
 }
 
@@ -177,16 +166,36 @@ void GuitarAmpGUIAudioProcessorEditor::drawCompressor()
     auto responseArea = bounds.removeFromBottom(bounds.getHeight() * 0.5);
     
     auto labelArea = bounds.removeFromTop(bounds.getHeight() * .33);
+    effectTitleLabel.setBounds(labelArea.getX() + 10, labelArea.getY() + 10, labelArea.getWidth() - 20, labelArea.getHeight() - 20);
+    effectTitleLabel.setFont(juce::Font(32.f, juce::Font::bold));
+    effectTitleLabel.setText("OUR COMPRESSOR", juce::dontSendNotification);
+    effectTitleLabel.setColour (juce::Label::textColourId, juce::Colours::white);
+    effectTitleLabel.setJustificationType (juce::Justification::left);
+    
     auto gateThresholdArea = bounds.removeFromLeft(bounds.getWidth() * 0.25);
     auto gateRatioArea = bounds.removeFromLeft(bounds.getWidth() * 0.33);
     auto gateAttackArea = bounds.removeFromLeft(bounds.getWidth() * 0.5);
     auto gateReleaseArea = bounds.removeFromLeft(bounds.getWidth());
     
     gateThresholdSlider.setBounds(gateThresholdArea.getX() + 20, gateThresholdArea.getY() + 20, gateThresholdArea.getWidth() - 40, gateThresholdArea.getHeight() - 40);
-    gateRatioSlider.setBounds(gateRatioArea.getX() + 20, gateRatioArea.getY() + 20, gateRatioArea.getWidth() - 40, gateRatioArea.getHeight() - 40);
-    gateAttackSlider.setBounds(gateAttackArea.getX() + 20, gateAttackArea.getY() + 20, gateAttackArea.getWidth() - 40, gateAttackArea.getHeight() - 40);
-    gateReleaseSlider.setBounds(gateReleaseArea.getX() + 20, gateReleaseArea.getY() + 20, gateReleaseArea.getWidth() - 40, gateReleaseArea.getHeight() - 40);
+    gateThresholdSliderLabel.setBounds(gateThresholdArea.getX() + 20, gateThresholdArea.getY() + gateThresholdArea.getHeight() - 40, gateThresholdArea.getWidth() - 40, 20);
+    gateThresholdSliderLabel.setText("Threshold", juce::dontSendNotification);
+    gateThresholdSliderLabel.setJustificationType (juce::Justification::centred);
     
+    gateRatioSlider.setBounds(gateRatioArea.getX() + 20, gateRatioArea.getY() + 20, gateRatioArea.getWidth() - 40, gateRatioArea.getHeight() - 40);
+    gateRatioSliderLabel.setBounds(gateRatioArea.getX() + 20, gateRatioArea.getY() + gateRatioArea.getHeight() - 40, gateRatioArea.getWidth() - 40, 20);
+    gateRatioSliderLabel.setText("Ratio", juce::dontSendNotification);
+    gateRatioSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    gateAttackSlider.setBounds(gateAttackArea.getX() + 20, gateAttackArea.getY() + 20, gateAttackArea.getWidth() - 40, gateAttackArea.getHeight() - 40);
+    gateAttackSliderLabel.setBounds(gateAttackArea.getX() + 20, gateAttackArea.getY() + gateAttackArea.getHeight() - 40, gateAttackArea.getWidth() - 40, 20);
+    gateAttackSliderLabel.setText("Attack", juce::dontSendNotification);
+    gateAttackSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    gateReleaseSlider.setBounds(gateReleaseArea.getX() + 20, gateReleaseArea.getY() + 20, gateReleaseArea.getWidth() - 40, gateReleaseArea.getHeight() - 40);
+    gateReleaseSliderLabel.setBounds(gateReleaseArea.getX() + 20, gateReleaseArea.getY() + gateReleaseArea.getHeight() - 40, gateReleaseArea.getWidth() - 40, 20);
+    gateReleaseSliderLabel.setText("Release", juce::dontSendNotification);
+    gateReleaseSliderLabel.setJustificationType (juce::Justification::centred);
     
 }
 
@@ -197,6 +206,11 @@ std::vector<juce::Component*> GuitarAmpGUIAudioProcessorEditor::getComps()
         &gateThresholdSlider,
         &gateRatioSlider,
         &gateAttackSlider,
-        &gateReleaseSlider
+        &gateReleaseSlider,
+        &effectTitleLabel,
+        &gateThresholdSliderLabel,
+        &gateRatioSliderLabel,
+        &gateAttackSliderLabel,
+        &gateReleaseSliderLabel
     };
 }

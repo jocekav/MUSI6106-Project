@@ -80,6 +80,11 @@ private:
     gateAttackSliderAttachment,
     gateReleaseSliderAttachment;
     
+    juce::Label gateThresholdSliderLabel,
+    gateRatioSliderLabel,
+    gateAttackSliderLabel,
+    gateReleaseSliderLabel;
+    
     juce::Label effectTitleLabel;
     
     std::vector<juce::Component*> getComps();
