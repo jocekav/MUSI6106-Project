@@ -60,6 +60,7 @@ public:
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
+    void drawCompressor();
 
 private:
     // This reference is provided as a quick way for your editor to
@@ -78,6 +79,8 @@ private:
     gateRatioSliderAttachment,
     gateAttackSliderAttachment,
     gateReleaseSliderAttachment;
+    
+    juce::Label effectTitleLabel;
     
     std::vector<juce::Component*> getComps();
     
