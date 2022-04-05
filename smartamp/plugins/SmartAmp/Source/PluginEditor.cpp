@@ -16,7 +16,7 @@ WaveNetVaAudioProcessorEditor::WaveNetVaAudioProcessorEditor (WaveNetVaAudioProc
     : AudioProcessorEditor (&p), processor (p)
 {
     addAndMakeVisible(loadButton);
-    loadButton.setButtonText("Load Tone");
+    loadButton.setButtonText("Load Tone111");
     loadButton.addListener(this);
 
     // Size of plugin GUI
