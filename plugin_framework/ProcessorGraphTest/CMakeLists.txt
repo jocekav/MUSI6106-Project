@@ -260,7 +260,7 @@ target_sources(Tests
         Source/Effects_new.cpp
         Source/PluginProcessor.cpp
         Tests/tests.cpp
-        Tests/main.cpp
+#        Tests/main.cpp
         )
 target_link_libraries(Tests
         PRIVATE
