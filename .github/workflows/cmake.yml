@@ -74,7 +74,7 @@ jobs:
     - name: CD
       shell: bash
       run:
-        cd ProcessorGraphTest
+        cd plugin_framework/ProcessorGraphTest
     - name: Configure
       shell: bash
       run: 
