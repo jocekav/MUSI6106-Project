@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="AudioProcessorGraphTutorial\sga">
       <UniqueIdentifier>{2F7EAA8D-1986-468D-6113-1769A8F4C41B}</UniqueIdentifier>

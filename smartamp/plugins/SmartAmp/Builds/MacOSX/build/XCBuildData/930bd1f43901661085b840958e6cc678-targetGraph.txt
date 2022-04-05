@@ -1,2 +1,0 @@
-Target dependency graph (1 target)
-SmartAmp - Shared Code in SmartAmp, no dependencies

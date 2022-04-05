@@ -2877,6 +2877,9 @@
     <ClInclude Include="..\..\Source\WaveNet.h">
       <Filter>SmartAmp\Source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\CSmartAmp.h">
+      <Filter>SmartAmp\Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\WaveNetLoader.h">
       <Filter>SmartAmp\Source</Filter>
     </ClInclude>

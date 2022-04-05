@@ -2298,6 +2298,7 @@
     <ClInclude Include="..\..\Source\PluginEditor.h"/>
     <ClInclude Include="..\..\Source\PluginProcessor.h"/>
     <ClInclude Include="..\..\Source\WaveNet.h"/>
+    <ClInclude Include="..\..\Source\CSmartAmp.h"/>
     <ClInclude Include="..\..\Source\WaveNetLoader.h"/>
     <ClInclude Include="C:\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h"/>
     <ClInclude Include="C:\JUCE\modules\juce_audio_basics\buffers\juce_AudioChannelSet.h"/>

@@ -52,6 +52,7 @@
             file="Source/PluginProcessor.h"/>
       <FILE id="BZWjtW" name="WaveNet.cpp" compile="1" resource="0" file="Source/WaveNet.cpp"/>
       <FILE id="ZND1h7" name="WaveNet.h" compile="0" resource="0" file="Source/WaveNet.h"/>
+      <FILE id="TX7WW8" name="CSmartAmp.h" compile="0" resource="0" file="Source/CSmartAmp.h"/>
       <FILE id="b1IRpO" name="WaveNetLoader.cpp" compile="1" resource="0"
             file="Source/WaveNetLoader.cpp"/>
       <FILE id="DKQUas" name="WaveNetLoader.h" compile="0" resource="0" file="Source/WaveNetLoader.h"/>

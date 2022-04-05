@@ -12,14 +12,12 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
-#include "myLookAndFeel.h"
 
 //==============================================================================
 /**
 */
 class WaveNetVaAudioProcessorEditor  : public AudioProcessorEditor,
-                                       private Button::Listener,
-                                       private Slider::Listener
+                                       private Button::Listener
                                 
 {
 public:
@@ -30,32 +28,13 @@ public:
     void paint (Graphics&) override;
     void resized() override;
 
-
-
 private:
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
     WaveNetVaAudioProcessor& processor;
 
-    // Amp Widgets
-    Slider ampCleanGainKnob;
-    Slider ampMasterKnob;
-    ImageButton ampOnButton;
-    ImageButton ampCleanLeadButton;
-    ImageButton ampLED;
-
-    
-    // LookandFeels 
-    myLookAndFeel ampSilverKnobLAF;
-
     TextButton loadButton;
-    Label modelLabel;
     juce::String fname;
     virtual void buttonClicked(Button* button) override;
     void loadButtonClicked();
-    virtual void sliderValueChanged(Slider* slider) override;
-    void ampOnButtonClicked();
-    void ampCleanLeadButtonClicked();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveNetVaAudioProcessorEditor)
 };
