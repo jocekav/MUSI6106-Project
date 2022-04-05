@@ -52,18 +52,18 @@ jobs:
   
     - name: Configure
       shell: bash
-      run: cmake -B ${{ env.BUILD_DIR }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE}} -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" .
+      run: cmake -B ${{ env.BUILD_DIR }}/plugin_framework/ProcessorGraphTest -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE}} -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" .
 
     - name: Build
       shell: bash
-      run: cmake --build ${{ env.BUILD_DIR }} --config ${{ env.BUILD_TYPE }}
+      run: cmake --build ${{ env.BUILD_DIR }}/plugin_framework/ProcessorGraphTest --config ${{ env.BUILD_TYPE }}
 
     - name: Test
-      working-directory: ${{ env.BUILD_DIR }}
+      working-directory: ${{ env.BUILD_DIR }}/plugin_framework/ProcessorGraphTest
       run: ctest
       
     - name: Pluginval Linux
-      working-directory: ${{ env.BUILD_DIR }}
+      working-directory: ${{ env.BUILD_DIR }}/plugin_framework/ProcessorGraphTest
       if: matrix.artifact == 'Linux'
       run: |
         curl -L "https://github.com/Tracktion/pluginval/releases/download/v0.3.0/pluginval_${{ matrix.artifact }}.zip" -o pluginval.zip
@@ -73,7 +73,7 @@ jobs:
         ./pluginval --strictness-level 10 --validate-in-process --verbose --output-dir "." --validate "${{ env.PROJECT_NAME }}_artefacts/${{ env.BUILD_TYPE }}/VST3/${{ env.PROJECT_NAME }}.vst3"
         
     - name: Pluginval Mac
-      working-directory: ${{ env.BUILD_DIR }}
+      working-directory: ${{ env.BUILD_DIR }}/plugin_framework/ProcessorGraphTest
       if: matrix.artifact == 'MacOS'
       run: |
         curl -L "https://github.com/Tracktion/pluginval/releases/download/v0.3.0/pluginval_${{ matrix.artifact }}.zip" -o pluginval.zip
@@ -82,7 +82,7 @@ jobs:
 
     - name: Pluginval Windows
       shell: cmd
-      working-directory: ${{ env.BUILD_DIR }}
+      working-directory: ${{ env.BUILD_DIR }}/plugin_framework/ProcessorGraphTest
       if: matrix.artifact == 'Windows'
       run: |
         powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest https://github.com/Tracktion/pluginval/releases/download/v0.3.0/pluginval_Windows.zip -OutFile pluginval.zip"
