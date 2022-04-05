@@ -65,7 +65,7 @@ jobs:
         
     - name: Get FRUT
       shell: bash
-      run: git clone https://github.com/McMartin/FRUT.git; cd FRUT; mkdir build && cd build/; cmake .. -DCMAKE_INSTALL_PREFIX="../prefix" -DJUCE_ROOT="../../JUCE"; cmake --build . --target install; cd ..; cd ..;
+      run: git clone https://github.com/McMartin/FRUT.git; cd FRUT; mkdir build && cd build/; cmake .. -DCMAKE_INSTALL_PREFIX="../prefix" -DJUCE_ROOT="../../JUCE"; cmake --build . --target install; cd ..; cd ..; pwd; ls;
       
     - name: CD
       shell: bash
