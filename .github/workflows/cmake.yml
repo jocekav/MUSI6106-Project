@@ -59,6 +59,9 @@ jobs:
       shell: bash
       run:
         cd plugin_framework
+    - name: Get JUCE
+      shell: bash
+      run: git clone https://github.com/juce-framework/JUCE.git;
         
     - name: Get FRUT
       shell: bash
