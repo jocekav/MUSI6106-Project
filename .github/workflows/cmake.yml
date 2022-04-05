@@ -50,10 +50,10 @@ jobs:
       with:
         key: ${{ matrix.os }}-${{ matrix.type }}
   
-    - name: LS
+    - name: pwd
       shell: bash
       run:
-        ls
+        pwd
         
     - name: CD
       shell: bash
