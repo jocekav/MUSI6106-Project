@@ -238,4 +238,46 @@ jucer_export_target_configuration(
   BINARY_NAME "ProcessorGraphTest"
 )
 
+#==================================================
+
+#==================================================
+project(GUITARAMPPLUGIN VERSION 0.0.1)
+set(JUCE_MODULES_GLOBAL_PATH "/Users/vedant/Desktop/Programming/JUCE/modules")
+set(CMAKE_CXX_STANDARD 17)
+
+include_directories(3rd-party/catch2)
+include_directories(JuceLibraryCode)
+include_directories("/../JUCE") # EDIT THIS WHEN CHANGING DIRECTORY
+link_directories(${JUCE_MODULES_GLOBAL_PATH})
+#list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/../FRUT/prefix/FRUT/cmake")
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../JUCE {CMAKE_CURRENT_BINARY_DIR}/JUCE)
+
+juce_add_console_app(Tests PRODUCT_NAME "Tests")
+
+target_sources(Tests
+        PRIVATE
+        Source/Amplifiers.cpp
+        Source/Effects_new.cpp
+        Source/PluginProcessor.cpp
+        Tests/tests.cpp
+        Tests/main.cpp
+        )
+target_link_libraries(Tests
+        PRIVATE
+        juce::juce_gui_extra
+        juce::juce_audio_utils
+        juce::juce_dsp
+        PUBLIC
+        juce::juce_recommended_config_flags
+        juce::juce_recommended_lto_flags
+        juce::juce_recommended_warning_flags)
+
+target_compile_definitions(Tests
+        PRIVATE
+        # JUCE_WEB_BROWSER and JUCE_USE_CURL would be on by default, but you might not need them.
+        JUCE_WEB_BROWSER=0  # If you remove this, add `NEEDS_WEB_BROWSER TRUE` to the `juce_add_gui_app` call
+        JUCE_USE_CURL=0)    # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_gui_app` call
+
+#catch_discover_tests(Tests)
+
 jucer_project_end()

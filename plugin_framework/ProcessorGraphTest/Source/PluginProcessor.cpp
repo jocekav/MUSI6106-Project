@@ -33,7 +33,7 @@ ProcessorGraphTestAudioProcessor::~ProcessorGraphTestAudioProcessor()
 //==============================================================================
 const juce::String ProcessorGraphTestAudioProcessor::getName() const
 {
-    return JucePlugin_Name;
+    return ProjectInfo::projectName;
 }
 
 bool ProcessorGraphTestAudioProcessor::acceptsMidi() const

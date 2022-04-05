@@ -126,7 +126,6 @@ CGainProcessor::CGainProcessor(juce::AudioProcessorValueTreeState* apvts, int in
     m_pAPVTS = apvts;
     suffix = "_" + std::to_string(instanceNumber);
     this->update();
-
 }
 
 void CGainProcessor::update()
