@@ -49,6 +49,11 @@ jobs:
       uses: hendrikmuhs/ccache-action@v1
       with:
         key: ${{ matrix.os }}-${{ matrix.type }}
+  
+    - name: LS
+      shell: bash
+      run:
+        ls
         
     - name: CD
       shell: bash
