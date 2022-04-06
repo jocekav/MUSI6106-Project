@@ -1,0 +1,2 @@
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar qc libtools_juce_core.a CMakeFiles/tools_juce_core.dir/Users/vedant/Desktop/Programming/MUSI6106-Project/plugin_framework/JUCE/modules/juce_core/juce_core.mm.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib libtools_juce_core.a
