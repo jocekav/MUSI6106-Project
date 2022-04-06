@@ -91,6 +91,44 @@ static bool contextHasTextureNpotFeature()
 class OpenGLContext::CachedImage  : public CachedComponentImage,
                                     private ThreadPoolJob
 {
+    struct AreaAndScale
+    {
+        Rectangle<int> area;
+        double scale;
+
+        auto tie() const { return std::tie (area, scale); }
+
+        auto operator== (const AreaAndScale& other) const { return tie() == other.tie(); }
+        auto operator!= (const AreaAndScale& other) const { return tie() != other.tie(); }
+    };
+
+    class LockedAreaAndScale
+    {
+    public:
+        auto get() const
+        {
+            const ScopedLock lock (mutex);
+            return data;
+        }
+
+        template <typename Fn>
+        void set (const AreaAndScale& d, Fn&& ifDifferent)
+        {
+            const auto old = [&]
+            {
+                const ScopedLock lock (mutex);
+                return std::exchange (data, d);
+            }();
+
+            if (old != d)
+                ifDifferent();
+        }
+
+    private:
+        CriticalSection mutex;
+        AreaAndScale data { {}, 1.0 };
+    };
+
 public:
     CachedImage (OpenGLContext& c, Component& comp,
                  const OpenGLPixelFormat& pixFormat, void* contextToShare)
@@ -205,8 +243,10 @@ public:
     }
 
     //==============================================================================
-    bool ensureFrameBufferSize()
+    bool ensureFrameBufferSize (Rectangle<int> viewportArea)
     {
+        JUCE_ASSERT_MESSAGE_MANAGER_IS_LOCKED
+
         auto fbW = cachedImageFrameBuffer.getWidth();
         auto fbH = cachedImageFrameBuffer.getHeight();
 
@@ -276,10 +316,13 @@ public:
 
         doWorkWhileWaitingForLock (true);
 
+        const auto currentAreaAndScale = areaAndScale.get();
+        const auto viewportArea = currentAreaAndScale.area;
+
         if (context.renderer != nullptr)
         {
             glViewport (0, 0, viewportArea.getWidth(), viewportArea.getHeight());
-            context.currentRenderScale = scale;
+            context.currentRenderScale = currentAreaAndScale.scale;
             context.renderer->renderOpenGL();
             clearGLError();
 
@@ -290,7 +333,7 @@ public:
         {
             if (isUpdating)
             {
-                paintComponent();
+                paintComponent (currentAreaAndScale);
 
                 if (! hasInitialised)
                     return false;
@@ -316,7 +359,7 @@ public:
         if (auto* peer = component.getPeer())
         {
            #if JUCE_MAC
-            const auto displayScale = [this]
+            const auto displayScale = Desktop::getInstance().getGlobalScaleFactor() * [this]
             {
                 if (auto* wrapper = cvDisplayLinkWrapper.get())
                     if (wrapper->updateActiveDisplay())
@@ -331,7 +374,7 @@ public:
                         return [window backingScaleFactor];
                 }
 
-                return scale;
+                return areaAndScale.get().scale;
             }();
            #else
             const auto displayScale = Desktop::getInstance().getDisplays().getDisplayForRect (component.getTopLevelComponent()->getScreenBounds())->scale;
@@ -350,10 +393,9 @@ public:
             auto newScale = displayScale;
            #endif
 
-            if (scale != newScale || viewportArea != newArea)
+            areaAndScale.set ({ newArea, newScale }, [&]
             {
-                scale = newScale;
-                viewportArea = newArea;
+                // Transform is only accessed when the message manager is locked
                 transform = AffineTransform::scale ((float) newArea.getWidth()  / (float) localBounds.getWidth(),
                                                     (float) newArea.getHeight() / (float) localBounds.getHeight());
 
@@ -361,13 +403,13 @@ public:
 
                 if (canTriggerUpdate)
                     invalidateAll();
-            }
+            });
         }
     }
 
     void bindVertexArray() noexcept
     {
-        if (openGLVersion.major >= 3)
+        if (shouldUseCustomVAO())
             if (vertexArrayObject != 0)
                 context.extensions.glBindVertexArray (vertexArrayObject);
     }
@@ -383,17 +425,19 @@ public:
         }
     }
 
-    void paintComponent()
+    void paintComponent (const AreaAndScale& currentAreaAndScale)
     {
+        JUCE_ASSERT_MESSAGE_MANAGER_IS_LOCKED
+
         // you mustn't set your own cached image object when attaching a GL context!
         jassert (get (component) == this);
 
-        if (! ensureFrameBufferSize())
+        if (! ensureFrameBufferSize (currentAreaAndScale.area))
             return;
 
-        RectangleList<int> invalid (viewportArea);
+        RectangleList<int> invalid (currentAreaAndScale.area);
         invalid.subtract (validArea);
-        validArea = viewportArea;
+        validArea = currentAreaAndScale.area;
 
         if (! invalid.isEmpty())
         {
@@ -572,15 +616,14 @@ public:
 
         gl::loadFunctions();
 
-        openGLVersion = getOpenGLVersion();
-
-        if (openGLVersion.major >= 3)
+        if (shouldUseCustomVAO())
         {
             context.extensions.glGenVertexArrays (1, &vertexArrayObject);
             bindVertexArray();
         }
 
-        glViewport (0, 0, viewportArea.getWidth(), viewportArea.getHeight());
+        const auto currentViewportArea = areaAndScale.get().area;
+        glViewport (0, 0, currentViewportArea.getWidth(), currentViewportArea.getHeight());
 
         nativeContext->setSwapInterval (1);
 
@@ -615,6 +658,31 @@ public:
         associatedObjects.clear();
         cachedImageFrameBuffer.release();
         nativeContext->shutdownOnRenderThread();
+    }
+
+    /*  Returns true if the context requires a non-zero vertex array object (VAO) to be bound.
+
+        If the context is a compatibility context, we can just pretend that VAOs don't exist,
+        and use the default VAO all the time instead. This provides a more consistent experience
+        in user code, which might make calls (like glVertexPointer()) that only work when VAO 0 is
+        bound in OpenGL 3.2+.
+    */
+    bool shouldUseCustomVAO() const
+    {
+       #if JUCE_OPENGL_ES
+        return false;
+       #else
+        clearGLError();
+        GLint mask = 0;
+        glGetIntegerv (GL_CONTEXT_PROFILE_MASK, &mask);
+
+        // The context isn't aware of the profile mask, so it pre-dates the core profile
+        if (glGetError() == GL_INVALID_ENUM)
+            return false;
+
+        // Also assumes a compatibility profile if the mask is completely empty for some reason
+        return (mask & (GLint) GL_CONTEXT_CORE_PROFILE_BIT) != 0;
+       #endif
     }
 
     //==============================================================================
@@ -707,13 +775,12 @@ public:
     OpenGLContext& context;
     Component& component;
 
-    Version openGLVersion;
     OpenGLFrameBuffer cachedImageFrameBuffer;
     RectangleList<int> validArea;
-    Rectangle<int> viewportArea, lastScreenBounds;
-    double scale = 1.0;
+    Rectangle<int> lastScreenBounds;
     AffineTransform transform;
     GLuint vertexArrayObject = 0;
+    LockedAreaAndScale areaAndScale;
 
     StringArray associatedObjectNames;
     ReferenceCountedArray<ReferenceCountedObject> associatedObjects;

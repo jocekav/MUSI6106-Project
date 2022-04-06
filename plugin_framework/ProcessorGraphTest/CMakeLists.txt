@@ -8,14 +8,18 @@ project("ProcessorGraphTest")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/../FRUT/prefix/FRUT/cmake")
 include(Reprojucer)
 
-
 set(ProcessorGraphTest_jucer_FILE
   "${CMAKE_CURRENT_LIST_DIR}/ProcessorGraphTest.jucer"
 )
 
 
-set(JUCE_MODULES_GLOBAL_PATH "/Users/vedant/Desktop/Programming/JUCE/modules")
-#set(JUCE_MODULES_GLOBAL_PATH "../JUCE/modules")
+#set(JUCE_MODULES_GLOBAL_PATH "/Users/vedant/Desktop/Programming/JUCE/modules")
+#set(JUCE_MODULES_GLOBAL_PATH "${CMAKE_CURRENT_LIST_DIR}/../../../JUCE/modules") # JUCE cloned folder
+set(JUCE_MODULES_GLOBAL_PATH "${CMAKE_CURRENT_LIST_DIR}/../JUCE/modules")  # Download zip from juce website
+
+message("CMAKE MODULE PATH: " ${CMAKE_MODULE_PATH})
+message("CMAKE_CURRENT_LIST_DIR: " ${CMAKE_CURRENT_LIST_DIR})
+message("JUCE MODULE PATH: " ${JUCE_MODULES_GLOBAL_PATH})
 
 
 jucer_project_begin(
@@ -245,18 +249,11 @@ jucer_export_target_configuration(
 project(GUITARAMPPLUGIN VERSION 0.0.1)
 #find_package(JUCE CONFIG REQUIRED)
 set(JUCE_DIR )
-#set(JUCE_MODULES_GLOBAL_PATH "/Users/vedant/Desktop/Programming/JUCE/modules")
-#set(JUCE_MODULES_GLOBAL_PATH "../JUCE/modules")
 set(CMAKE_CXX_STANDARD 17)
 
 include_directories(3rd-party/catch2)
 include_directories(JuceLibraryCode)
-#add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../JUCE)
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../JUCE JUCE)
-#include_directories("/../JUCE") # EDIT THIS WHEN CHANGING DIRECTORY
-#link_directories(${JUCE_MODULES_GLOBAL_PATH})
-#list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/../FRUT/prefix/FRUT/cmake")
-
+add_subdirectory(3rd-party/JUCE)
 
 juce_add_console_app(Tests PRODUCT_NAME "Tests")
 

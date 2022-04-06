@@ -15,16 +15,19 @@ cmake_minimum_required(VERSION 3.15)
 # directories, and the current project version. This is a standard CMake command.
 
 project(GUITARAMPPLUGIN VERSION 0.0.1)
-set(JUCE_MODULES_GLOBAL_PATH "/Users/vedant/Desktop/Programming/JUCE/modules")
+set(JUCE_MODULES_GLOBAL_PATH "${CMAKE_CURRENT_LIST_DIR}/../../../JUCE/modules") # JUCE cloned folder
+#set(JUCE_MODULES_GLOBAL_PATH "${CMAKE_CURRENT_LIST_DIR}/../JUCE/modules")
+message("Global Path: " ${JUCE_MODULES_GLOBAL_PATH})
 set(CMAKE_CXX_STANDARD 17)
 
 #find_package(JUCE CONFIG REQUIRED)
 
-include_directories(3rd-party/catch2)
-include_directories(JuceLibraryCode)
+#include_directories(3rd-party/catch2)
+#include_directories(JuceLibraryCode)
 link_directories(${JUCE_MODULES_GLOBAL_PATH})
+include_directories(3rd-party/catch2)
 #list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/../FRUT/prefix/FRUT/cmake")
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../JUCE {CMAKE_CURRENT_BINARY_DIR}/JUCE)
+#add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../JUCE JUCE)
 
 # If you've installed JUCE somehow (via a package manager, or directly using the CMake install
 # target), you'll need to tell this project that it depends on the installed copy of JUCE. If you've
@@ -33,8 +36,9 @@ add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../JUCE {CMAKE_CURRENT_BINARY_DIR}/JU
 
 # find_package(JUCE CONFIG REQUIRED)        # If you've installed JUCE to your system
 # or
-#add_subdirectory(JUCE)                    # If you've put JUCE in a subdirectory called JUCE
-
+add_subdirectory("3rd-party/JUCE")
+#include_directories("../JUCE")                    # If you've put JUCE in a subdirectory called JUCE
+include_directories(JuceLibraryCode)
 # If your app depends the VST2 SDK, perhaps to host VST2 plugins, CMake needs to be told where
 # to find the SDK on your system. This setup should be done before calling `juce_add_gui_app`.
 

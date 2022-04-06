@@ -582,7 +582,7 @@ private:
         cachedParamValues = CachedParamValues { { vstParamIDs.begin(), vstParamIDs.end() } };
     }
 
-    Vst::ParamID generateVSTParamIDForParam (AudioProcessorParameter* param)
+    Vst::ParamID generateVSTParamIDForParam (const AudioProcessorParameter* param)
     {
         auto juceParamID = LegacyAudioParameter::getParamID (param, false);
 
@@ -1174,19 +1174,19 @@ public:
     //==============================================================================
     void beginGesture (Vst::ParamID vstParamId)
     {
-        if (MessageManager::getInstance()->isThisTheMessageThread())
+        if (! inSetState && MessageManager::getInstance()->isThisTheMessageThread())
             beginEdit (vstParamId);
     }
 
     void endGesture (Vst::ParamID vstParamId)
     {
-        if (MessageManager::getInstance()->isThisTheMessageThread())
+        if (! inSetState && MessageManager::getInstance()->isThisTheMessageThread())
             endEdit (vstParamId);
     }
 
     void paramChanged (Steinberg::int32 parameterIndex, Vst::ParamID vstParamId, double newValue)
     {
-        if (inParameterChangedCallback)
+        if (inParameterChangedCallback || inSetState)
             return;
 
         if (MessageManager::getInstance()->isThisTheMessageThread())
@@ -1354,6 +1354,7 @@ private:
     std::vector<std::unique_ptr<OwnedParameterListener>> ownedParameterListeners;
 
     //==============================================================================
+    bool inSetState = false;
     std::atomic<bool> vst3IsPlaying     { false },
                       inSetupProcessing { false };
 
@@ -1579,7 +1580,7 @@ private:
                            Steinberg::IPlugView* viewIn)
             : processor (processorIn), editor (editorIn), componentHandler (handler), view (viewIn) {}
 
-        std::unique_ptr<HostProvidedContextMenu> getContextMenuForParameterIndex (const AudioProcessorParameter* parameter) const override
+        std::unique_ptr<HostProvidedContextMenu> getContextMenuForParameter (const AudioProcessorParameter* parameter) const override
         {
             if (componentHandler == nullptr || view == nullptr)
                 return {};
@@ -2207,14 +2208,14 @@ class JuceVST3Component : public Vst::IComponent,
 {
 public:
     JuceVST3Component (Vst::IHostApplication* h)
-      : pluginInstance (createPluginFilterOfType (AudioProcessor::wrapperType_VST3)),
-        host (h)
+        : pluginInstance (createPluginFilterOfType (AudioProcessor::wrapperType_VST3)),
+          host (h)
     {
         inParameterChangedCallback = false;
 
        #ifdef JucePlugin_PreferredChannelConfigurations
         short configs[][2] = { JucePlugin_PreferredChannelConfigurations };
-        const int numConfigs = sizeof (configs) / sizeof (short[2]);
+        const int numConfigs = numElementsInArray (configs);
 
         ignoreUnused (numConfigs);
         jassert (numConfigs > 0 && (configs[0][0] > 0 || configs[0][1] > 0));
@@ -2370,10 +2371,10 @@ public:
     tresult PLUGIN_API getRoutingInfo (Vst::RoutingInfo&, Vst::RoutingInfo&) override   { return kNotImplemented; }
 
     //==============================================================================
-    bool isBypassed()
+    bool isBypassed() const
     {
         if (auto* bypassParam = comPluginInstance->getBypassParameter())
-            return (bypassParam->getValue() != 0.0f);
+            return bypassParam->getValue() >= 0.5f;
 
         return false;
     }
@@ -2433,6 +2434,10 @@ public:
 
     void setStateInformation (const void* data, int sizeAsInt)
     {
+        bool unusedState = false;
+        auto& flagToSet = juceVST3EditController != nullptr ? juceVST3EditController->inSetState : unusedState;
+        const ScopedValueSetter<bool> scope (flagToSet, true);
+
         auto size = (uint64) sizeAsInt;
 
         // Check if this data was written with a newer JUCE version
@@ -2636,6 +2641,10 @@ public:
 
     tresult PLUGIN_API setState (IBStream* state) override
     {
+        // The VST3 spec requires that this function is called from the UI thread.
+        // If this assertion fires, your host is misbehaving!
+        JUCE_ASSERT_MESSAGE_THREAD
+
         if (state == nullptr)
             return kInvalidArgument;
 
@@ -2763,7 +2772,7 @@ public:
 
       #ifdef JucePlugin_PreferredChannelConfigurations
         short configs[][2] = {JucePlugin_PreferredChannelConfigurations};
-        const int numConfigs = sizeof (configs) / sizeof (short[2]);
+        const int numConfigs = numElementsInArray (configs);
 
         bool hasOnlyZeroChannels = true;
 
@@ -3374,7 +3383,9 @@ private:
                 if (totalInputChans == pluginInstance->getTotalNumInputChannels()
                  && totalOutputChans == pluginInstance->getTotalNumOutputChannels())
                 {
-                    if (isBypassed())
+                    // processBlockBypassed should only ever be called if the AudioProcessor doesn't
+                    // return a valid parameter from getBypassParameter
+                    if (pluginInstance->getBypassParameter() == nullptr && comPluginInstance->getBypassParameter()->getValue() >= 0.5f)
                         pluginInstance->processBlockBypassed (buffer, midiBuffer);
                     else
                         pluginInstance->processBlock (buffer, midiBuffer);
@@ -3489,7 +3500,7 @@ private:
             ptr = {};
         }
 
-        T* operator->()               { return ptr.operator->(); }
+        T* operator->() const         { return ptr.operator->(); }
         T* get() const noexcept       { return ptr.get(); }
         operator T*() const noexcept  { return ptr.get(); }
 

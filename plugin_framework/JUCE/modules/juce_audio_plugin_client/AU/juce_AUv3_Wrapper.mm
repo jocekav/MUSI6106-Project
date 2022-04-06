@@ -968,7 +968,7 @@ public:
         }
     }
 
-    void audioProcessorParameterChanged (AudioProcessor*, int idx, float newValue) override
+    void sendParameterEvent (int idx, const float* newValue, AUParameterAutomationEventType type)
     {
         if (inParameterChangedCallback.get())
         {
@@ -978,16 +978,38 @@ public:
 
         if (auto* juceParam = juceParameters.getParamForIndex (idx))
         {
-            if (AUParameter* param = [paramTree.get() parameterWithAddress: getAUParameterAddressForIndex (idx)])
+            if (auto* param = [paramTree.get() parameterWithAddress: getAUParameterAddressForIndex (idx)])
             {
-                newValue *= getMaximumParameterValue (juceParam);
+                const auto value = (newValue != nullptr ? *newValue : juceParam->getValue()) * getMaximumParameterValue (juceParam);
 
-                if (editorObserverToken != nullptr)
-                    [param setValue: newValue  originator: editorObserverToken];
-                else
-                    [param setValue: newValue];
+                if (@available (macOS 10.12, *))
+                {
+                    [param setValue: value
+                         originator: editorObserverToken
+                         atHostTime: lastTimeStamp.mHostTime
+                          eventType: type];
+                }
+                else if (type == AUParameterAutomationEventTypeValue)
+                {
+                    [param setValue: value originator: editorObserverToken];
+                }
             }
         }
+    }
+
+    void audioProcessorParameterChanged (AudioProcessor*, int idx, float newValue) override
+    {
+        sendParameterEvent (idx, &newValue, AUParameterAutomationEventTypeValue);
+    }
+
+    void audioProcessorParameterChangeGestureBegin (AudioProcessor*, int idx) override
+    {
+        sendParameterEvent (idx, nullptr, AUParameterAutomationEventTypeTouch);
+    }
+
+    void audioProcessorParameterChangeGestureEnd (AudioProcessor*, int idx) override
+    {
+        sendParameterEvent (idx, nullptr, AUParameterAutomationEventTypeRelease);
     }
 
     //==============================================================================
@@ -1595,7 +1617,7 @@ private:
                 for (int busIdx = 0; busIdx < numProcessorBusesIn; ++busIdx)
                     audioBuffer.set (busIdx, *inBusBuffers[busIdx]->get(), mapper.get (true, busIdx));
 
-                audioBuffer.clearUnusedChannels();
+                audioBuffer.clearUnusedChannels ((int) frameCount);
             }
 
             // process audio
@@ -1630,7 +1652,7 @@ private:
 
         if (processor.isSuspended())
             buffer.clear();
-        else if (bypassParam != nullptr && [au shouldBypassEffect])
+        else if (bypassParam == nullptr && [au shouldBypassEffect])
             processor.processBlockBypassed (buffer, midiBuffer);
         else
             processor.processBlock (buffer, midiBuffer);
@@ -1947,7 +1969,7 @@ public:
         if (holder == nullptr)
             return nullptr;
 
-        return (new JuceAudioUnitv3 (holder, descr, 0, error))->getAudioUnit();
+        return [(new JuceAudioUnitv3 (holder, descr, 0, error))->getAudioUnit() autorelease];
     }
 
 private:
