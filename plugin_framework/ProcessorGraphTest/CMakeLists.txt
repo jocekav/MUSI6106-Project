@@ -282,5 +282,5 @@ target_compile_definitions(Tests
         JUCE_USE_CURL=0)    # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_gui_app` call
 
 #catch_discover_tests(Tests)
-
+jucer_export_target("Linux Makefile")
 jucer_project_end()
