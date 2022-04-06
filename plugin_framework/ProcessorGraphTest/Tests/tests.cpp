@@ -19,6 +19,7 @@
 
 TEST_CASE("processor: Name", "[processor]")
 {
+    std::cout << "Testing processor name" << std::endl;
     auto processor = ProcessorGraphTestAudioProcessor {};
     REQUIRE(processor.getName() == juce::String {"ProcessorGraphTest"});
     processor.releaseResources();
@@ -27,6 +28,7 @@ TEST_CASE("processor: Name", "[processor]")
 
 TEST_CASE("processor: BusesLayoutSupportMono", "[processor]")
 {
+    std::cout << "Testing processor mono support" << std::endl;
     auto processor     = ProcessorGraphTestAudioProcessor {};
     auto layout        = juce::AudioProcessor::BusesLayout {};
     layout.inputBuses  = juce::AudioChannelSet::mono();
@@ -36,33 +38,27 @@ TEST_CASE("processor: BusesLayoutSupportMono", "[processor]")
     processor.releaseResources();
 }
 
-//ProcessorGraphTestAudioProcessor testPlugin;
-//
-//TEST_CASE("Plugin instance name check", "[name]")
-//{
-//    std::cout << "Testing plugin name" << std::endl;
-//    CHECK_THAT(testPlugin.getName().toStdString(), Catch::Matchers::Equals("ProcessorGraphTest"));
-//}
-//
-//TEST_CASE("Set and get param values directly from the apvts", "[params-apvts]")
-//{
-//    std::cout << "Testing apvts param value set/get" << std::endl;
-//
-//    REQUIRE(testPlugin.apvts.getRawParameterValue("CompressorBypass_0")->load() == false);
-//    testPlugin.apvts.state.setProperty("CompressorBypass_0",true,nullptr);
-////    REQUIRE(static_cast<bool>(testPlugin.apvts.getRawParameterValue("CompressorBypass_0")->load()) == true);
-//    REQUIRE(static_cast<bool>(testPlugin.apvts.state.getProperty("CompressorBypass_0")) == true);
-//}
-//
-//TEST_CASE("Set and get param values from a node", "[params-node]")
-//{
-//
-//}
-//
-//TEST_CASE("Creating instances of a node", "[node-instances]")
-//{
-//
-//}
+TEST_CASE("processor: apvts value set/get", "[params-apvts]")
+{
+    std::cout << "Testing apvts param value set/get" << std::endl;
+    auto processor     = ProcessorGraphTestAudioProcessor {};
+    REQUIRE(processor.apvts.getRawParameterValue("CompressorBypass_0")->load() == false);
+    processor.apvts.state.setProperty("CompressorBypass_0",true,nullptr);
+//    REQUIRE(static_cast<bool>(testPlugin.apvts.getRawParameterValue("CompressorBypass_0")->load()) == true);
+    REQUIRE(static_cast<bool>(processor.apvts.state.getProperty("CompressorBypass_0")) == true);
+}
 
 
+TEST_CASE("processor: create nodes and test naming","[create-nodes]")
+{
+    auto processor     = ProcessorGraphTestAudioProcessor {};
+    processor.prepareToPlay(44100, 2048);
+    REQUIRE(processor.inputGainNode->getProcessor()->getName() == "Gain_0");
+    REQUIRE(processor.outputGainNode->getProcessor()->getName() == "Gain_1");
+
+    for (int i=0; i<processor.apvts.state.getNumProperties();i++)
+    {
+        std::cout << processor.apvts.state.getPropertyName(i).toString() << std::endl;
+    }
+}
 

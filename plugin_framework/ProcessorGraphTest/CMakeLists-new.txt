@@ -103,7 +103,8 @@ target_sources(Tests
         Source/Effects_new.cpp
         Source/PluginEditor.cpp
         Source/PluginProcessor.cpp
-        Source/tests.cpp
+        Tests/tests.cpp
+        Tests/main.cpp
         )
 
 # `target_compile_definitions` adds some preprocessor definitions to our target. In a Projucer
@@ -150,6 +151,7 @@ target_link_libraries(GuitarAmpPlugin
         Common
         juce::juce_gui_extra
         juce::juce_audio_utils
+        juce::juce_dsp
         PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
