@@ -55,9 +55,9 @@ jobs:
       run:
         pwd
         
-    - name: Get FRUT
-      shell: bash
-      run: cd plugin_framework; git clone https://github.com/McMartin/FRUT.git; cd FRUT; mkdir build && cd build/; cmake .. -DCMAKE_INSTALL_PREFIX="../prefix" -DJUCE_ROOT="../../JUCE"; cmake --build . --target install;
+#     - name: Get FRUT
+#       shell: bash
+#       run: cd plugin_framework; git clone https://github.com/McMartin/FRUT.git; cd FRUT; mkdir build && cd build/; cmake .. -DCMAKE_INSTALL_PREFIX="../prefix" -DJUCE_ROOT="../../JUCE"; cmake --build . --target install;
       
     - name: Check for Reprojucer
       shell: bash
