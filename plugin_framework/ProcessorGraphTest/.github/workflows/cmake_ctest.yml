@@ -4,8 +4,8 @@ on: [push]
 
 env:
   PROJECT_NAME: ProcessorGraphTest # Must match the JUCE project name from juce_add_plugin
-  BUILD_TYPE: Release
-  BUILD_DIR: Builds
+  BUILD_TYPE: /plugin_framework/ProcessorGraphTest/Release
+  BUILD_DIR: /plugin_framework/ProcessorGraphTest/Builds
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   DISPLAY: :0 # linux pluginval needs this
 
