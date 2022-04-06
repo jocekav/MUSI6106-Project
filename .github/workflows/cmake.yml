@@ -57,7 +57,7 @@ jobs:
     - name: Check for Reprojucer
       shell: bash
       run:
-        cd plugin_framework/FRUT/prefix/FRUT/cmake; ls;
+        cd plugin_framework;ls;cd FRUT; ls;#cd prefix/FRUT/cmake; ls;
 #     - name: Get JUCE
 #       shell: bash
 #       run: cd plugin_framework; git clone https://github.com/juce-framework/JUCE.git;
