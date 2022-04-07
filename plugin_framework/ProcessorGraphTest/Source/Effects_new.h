@@ -2,6 +2,7 @@
 // Created by Vedant Kalbag on 29/03/22.
 //
 #include "BaseProcessor.h"
+#include "juce_TriodeWaveShaper.h"
 
 #ifndef PROCESSORGRAPHTEST_EFFECTS_NEW_H
 #define PROCESSORGRAPHTEST_EFFECTS_NEW_H
@@ -135,5 +136,53 @@ private:
 //  Amplifier Processor Node
 //================================================================================================================
 
+class CPreampProcessorChain : public ProcessorBase
+{
+public:
+    const juce::String getName() const override { return "Preamp" + suffix; }
+    CPreampProcessorChain(juce::AudioProcessorValueTreeState* apvts, int instanceNumber);
+    void prepareToPlay(double sampleRate, int samplesPerBlock) override;
+    void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
+    void reset() override;
+    juce::AudioProcessorValueTreeState* m_pAPVTS;
+private:
 
+    // Tonestack Params based on the TMB Fender Bassman tone stack
+    const double C1 = 0.25e-9;
+    const double C2 = 20e-9;
+    const double C3 = C2;
+    const double R1 = 250e3;
+    const double R2 = 1e6;
+    const double R3 = 25e3;
+    const double R4 = 56e3;
+
+    const double t = 0.5;
+    const double l = 0.5;
+    const double m = 0.5;
+
+    // Tone Stack param calculator
+    std::array<float, 8> tonestackCalcParam(double sampleRate);
+
+    enum
+    {
+        preGainIndex,
+        waveshaperIndex,
+        filterLowIndex,
+        filterHighIndex,
+        postGainIndex,
+        tonestackIndex
+    };
+
+    using Filter = juce::dsp::IIR::Filter<float>;
+    using FilterCoefs = juce::dsp::IIR::Coefficients<float>;
+
+    juce::dsp::ProcessorChain<juce::dsp::Gain<float>, juce::dsp::TriodeWaveShaper<float>, 
+        juce::dsp::ProcessorDuplicator<Filter, FilterCoefs>, juce::dsp::ProcessorDuplicator<Filter, FilterCoefs>,
+        juce::dsp::Gain<float>, juce::dsp::ProcessorDuplicator<Filter, FilterCoefs>> ampProcessorChain;
+
+    bool isActive;
+    std::string suffix;
+};
+
+//==============================================================================
 #endif //PROCESSORGRAPHTEST_EFFECTS_NEW_H
