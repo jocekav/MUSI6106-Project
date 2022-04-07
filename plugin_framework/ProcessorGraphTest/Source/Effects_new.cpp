@@ -5,160 +5,6 @@
 #include "Effects_new.h"
 
 //================================================================================================================
-//  EQ Processor Node
-//================================================================================================================
-
-CEqualizerProcessor::CEqualizerProcessor(juce::AudioProcessorValueTreeState *apvts, int instanceNumber)
-{
-    m_pAPVTS = apvts;
-    suffix = "_" + std::to_string(instanceNumber);
-//    this->update();
-}
-void CEqualizerProcessor::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params, int i = 0)
-{
-    std::function<juce::String(float,int)> valueToTextFunction=[](float x, int l) {return juce::String(x,4);};
-    std::function<float(const juce::String&)> textToValueFunction=[](const juce::String& str) {return str.getFloatValue();};
-
-    std::string num = std::to_string(i);
-    // TODO: ADD EQ PARAMS
-    std::string byp = "EqualizerBypass_" + num;
-    std::string lpf = "EqualizerLPF_" + num;
-    std::string lpq = "EqualizerLPFQ_" + num;
-    std::string hpf = "EqualizerHPF_" + num;
-    std::string hpq = "EqualizerHPFQ_" + num;
-    std::string lomidf = "EqualizerLMF_" + num;
-    std::string lomidq = "EqualizerLMQ_" + num;
-    std::string lomidgain = "EqualizerLMGain_" + num;
-    std::string midf = "EqualizerMF_" + num;
-    std::string midq = "EqualizerMQ_" + num;
-    std::string midgain = "EqualizerMGain_" + num;
-    std::string himidf = "EqualizerHMF_" + num;
-    std::string himidq = "EqualizerHMQ_" + num;
-    std::string himidgain = "EqualizerHMGain_" + num;
-
-
-    params.push_back(std::make_unique<juce::AudioParameterBool>(byp, "Bypass", false));
-    //LowPass
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(lpf,"Low Pass Cutoff Frequency",juce::NormalisableRange<float>(20.0f,22000.0f,1.0f,0.95f),20000.0f,"Hz",juce::AudioProcessorParameter::genericParameter,valueToTextFunction,textToValueFunction));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(lpq,"Low Pass Q",juce::NormalisableRange<float>(0.0f,20.0f,1.0f,0.25f),1.0f,"Q",juce::AudioProcessorParameter::genericParameter,valueToTextFunction,textToValueFunction));
-
-    //High Pass
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(hpf,"High Pass Cutoff Frequency",juce::NormalisableRange<float>(20.0f,22000.0f,1.0f,0.2f),20.0f,"Hz",juce::AudioProcessorParameter::genericParameter,valueToTextFunction,textToValueFunction));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(hpq,"High Pass Q",juce::NormalisableRange<float>(0.0f,20.0f,1.0f,0.25f),1.0f,"Q",juce::AudioProcessorParameter::genericParameter,valueToTextFunction,textToValueFunction));
-
-    //Low Mid
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(lomidf,"Low-Mid Centre Frequency",juce::NormalisableRange<float>(20.0f,300.0f,1.0f,0.8f),200.0f,"Hz",juce::AudioProcessorParameter::genericParameter,valueToTextFunction,textToValueFunction));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(lomidq,"Low-Mid Q",juce::NormalisableRange<float>(0.0f,20.0f,1.0f,0.25f),1.0f,"Q",juce::AudioProcessorParameter::genericParameter,valueToTextFunction,textToValueFunction));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(lomidgain, "Low-Mid Gain", -40.0f, 40.0f, -2.0f));
-
-    //Mid
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(midf,"Mid Centre Frequency",juce::NormalisableRange<float>(250.0f,2500.0f,1.0f,0.5f),800.0f,"Hz",juce::AudioProcessorParameter::genericParameter,valueToTextFunction,textToValueFunction));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(midq,"Mid Q",juce::NormalisableRange<float>(0.0f,20.0f,1.0f,0.25f),1.0f,"Q",juce::AudioProcessorParameter::genericParameter,valueToTextFunction,textToValueFunction));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(midgain, "Mid Gain", -40.0f, 40.0f, -2.0f));
-
-    //High Mid
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(himidf,"High-Mid Centre Frequency",juce::NormalisableRange<float>(2000.0f,20000.0f,1.0f,0.5f),4000.0f,"Hz",juce::AudioProcessorParameter::genericParameter,valueToTextFunction,textToValueFunction));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(himidq,"High-Mid Q",juce::NormalisableRange<float>(0.0f,20.0f,1.0f,0.25f),1.0f,"Q",juce::AudioProcessorParameter::genericParameter,valueToTextFunction,textToValueFunction));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(himidgain, "High-Mid Gain", -40.0f, 40.0f, -2.0f ));
-
-}
-
-void CEqualizerProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
-{
-    this->reset();
-    this->update();
-    juce::dsp::ProcessSpec spec { sampleRate, static_cast<juce::uint32> (samplesPerBlock), 2 };
-    gainCorrection.prepare(spec);
-    isActive=true;
-}
-
-void CEqualizerProcessor::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer &)
-{
-    this->update();
-    if(!isActive)
-        return;
-    if(isBypassed)
-        return;
-    juce::ScopedNoDenormals noDenormals;
-    auto totalNumInputChannels  = getTotalNumInputChannels();
-    auto totalNumOutputChannels = getTotalNumOutputChannels();
-    auto numSamples = buffer.getNumSamples();
-    auto numChannels = juce::jmin(totalNumInputChannels,totalNumOutputChannels);
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, numSamples);
-
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
-        auto channelMaxVal = 0.0f;
-        //Filter Audio
-        lowPass[channel].processSamples(channelData, numSamples);
-        highPass[channel].processSamples(channelData, numSamples);
-        lowMid[channel].processSamples(channelData, numSamples);
-        midFilter[channel].processSamples(channelData, numSamples);
-        highMid[channel].processSamples(channelData, numSamples);
-    }
-    juce::dsp::AudioBlock<float> block(buffer);
-    juce::dsp::ProcessContextReplacing<float> context(block);
-    gainCorrection.process(context);
-
-}
-
-void CEqualizerProcessor::reset()
-{
-    // Reset DSP parameters
-    for(int channel=0;channel<2;++channel)
-    {
-        lowPass[channel].reset();
-        highPass[channel].reset();
-        lowMid[channel].reset();
-        midFilter[channel].reset();
-        highMid[channel].reset();
-    }
-}
-
-void CEqualizerProcessor::update()
-{
-
-    isBypassed = static_cast<bool>(m_pAPVTS->getRawParameterValue("EqualizerBypass" + suffix)->load());
-
-
-    lowPassFreq.setTargetValue(m_pAPVTS->getRawParameterValue("EqualizerLPF" + suffix)->load());
-    lowPassQ.setTargetValue(m_pAPVTS->getRawParameterValue("EqualizerLPFQ" + suffix)->load());
-
-    highPassFreq.setTargetValue(m_pAPVTS->getRawParameterValue("EqualizerHPF" + suffix)->load());
-    highPassQ.setTargetValue(m_pAPVTS->getRawParameterValue("EqualizerHPFQ" + suffix)->load());
-
-    lowMidFreq.setTargetValue(m_pAPVTS->getRawParameterValue("EqualizerLMF" + suffix)->load());
-    lowMidQ.setTargetValue(m_pAPVTS->getRawParameterValue("EqualizerLMQ" + suffix)->load());
-    lowMidGain.setTargetValue(m_pAPVTS->getRawParameterValue("EqualizerLMGain" + suffix)->load());
-
-    midFreq.setTargetValue(m_pAPVTS->getRawParameterValue("EqualizerMF" + suffix)->load());
-    midQ.setTargetValue(m_pAPVTS->getRawParameterValue("EqualizerMQ" + suffix)->load());
-    midGain.setTargetValue(m_pAPVTS->getRawParameterValue("EqualizerMGain" + suffix)->load());
-
-    highMidFreq.setTargetValue(m_pAPVTS->getRawParameterValue("EqualizerHMF" + suffix)->load());
-    highMidQ.setTargetValue(m_pAPVTS->getRawParameterValue("EqualizerHMQ" + suffix)->load());
-    highMidGain.setTargetValue(m_pAPVTS->getRawParameterValue("EqualizerHMGain" + suffix)->load());
-    //==============================================================================
-    auto sr=getSampleRate();
-    for(int channel=0;channel<2;++channel)
-    {
-        lowPass[channel].setCoefficients(juce::IIRCoefficients::makeLowPass (sr, lowPassFreq.getNextValue(),lowPassQ.getNextValue()));
-        highPass[channel].setCoefficients(juce::IIRCoefficients::makeHighPass(sr, highPassFreq.getNextValue(), highPassQ.getNextValue()));
-        float lowMidGainInDB = lowMidGain.getNextValue();
-        float midGainInDB = midGain.getNextValue();
-        float highMidGainInDB = highMidGain.getNextValue();
-
-        lowMid[channel].setCoefficients(juce::IIRCoefficients::makePeakFilter(sr, lowMidFreq.getNextValue(), lowMidQ.getNextValue(),juce::Decibels::decibelsToGain(lowMidGainInDB )));
-        midFilter[channel].setCoefficients(juce::IIRCoefficients::makePeakFilter(sr, midFreq.getNextValue(), midQ.getNextValue(), juce::Decibels::decibelsToGain(midGainInDB)));
-        highMid[channel].setCoefficients(juce::IIRCoefficients::makePeakFilter(sr, highMidFreq.getNextValue(), highMidQ.getNextValue(), juce::Decibels::decibelsToGain(highMidGainInDB)));
-    }
-    gainCorrection.setGainDecibels(1.99483f);
-}
-
-
-//================================================================================================================
 //  Compressor Processor Node
 //================================================================================================================
 void CCompressorProcessor::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params, int i = 0)
@@ -172,7 +18,7 @@ void CCompressorProcessor::addToParameterLayout(std::vector<std::unique_ptr<juce
     std::string rel = "CompressorRelease_" + num;
     std::string mkg = "CompressorMakeupGain_" + num;
 
-    params.push_back(std::make_unique<juce::AudioParameterBool>(byp, "Bypass", true));
+    params.push_back(std::make_unique<juce::AudioParameterBool>(byp, "Bypass", false));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(ipg, "Input Gain", -30.f, 30.f, 0.f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(thr, "Threshold", -60.f, 0.f, -6.f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(rto, "Ratio", 1.f, 40.f, 1.f));
@@ -209,13 +55,13 @@ CCompressorProcessor::CCompressorProcessor(juce::AudioProcessorValueTreeState* a
 void CCompressorProcessor::update()
 {
 
-    isBypassed = static_cast<bool>(m_pAPVTS->getRawParameterValue("CompressorBypass"+suffix)->load());
-    inputgain.setTargetValue((m_pAPVTS->getRawParameterValue("CompressorInputGain"+suffix)->load()));
+    isBypassed = m_pAPVTS->getRawParameterValue("CompressorBypass"+suffix)->load();
+    inputgain.setTargetValue(juce::Decibels::decibelsToGain (m_pAPVTS->getRawParameterValue("CompressorInputGain"+suffix)->load()));
     threshold.setTargetValue(m_pAPVTS->getRawParameterValue("CompressorThreshold"+suffix)->load());
     ratio.setTargetValue(m_pAPVTS->getRawParameterValue("CompressorRatio"+suffix)->load());
     attack.setTargetValue(m_pAPVTS->getRawParameterValue("CompressorAttack"+suffix)->load());
     release.setTargetValue(m_pAPVTS->getRawParameterValue("CompressorRelease"+suffix)->load());
-    makeupgain.setTargetValue((m_pAPVTS->getRawParameterValue("CompressorMakeupGain"+suffix)->load()));
+    makeupgain.setTargetValue(juce::Decibels::decibelsToGain (m_pAPVTS->getRawParameterValue("CompressorMakeupGain"+suffix)->load()));
 
     Compressor.setThreshold(threshold.getNextValue());
     Compressor.setRatio(ratio.getNextValue());
@@ -284,7 +130,8 @@ CGainProcessor::CGainProcessor(juce::AudioProcessorValueTreeState* apvts, int in
 
 void CGainProcessor::update()
 {
-    gain.setTargetValue((m_pAPVTS->getRawParameterValue("GainValue" + suffix)->load()));
+
+    gain.setTargetValue(juce::Decibels::decibelsToGain (m_pAPVTS->getRawParameterValue("GainValue"+suffix)->load()));
     Gain.setGainDecibels(gain.getNextValue());
 
 }
@@ -300,7 +147,6 @@ void CGainProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 void CGainProcessor::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer &)
 {
     this->update();
-
     if(!isActive)
         return;
     juce::dsp::AudioBlock<float> block(buffer);
@@ -355,7 +201,7 @@ CReverbProcessor::CReverbProcessor(juce::AudioProcessorValueTreeState* apvts, in
 
 void CReverbProcessor::update()
 {
-    isBypassed = static_cast<bool>(m_pAPVTS->getRawParameterValue("ReverbBypass"+suffix)->load());
+    isBypassed = m_pAPVTS->getRawParameterValue("ReverbBypass"+suffix)->load();
     damping.setTargetValue(m_pAPVTS->getRawParameterValue("ReverbDamping"+suffix)->load());
     roomsize.setTargetValue(m_pAPVTS->getRawParameterValue("ReverbRoomSize"+suffix)->load());
 
@@ -369,25 +215,22 @@ void CReverbProcessor::update()
     reverbParams.roomSize = roomsize.getNextValue();
 
     Reverb.setParameters(reverbParams);
-    gainCorrection.setGainDecibels(1.39541f);
+
 }
 
 void CReverbProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     Reverb.reset();
     this->update();
-    juce::dsp::ProcessSpec spec { sampleRate, static_cast<juce::uint32> (samplesPerBlock), 2 };
-    gainCorrection.prepare(spec);
     isActive=true;
-
 }
 
 void CReverbProcessor::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer &)
 {
     this->update();
-    if(!isActive)
+    if (!isActive)
         return;
-    if(isBypassed)
+    if (isBypassed)
         return;
     const auto totalNumInputChannels  = getTotalNumInputChannels();
     const auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -398,15 +241,11 @@ void CReverbProcessor::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiB
         Reverb.processMono (buffer.getWritePointer (0), buffer.getNumSamples());
     else if (numChannels == 2)
         Reverb.processStereo (buffer.getWritePointer (0), buffer.getWritePointer (1), buffer.getNumSamples());
-    juce::dsp::AudioBlock<float> block(buffer);
-    juce::dsp::ProcessContextReplacing<float> context(block);
-    gainCorrection.process(context);
 }
 
 void CReverbProcessor::reset()
 {
     Reverb.reset();
-    gainCorrection.reset();
 }
 
 //================================================================================================================
@@ -448,7 +287,7 @@ CPhaserProcessor::CPhaserProcessor(juce::AudioProcessorValueTreeState* apvts, in
 
 void CPhaserProcessor::update()
 {
-    isBypassed = static_cast<bool>(m_pAPVTS->getRawParameterValue("PhaserBypass"+suffix)->load());
+    isBypassed = m_pAPVTS->getRawParameterValue("PhaserBypass"+suffix)->load();
     rate.setTargetValue(m_pAPVTS->getRawParameterValue("PhaserRate"+suffix)->load());
     depth.setTargetValue(m_pAPVTS->getRawParameterValue("PhaserDepth"+suffix)->load());
     fc.setTargetValue(m_pAPVTS->getRawParameterValue("PhaserFc"+suffix)->load());
@@ -460,15 +299,12 @@ void CPhaserProcessor::update()
     Phaser.setCentreFrequency(fc.getNextValue());
     Phaser.setFeedback(feedback.getNextValue());
     Phaser.setMix(blend.getNextValue());
-
-    gainCorrection.setGainDecibels(2.12904f);
 }
 
 void CPhaserProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     juce::dsp::ProcessSpec spec { sampleRate, static_cast<juce::uint32> (samplesPerBlock), 2 };
     Phaser.prepare(spec);
-    gainCorrection.prepare(spec);
 
     isActive=true;
 }
@@ -484,13 +320,11 @@ void CPhaserProcessor::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiB
     juce::dsp::ProcessContextReplacing<float> context(block);
 
     Phaser.process(context);
-    gainCorrection.process(context);
 }
 
 void CPhaserProcessor::reset()
 {
     Phaser.reset();
-    gainCorrection.reset();
 }
 
 //================================================================================================================
@@ -531,7 +365,7 @@ CNoiseGateProcessor::CNoiseGateProcessor(juce::AudioProcessorValueTreeState* apv
 void CNoiseGateProcessor::update()
 {
 
-    isBypassed = static_cast<bool>(m_pAPVTS->getRawParameterValue("NoiseGateBypass"+suffix)->load());
+    isBypassed = m_pAPVTS->getRawParameterValue("NoiseGateBypass"+suffix)->load();
     threshold.setTargetValue(m_pAPVTS->getRawParameterValue("NoiseGateThreshold"+suffix)->load());
     ratio.setTargetValue(m_pAPVTS->getRawParameterValue("NoiseGateRatio"+suffix)->load());
     attack.setTargetValue(m_pAPVTS->getRawParameterValue("NoiseGateAttack"+suffix)->load());
@@ -571,139 +405,120 @@ void CNoiseGateProcessor::reset()
     NoiseGate.reset();
 }
 
+
 //================================================================================================================
-//  Delay Processor Node
+//  Preamp Processor Node
 //================================================================================================================
 
-CDelayProcessor::CDelayProcessor(juce::AudioProcessorValueTreeState* apvts, int instanceNumber)
+
+CPreampProcessorChain::CPreampProcessorChain(juce::AudioProcessorValueTreeState* apvts, int instanceNumber)
 {
     m_pAPVTS = apvts;
     suffix = "_" + std::to_string(instanceNumber);
     this->update();
 }
-void CDelayProcessor::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params, int i =0)
-{
-    std::string num = std::to_string(i);
-    std::string byp = "DelayBypass_" + num;
-    std::string dly = "DelayTime_" + num;
-//    std::string fdbk = "DelayFeedback_" + num;
-    std::string blnd = "DelayBlend_" + num;
 
-    params.push_back(std::make_unique<juce::AudioParameterBool>(byp, "Bypass", false));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(dly, "Delay Time", juce::NormalisableRange<float>(0, 2000.f), 1000.f,"ms"));
-//    params.push_back(std::make_unique<juce::AudioParameterFloat>(fdbk, "Feedback", juce::NormalisableRange<float>(0.f, 1.f), 0.f,"%"));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(blnd, "Wet/Dry", juce::NormalisableRange<float>(0.f, 1.f), 1.f,"%"));
-}
-void CDelayProcessor::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params)
+void CPreampProcessorChain::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
+    std::array<float, 8> tonestackCoeff = tonestackCalcParam(sampleRate);
+    juce::dsp::IIR::Coefficients<float>::Ptr coeffs(new juce::dsp::IIR::Coefficients<float>(tonestackCoeff));
 
-}
-void CDelayProcessor::update()
-{
-    isBypassed = static_cast<bool>(m_pAPVTS->getRawParameterValue("DelayBypass"+suffix)->load());
-    delaytime.setTargetValue(m_pAPVTS->getRawParameterValue("DelayTime"+suffix)->load());
-    blend.setTargetValue(m_pAPVTS->getRawParameterValue("DelayBlend"+suffix)->load());
+    auto channels = static_cast<juce::uint32> (fmin(getMainBusNumInputChannels(), getMainBusNumOutputChannels()));
+    juce::dsp::ProcessSpec spec{ sampleRate, static_cast<juce::uint32> (samplesPerBlock), channels };
 
-    float fDelayValue = delaytime.getNextValue();
-    Blend = blend.getNextValue();
-    delayInSamples = fDelayValue * (float)getSampleRate() / 1000; //Delay Time is in ms
-    delayLine.setDelay(delayInSamples);
-}
-void CDelayProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
-{
-    m_fSampleRate = sampleRate;
-    delayBufferSamples = (int)(2000.f * (float)sampleRate)/1000 + 1 ; // 2000 is the max delay in ms
-    juce::dsp::ProcessSpec spec { sampleRate, static_cast<juce::uint32> (samplesPerBlock), 2 };
-    delayLine.prepare(spec);
-    delayLine.setMaximumDelayInSamples(static_cast<int>(2000.f*sampleRate/1000));
-    isActive = true;
-}
-void CDelayProcessor::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer &)
-{
-    this->update();
-    juce::ScopedNoDenormals noDenormals;
-    auto totalNumInputChannels  = getTotalNumInputChannels();
-    auto totalNumOutputChannels = getTotalNumOutputChannels();
+    auto& filterLow = ampProcessorChain.template get<filterLowIndex>();
+    filterLow.state = FilterCoefs::makeFirstOrderLowPass(getSampleRate(), 15000);
 
-// if you've got more output channels than input clears extra outputs
+    auto& filterHigh = ampProcessorChain.template get<filterHighIndex>();
+    filterHigh.state = FilterCoefs::makeFirstOrderHighPass(getSampleRate(), 45);
+
+    auto& filterTonestack = ampProcessorChain.template get<tonestackIndex>();
+    filterTonestack.state = *coeffs;
+
+    auto& pregain = ampProcessorChain.template get<preGainIndex>();
+    pregain.setGainDecibels(0);
+    auto& postgain = ampProcessorChain.template get<postGainIndex>();
+    postgain.setGainDecibels(6);
+
+    ampProcessorChain.prepare(spec);
+}
+
+void CPreampProcessorChain::prepareToPlay(double sampleRate, int samplesPerBlock)
+{
+    std::array<float, 8> tonestackCoeff = tonestackCalcParam(sampleRate);
+    juce::dsp::IIR::Coefficients<float>::Ptr coeffs(new juce::dsp::IIR::Coefficients<float>(tonestackCoeff));
+
+    auto channels = static_cast<juce::uint32> (fmin(getMainBusNumInputChannels(), getMainBusNumOutputChannels()));
+    juce::dsp::ProcessSpec spec{ sampleRate, static_cast<juce::uint32> (samplesPerBlock), channels };
+
+    auto& filterLow = ampProcessorChain.template get<filterLowIndex>();
+    filterLow.state = FilterCoefs::makeFirstOrderLowPass(getSampleRate(), 15000);
+    auto& filterHigh = ampProcessorChain.template get<filterHighIndex>();
+    filterHigh.state = FilterCoefs::makeFirstOrderHighPass(getSampleRate(), 45);
+    auto& filterTonestack = ampProcessorChain.template get<tonestackIndex>();
+    filterTonestack.state = *coeffs;
+
+    auto& pregain = ampProcessorChain.template get<preGainIndex>();
+    pregain.setGainDecibels(0);
+    auto& postgain = ampProcessorChain.template get<postGainIndex>();
+    postgain.setGainDecibels(6);
+
+    ampProcessorChain.prepare(spec);
+}
+
+void CPreampProcessorChain::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer&)
+{
+    const auto totalNumInputChannels = getTotalNumInputChannels();
+    const auto totalNumOutputChannels = getTotalNumOutputChannels();
+
+    const auto numChannels = fmin(totalNumInputChannels, totalNumOutputChannels);
+    const auto numSamples = buffer.getNumSamples();
+
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, buffer.getNumSamples());
+        buffer.clear(i, 0, buffer.getNumSamples());
 
-    const int bufferLength = buffer.getNumSamples();
     juce::dsp::AudioBlock<float> block(buffer);
     juce::dsp::ProcessContextReplacing<float> context(block);
-    delayLine.process(context);
-//    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-//    {
-//        auto* channelData = buffer.getWritePointer(channel);
-//
-//        for (int i = 0; i < bufferLength; i++)
-//        {
-//
-////            delayLine.pushSample(channel, channelData[i]);
-////            channelData[i] = channelData[i]*(1-Blend) + (Blend *delayLine.popSample(channel, delayInSamples));
-//        }
-//    }
-//    delayBuffer.process(context);
-//    const int numInputChannels = getTotalNumInputChannels();
-//    const int numOutputChannels = getTotalNumOutputChannels();
-//    const int numSamples = buffer.getNumSamples();
-//
-//    //======================================
-//    this->update();
-//    if(!isActive)
-//        return;
-//    if(isBypassed)
-//        return;
-//    int localWritePosition;
-//
-//    for (int channel = 0; channel < numInputChannels; ++channel)
-//    {
-//        float* channelData = buffer.getWritePointer (channel);
-//        float* delayData = delayBuffer.getWritePointer (channel);
-//        localWritePosition = delayWritePosition;
-//
-//        for (int sample = 0; sample < numSamples; ++sample)
-//        {
-//            const float in = channelData[sample];
-//            float out = 0.0f;
-//
-//            float readPosition = fmodf ((float)localWritePosition - delayInSamples + (float)delayBufferSamples, delayBufferSamples);
-//            int localReadPosition = static_cast<int>(floorf(readPosition));
-//
-//            if (localReadPosition != localWritePosition) {
-//                float fraction = readPosition - (float)localReadPosition;
-//                float delayed1 = delayData[(localReadPosition + 0)];
-//                float delayed2 = delayData[(localReadPosition + 1) % delayBufferSamples];
-//                out = delayed1 + fraction * (delayed2 - delayed1);
-//
-//                channelData[sample] = in + Blend * (out - in);
-//                delayData[localWritePosition] = in + out * Feedback;
-//            }
-//
-//            if (++localWritePosition >= delayBufferSamples)
-//                localWritePosition -= delayBufferSamples;
-//        }
-//    }
-//
-//    delayWritePosition = localWritePosition;
 
-    //======================================
-
-//    for (int channel = numInputChannels; channel < numOutputChannels; ++channel)
-//        buffer.clear (channel, 0, numSamples);
+    ampProcessorChain.process(context);
 }
-void CDelayProcessor::reset()
+
+void CPreampProcessorChain::reset()
 {
-//    isActive = false;
-    delayLine.reset();
-
+    ampProcessorChain.reset();
 }
-// struct containing all the words, each word has an array of the values
 
+// Tone Stack param calculator
+std::array<float, 8> CPreampProcessorChain::tonestackCalcParam(double sampleRate)
+{
+    std::array<float, 8> filterCoeff{};
+    double c = 2 * sampleRate;
 
+    double b1 = t * C1 * R1 + m * C3 * R3 + l * (C1 * R2 + C2 * R2) + (C1 * R3 + C2 * R3);
+    double b2 = t * (C1 * C2 * R2 * R4 + C1 * C3 * R1 * R4) - m * m * (C1 * C3 * R3 * R3 + C2 * C3 * R3 * R3) + m * (C1 * C3 * R1 * R3 + C1 * C3 * R3 * R3 + C2 * C3 * R3 * R3) + l * (C1 * C2 * R1 * R2 + C1 * C2 * R2 * R4 + C1 * C3 * R2 * R4) + l * m * (C1 * C3 * R2 * R3 + C2 * C3 * R2 * R3) + (C1 * C2 * R1 * R3 + C1 * C2 * R3 * R4 + C1 * C3 * R3 * R4);
+    double b3 = l * m * (C1 * C2 * C3 * R1 * R2 * R3 + C1 * C2 * C3 * R2 * R3 * R4) - m * m * (C1 * C2 * C3 * R1 * R3 * R3 + C1 * C2 * C3 * R3 * R3 * R4) + m * (C1 * C2 * C3 * R1 * R3 * R3 + C1 * C2 * C3 * R3 * R3 * R4) + t * (C1 * C2 * C3 * R1 * R3 * R4) - t * m * (C1 * C2 * C3 * R1 * 3 * R4) + t * l * (C1 * C2 * C3 * R1 * R2 * R4);
+    double a0 = 1;
+    double a1 = (C1 * R1 + C1 * R3 + C2 * R3 + C2 * R4 + C3 * R4) + m * C3 * R3 + l * (C1 * R2 + C2 * R2);
+    double a2 = m * (C1 * C3 * R1 * R3 - C2 * C3 * R3 * R4 + C1 * C3 * R3 * R3 + C2 * C3 * R3 * R3) + l * m * (C1 * C3 * R2 * R3 + C2 * C3 * R2 * R3) - m * m * (C1 * C3 * R3 * R3 + C2 * C3 * R3 * R3) + l * (C1 * C2 * R2 * R4 + C1 * C2 * R1 * R2 + C1 * C3 * R2 * R4 + C2 * C3 * R2 * R4) + (C1 * C2 * R1 * R4 + C1 * C3 * R1 * R4 + C1 * C2 * R3 * R4 + C1 * C2 * R1 * R3 + C1 * C3 * R3 * R4 + C2 * C3 * R3 * R4);
+    double a3 = l * m * (C1 * C2 * C3 * R1 * R2 * R3 + C1 * C2 * C3 * R2 * R3 * R4) - m * m * (C1 * C2 * C3 * R1 * R3 * R3 + C1 * C2 * C3 * R3 * R3 * R4) + m * (C1 * C2 * C3 * R3 * R3 * R4 + C1 * C2 * C3 * R1 * R3 * R3 - C1 * C2 * C3 * R1 * R3 * R4) + l * C1 * C2 * C3 * R1 * R2 * R4 + C1 * C2 * C3 * R1 * R3 * R4;
 
+    double A0 = -a0 - a1 * c - a2 * c * c - a3 * c * c * c;
+    double A1 = (-3 * a0) - (a1 * c) + (a2 * c * c) + (3 * a3 * c * c * c);
+    double A2 = (-3 * a0 + a1 * c + a2 * c * c - 3 * a3 * c * c * c);
+    double A3 = (-a0 + a1 * c - a2 * c * c + a3 * c * c * c);
+    double B0 = (-b1 * c - b2 * c * c - b3 * c * c * c);
+    double B1 = (-b1 * c + b2 * c * c + 3 * b3 * c * c * c);
+    double B2 = (b1 * c + b2 * c * c - 3 * b3 * c * c * c);
+    double B3 = (b1 * c - b2 * c * c + b3 * c * c * c);
 
+    filterCoeff[0] = static_cast<float>(B0 / A0);
+    filterCoeff[1] = static_cast<float>(B1 / A0);
+    filterCoeff[2] = static_cast<float>(B2 / A0);
+    filterCoeff[3] = static_cast<float>(B3 / A0);
+    filterCoeff[4] = static_cast<float>(1);
+    filterCoeff[5] = static_cast<float>(A1 / A0);
+    filterCoeff[6] = static_cast<float>(A2 / A0);
+    filterCoeff[7] = static_cast<float>(A3 / A0);
 
-
-
+    return filterCoeff;
+}
