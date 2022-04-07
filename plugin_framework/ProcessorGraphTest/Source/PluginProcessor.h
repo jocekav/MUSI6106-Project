@@ -88,6 +88,11 @@ public:
     juce::AudioParameterChoice* processorSlot6;
     juce::AudioParameterChoice* processorSlot7;
 
+//    Node::Ptr audioInputNode;
+//    Node::Ptr audioOutputNode;
+//    Node::Ptr midiInputNode;
+//    Node::Ptr midiOutputNode;
+
     Node::Ptr node1;
     Node::Ptr node2;
     Node::Ptr node3;
@@ -109,8 +114,8 @@ private:
     void initialiseGraph();
     void updateGraph();
 
-    juce::AudioProcessorGraph::Node::Ptr midiInputNode;
-    juce::AudioProcessorGraph::Node::Ptr midiOutputNode;
+    Node::Ptr midiInputNode;
+    Node::Ptr midiOutputNode;
 
     Node::Ptr audioInputNode;
     Node::Ptr audioOutputNode;
