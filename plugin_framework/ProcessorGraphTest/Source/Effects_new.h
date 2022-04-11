@@ -3,6 +3,8 @@
 //
 #include "BaseProcessor.h"
 #include "juce_TriodeWaveShaper.h"
+//#include "./sga/WaveNet.h"
+//#include "./sga/WaveNetLoader.h"
 
 #ifndef PROCESSORGRAPHTEST_EFFECTS_NEW_H
 #define PROCESSORGRAPHTEST_EFFECTS_NEW_H
@@ -133,9 +135,8 @@ private:
 
 
 //================================================================================================================
-//  Amplifier Processor Node
+//  Analog Tube Preamp Emulation Processor Nodes
 //================================================================================================================
-
 class CPreampProcessorChain : public ProcessorBase
 {
 public:
@@ -166,23 +167,68 @@ private:
     enum
     {
         preGainIndex,
-        waveshaperIndex,
-        filterLowIndex,
-        filterHighIndex,
-        postGainIndex,
-        tonestackIndex
+        firstTubeIndex,
+        tonestackIndex,
+        driveGainIndex,
+        secondTubeIndex,
+        postGainIndex
     };
 
     using Filter = juce::dsp::IIR::Filter<float>;
     using FilterCoefs = juce::dsp::IIR::Coefficients<float>;
 
-    juce::dsp::ProcessorChain<juce::dsp::Gain<float>, juce::dsp::TriodeWaveShaper<float>, 
-        juce::dsp::ProcessorDuplicator<Filter, FilterCoefs>, juce::dsp::ProcessorDuplicator<Filter, FilterCoefs>,
-        juce::dsp::Gain<float>, juce::dsp::ProcessorDuplicator<Filter, FilterCoefs>> ampProcessorChain;
+    juce::dsp::ProcessorChain<juce::dsp::Gain<float>, juce::dsp::SingleTubeProcessor<float>,
+        juce::dsp::ProcessorDuplicator<Filter, FilterCoefs>, juce::dsp::Gain<float>,
+        juce::dsp::SingleTubeProcessor<float>, juce::dsp::Gain<float>> ampProcessorChain;
 
     bool isActive;
     std::string suffix;
 };
 
+//================================================================================================================
+//  Smart Guitar Processor Nodes
+//================================================================================================================
+class WaveNetVaProcessor : public ProcessorBase
+{
+public:
+    const juce::String getName() const override { return "SmartGA" + suffix; }
+    WaveNetVaProcessor(juce::AudioProcessorValueTreeState* apvts, int instanceNumber);
+    void prepareToPlay(double sampleRate, int samplesPerBlock) override;
+    void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
+    void reset() override;
+    // void loadConfig(File configFile);
+    juce::AudioProcessorValueTreeState* m_pAPVTS;
+
+    // File loaded_tone;
+    juce::String loaded_tone_name;
+
+private:
+    bool isActive;
+    std::string suffix;
+    //WaveNet waveNet;
+    //var dummyVar;
+
+};
+
+//================================================================================================================
+//  Cabinet Simulator Processor Nodes
+//================================================================================================================
+class CabSimProcessor : public ProcessorBase
+{
+public:
+    const juce::String getName() const override { return "CabSim" + suffix; }
+    CabSimProcessor(juce::AudioProcessorValueTreeState* apvts, int instanceNumber);
+    void prepareToPlay(double sampleRate, int samplesPerBlock) override;
+    void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
+    void reset() override;
+    juce::AudioProcessorValueTreeState* m_pAPVTS;
+
+private:
+    bool isActive;
+    std::string suffix;
+    juce::dsp::Convolution convolutionCabSim;
+};
 //==============================================================================
 #endif //PROCESSORGRAPHTEST_EFFECTS_NEW_H
+
+

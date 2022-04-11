@@ -118,13 +118,58 @@ struct TriodeWaveShaper
 };
 
 //==============================================================================
-//#if JUCE_CXX17_IS_AVAILABLE
-//template <typename Functor>
-//static TriodeWaveShaper<typename std::invoke_result<Functor>, Functor> CreateWaveShaper (Functor functionToUse)   { return {functionToUse}; }
-//#else
-//template <typename Functor>
-//static TriodeWaveShaper<typename std::result_of<Functor>, Functor> CreateWaveShaper (Functor functionToUse)   { return {functionToUse}; }
-//#endif
+// 
+//==============================================================================
+template <typename Type>
+class SingleTubeProcessor
+{
+public:
+    SingleTubeProcessor() {};
+
+    void prepare(const juce::dsp::ProcessSpec& spec)
+    {
+        auto& preFilterLow = singleTuberChain.template get<preFilterLowIndex>();
+        preFilterLow.state = FilterCoefs::makeFirstOrderLowPass(spec.sampleRate, lowPassFilterFreq);
+        auto& postFilterLow = singleTuberChain.template get<postFilterLowIndex>();
+        postFilterLow.state = FilterCoefs::makeFirstOrderLowPass(spec.sampleRate, lowPassFilterFreq);
+        auto& filterHigh = singleTuberChain.template get<filterHighIndex>();
+        filterHigh.state = FilterCoefs::makeFirstOrderLowPass(spec.sampleRate, highOassFilterFreq);
+
+        singleTuberChain.prepare(spec);
+    };
+
+    template <typename ProcessContext>
+    void process(const ProcessContext& context) noexcept
+    {
+        singleTuberChain.process(context);
+    };
+
+    void reset() noexcept
+    {
+        singleTuberChain.reset();
+    };
+
+private:
+
+    float lowPassFilterFreq = 15000;
+    float highOassFilterFreq = 45;
+
+    enum
+    {
+        preFilterLowIndex,
+        tubeIndex,
+        postFilterLowIndex,
+        filterHighIndex
+    };
+
+    using Filter = juce::dsp::IIR::Filter<float>;
+    using FilterCoefs = juce::dsp::IIR::Coefficients<float>;
+
+    juce::dsp::ProcessorChain<juce::dsp::ProcessorDuplicator<Filter, FilterCoefs>, juce::dsp::TriodeWaveShaper<float>,
+        juce::dsp::ProcessorDuplicator<Filter, FilterCoefs>, juce::dsp::ProcessorDuplicator<Filter, FilterCoefs>> singleTuberChain;
+
+};
+
 
 } // namespace dsp
 } // namespace juce

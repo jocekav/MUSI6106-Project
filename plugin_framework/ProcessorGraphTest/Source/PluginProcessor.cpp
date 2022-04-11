@@ -271,6 +271,9 @@ void ProcessorGraphTestAudioProcessor::initialiseAudioNodes(juce::ReferenceCount
     reverbNode = mainProcessor->addNode(std::make_unique<CReverbProcessor>(&apvts,0));
     audioNodeList.add(reverbNode);
 
+    amplifierNode = mainProcessor->addNode(std::make_unique<CPreampProcessorChain>(&apvts, 0));
+    audioNodeList.add(amplifierNode);
+
     phaserNode = mainProcessor->addNode(std::make_unique<CPhaserProcessor>(&apvts,0));
     audioNodeList.add(phaserNode);
 
