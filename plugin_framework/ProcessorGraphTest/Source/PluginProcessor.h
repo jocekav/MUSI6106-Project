@@ -70,10 +70,9 @@ public:
 
     Node::Ptr inputGainNode;
     Node::Ptr noisegateNode;
-    Node::Ptr eqNode;
+//    Node::Ptr eqNode;
     Node::Ptr compressorNode;
-    Node::Ptr delayNode;
-//    Node::Ptr amplifierNode;
+    Node::Ptr amplifierNode;
     Node::Ptr reverbNode;
     Node::Ptr phaserNode;
     Node::Ptr outputGainNode;
@@ -88,11 +87,6 @@ public:
     juce::AudioParameterChoice* processorSlot5;
     juce::AudioParameterChoice* processorSlot6;
     juce::AudioParameterChoice* processorSlot7;
-
-//    Node::Ptr audioInputNode;
-//    Node::Ptr audioOutputNode;
-//    Node::Ptr midiInputNode;
-//    Node::Ptr midiOutputNode;
 
     Node::Ptr node1;
     Node::Ptr node2;
@@ -115,8 +109,8 @@ private:
     void initialiseGraph();
     void updateGraph();
 
-    Node::Ptr midiInputNode;
-    Node::Ptr midiOutputNode;
+    juce::AudioProcessorGraph::Node::Ptr midiInputNode;
+    juce::AudioProcessorGraph::Node::Ptr midiOutputNode;
 
     Node::Ptr audioInputNode;
     Node::Ptr audioOutputNode;

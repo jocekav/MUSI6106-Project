@@ -407,15 +407,10 @@ void CNoiseGateProcessor::reset()
 
 
 //================================================================================================================
-//  Preamp Processor Node
-//================================================================================================================
-
-
 CPreampProcessorChain::CPreampProcessorChain(juce::AudioProcessorValueTreeState* apvts, int instanceNumber)
 {
     m_pAPVTS = apvts;
     suffix = "_" + std::to_string(instanceNumber);
-    this->update();
 }
 
 void CPreampProcessorChain::prepareToPlay(double sampleRate, int samplesPerBlock)
@@ -426,42 +421,13 @@ void CPreampProcessorChain::prepareToPlay(double sampleRate, int samplesPerBlock
     auto channels = static_cast<juce::uint32> (fmin(getMainBusNumInputChannels(), getMainBusNumOutputChannels()));
     juce::dsp::ProcessSpec spec{ sampleRate, static_cast<juce::uint32> (samplesPerBlock), channels };
 
-    auto& filterLow = ampProcessorChain.template get<filterLowIndex>();
-    filterLow.state = FilterCoefs::makeFirstOrderLowPass(getSampleRate(), 15000);
-
-    auto& filterHigh = ampProcessorChain.template get<filterHighIndex>();
-    filterHigh.state = FilterCoefs::makeFirstOrderHighPass(getSampleRate(), 45);
-
     auto& filterTonestack = ampProcessorChain.template get<tonestackIndex>();
     filterTonestack.state = *coeffs;
 
     auto& pregain = ampProcessorChain.template get<preGainIndex>();
-    pregain.setGainDecibels(0);
+    pregain.setGainDecibels(10);
     auto& postgain = ampProcessorChain.template get<postGainIndex>();
-    postgain.setGainDecibels(6);
-
-    ampProcessorChain.prepare(spec);
-}
-
-void CPreampProcessorChain::prepareToPlay(double sampleRate, int samplesPerBlock)
-{
-    std::array<float, 8> tonestackCoeff = tonestackCalcParam(sampleRate);
-    juce::dsp::IIR::Coefficients<float>::Ptr coeffs(new juce::dsp::IIR::Coefficients<float>(tonestackCoeff));
-
-    auto channels = static_cast<juce::uint32> (fmin(getMainBusNumInputChannels(), getMainBusNumOutputChannels()));
-    juce::dsp::ProcessSpec spec{ sampleRate, static_cast<juce::uint32> (samplesPerBlock), channels };
-
-    auto& filterLow = ampProcessorChain.template get<filterLowIndex>();
-    filterLow.state = FilterCoefs::makeFirstOrderLowPass(getSampleRate(), 15000);
-    auto& filterHigh = ampProcessorChain.template get<filterHighIndex>();
-    filterHigh.state = FilterCoefs::makeFirstOrderHighPass(getSampleRate(), 45);
-    auto& filterTonestack = ampProcessorChain.template get<tonestackIndex>();
-    filterTonestack.state = *coeffs;
-
-    auto& pregain = ampProcessorChain.template get<preGainIndex>();
-    pregain.setGainDecibels(0);
-    auto& postgain = ampProcessorChain.template get<postGainIndex>();
-    postgain.setGainDecibels(6);
+    postgain.setGainDecibels(-10);
 
     ampProcessorChain.prepare(spec);
 }
@@ -521,4 +487,102 @@ std::array<float, 8> CPreampProcessorChain::tonestackCalcParam(double sampleRate
     filterCoeff[7] = static_cast<float>(A3 / A0);
 
     return filterCoeff;
+}
+
+//================================================================================================================
+WaveNetVaProcessor::WaveNetVaProcessor(juce::AudioProcessorValueTreeState* apvts, int instanceNumber)
+{
+    m_pAPVTS = apvts;
+    suffix = "_" + std::to_string(instanceNumber);
+}
+
+void WaveNetVaProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
+{
+    //waveNet.prepareToPlay(samplesPerBlock);
+
+    //File default_tone("/Users/shanjiang/Documents/GitHub/SmartGuitarAmp/models/test.json");
+    //loadConfig(default_tone);
+}
+
+void WaveNetVaProcessor::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer&)
+{
+    ////        buffer.applyGain(10.0);
+    //waveNet.process(buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), buffer.getNumSamples());
+    //if (waveNet.levelAdjust != 0.0) {
+    //    buffer.applyGain(waveNet.levelAdjust);
+    //}
+    //for (int ch = 1; ch < buffer.getNumChannels(); ++ch)
+    //{
+    //    buffer.copyFrom(ch, 0, buffer, 0, 0, buffer.getNumSamples());
+    //}
+}
+
+void WaveNetVaProcessor::reset()
+{
+}
+
+//void WaveNetVaProcessor::loadConfig(File configFile)
+//{
+//    //this->suspendProcessing(true);
+//    //WaveNetLoader loader(dummyVar, configFile);
+//    //float levelAdjust = loader.levelAdjust;
+//    //int numChannels = loader.numChannels;
+//    //int inputChannels = loader.inputChannels;
+//    //int outputChannels = loader.outputChannels;
+//    //int filterWidth = loader.filterWidth;
+//    //std::vector<int> dilations = loader.dilations;
+//    //std::string activation = loader.activation;
+//    //waveNet.setParams(inputChannels, outputChannels, numChannels, filterWidth, activation, dilations, levelAdjust);
+//    //loader.loadVariables(waveNet);
+//    //this->suspendProcessing(false);
+//}
+
+//================================================================================================================
+//  Cabinet Simulator Processor Node
+//================================================================================================================
+
+CabSimProcessor::CabSimProcessor(juce::AudioProcessorValueTreeState* apvts, int instanceNumber)
+{
+    m_pAPVTS = apvts;
+    suffix = "_" + std::to_string(instanceNumber);
+
+    auto dir = juce::File::getCurrentWorkingDirectory();
+
+    int numTries = 0;
+
+    while (!dir.getChildFile("Resources").exists() && numTries++ < 15)
+        dir = dir.getParentDirectory();
+
+    auto& convolution = convolutionCabSim;
+
+    convolution.loadImpulseResponse(dir.getChildFile("Resources").getChildFile("guitar_amp.wav"),
+        juce::dsp::Convolution::Stereo::yes,
+        juce::dsp::Convolution::Trim::no,
+        1024);
+}
+
+void CabSimProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
+{
+    auto channels = static_cast<juce::uint32> (fmin(getMainBusNumInputChannels(), getMainBusNumOutputChannels()));
+
+    juce::dsp::ProcessSpec spec{ sampleRate, static_cast<juce::uint32> (samplesPerBlock) };
+    convolutionCabSim.prepare(spec);
+}
+
+void CabSimProcessor::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer&)
+{
+    auto totalNumInputChannels = getTotalNumInputChannels();
+    auto totalNumOutputChannels = getTotalNumOutputChannels();
+
+    for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+        buffer.clear(i, 0, buffer.getNumSamples());
+
+    auto block = juce::dsp::AudioBlock<float>(buffer);
+    auto context = juce::dsp::ProcessContextReplacing<float>(block);
+    convolutionCabSim.process(context);
+}
+
+void CabSimProcessor::reset()
+{
+    convolutionCabSim.reset();
 }
