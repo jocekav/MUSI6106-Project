@@ -19,6 +19,11 @@ struct LookAndFeel : juce::LookAndFeel_V4
                            float rotaryStartAngle,
                            float rotaryEndAngle,
                            juce::Slider&) override;
+    
+    void drawToggleButton (juce::Graphics &g,
+                           juce::ToggleButton &toggle,
+                           bool shouldDrawButtonAsHighlighted,
+                           bool shouldDrawButtonAsDown) override;
 };
 
 
@@ -48,7 +53,6 @@ private:
     juce::String suffix;
 };
 
-
 //==============================================================================
 /**
 */
@@ -67,13 +71,24 @@ public:
     void drawAmp();
     void drawReverb();
     void drawCompressor();
+    
+    enum RadioButtonIDs
+    {
+        EffectShown = 1001
+    };
 
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     GuitarAmpGUIAudioProcessor& audioProcessor;
     
+    // Effect chain buttons
     juce::TextButton switchEffectButton;
+    
+    juce::ToggleButton gateButton,
+    ampButton,
+    verbButton,
+    compressorButton;
     
     using APVTS = juce::AudioProcessorValueTreeState;
     
@@ -165,6 +180,10 @@ private:
     std::vector<juce::Component*> getReverbComps();
     
     std::vector<juce::Component*> getCompressorComps();
+    
+    std::vector<juce::Component*> getChainComps();
+    
+    LookAndFeel lnf;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GuitarAmpGUIAudioProcessorEditor)
 };

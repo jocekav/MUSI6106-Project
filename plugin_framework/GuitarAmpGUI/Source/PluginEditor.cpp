@@ -60,7 +60,39 @@ void LookAndFeel::drawRotarySlider (juce::Graphics& g,
         g.drawFittedText(text, r.toNearestInt(), juce::Justification::centred, 1);
 
     }
+}
 
+void LookAndFeel::drawToggleButton (juce::Graphics &g,
+                       juce::ToggleButton &toggle,
+                       bool shouldDrawButtonAsHighlighted,
+                       bool shouldDrawButtonAsDown)
+{
+    using namespace juce;
+    
+    auto bounds = toggle.getLocalBounds();
+    bounds.setBounds(bounds.getX(), bounds.getY(), bounds.getWidth() - bounds.getWidth() / 4, bounds.getHeight());
+    
+    bool toggleState = toggle.getToggleState();
+    auto color = toggleState ? juce::Colour(196u, 196u, 196u) : juce::Colour(109u, 103u, 95u);
+    g.setColour(color);
+    g.fillRect(bounds);
+    
+    auto signArea = bounds.removeFromRight((bounds.getWidth() / 4));
+    signArea.removeFromBottom(bounds.getHeight() - bounds.getHeight() / 3.5);
+    g.setColour(Colours::white);
+
+    
+    juce::Line<float> line (juce::Point<float> (signArea.getX() + 3, signArea.getY() + signArea.getHeight() / 2),
+                            juce::Point<float> (signArea.getX() + signArea.getWidth() - 3, signArea.getY() + signArea.getHeight() / 2));
+    g.drawLine (line, 2.0f);
+    
+    if (!toggleState)
+    {
+        juce::Line<float> line (juce::Point<float> (signArea.getX() + signArea.getWidth() / 2, signArea.getY() + 3),
+                                juce::Point<float> (signArea.getX() + signArea.getWidth() / 2, signArea.getY() + signArea.getHeight() - 2));
+        g.drawLine (line, 2.0f);
+    }
+    
 }
 
 void CustomRotarySlider::paint(juce::Graphics &g)
@@ -187,6 +219,19 @@ compMakeUpGainSliderAttachment(audioProcessor.apTreeState, "compMakeupGain", com
         addAndMakeVisible(comp);
     }
     
+    for (auto* comp : getChainComps())
+    {
+        addAndMakeVisible(comp);
+        comp -> setLookAndFeel(&lnf);
+    }
+    
+    
+    gateButton.setRadioGroupId(EffectShown);
+    ampButton.setRadioGroupId(EffectShown);
+    verbButton.setRadioGroupId(EffectShown);
+    compressorButton.setRadioGroupId(EffectShown);
+    
+    
     addAndMakeVisible (switchEffectButton);
     switchEffectButton.setButtonText ("Switch Effect");
     switchEffectButton.addListener(this);
@@ -196,6 +241,10 @@ compMakeUpGainSliderAttachment(audioProcessor.apTreeState, "compMakeupGain", com
 
 GuitarAmpGUIAudioProcessorEditor::~GuitarAmpGUIAudioProcessorEditor()
 {
+    for (auto* comp : getChainComps())
+    {
+        comp -> setLookAndFeel(nullptr);
+    }
 }
 
 //==============================================================================
@@ -208,7 +257,13 @@ void GuitarAmpGUIAudioProcessorEditor::paint (juce::Graphics& g)
     auto bounds = getLocalBounds();
     auto responseArea = bounds.removeFromBottom(bounds.getHeight() * 0.5);
     g.fillRect(bounds.getX() + 10, bounds.getY() + 10, bounds.getWidth() - 20, bounds.getHeight() - 20);
-    switchEffectButton.setBounds(responseArea);
+//    switchEffectButton.setBounds(responseArea);
+    
+    g.setColour(juce::Colour(255u, 255u, 255u));
+    juce::Line<float> line (juce::Point<float> (responseArea.getX(), responseArea.getY() + responseArea.getHeight() / 2),
+                            juce::Point<float> (responseArea.getWidth(), responseArea.getY() + responseArea.getHeight() / 2));
+    g.drawLine (line, 3.0f);
+    
     
 }
 
@@ -216,6 +271,21 @@ void GuitarAmpGUIAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
+    
+    auto bounds = getLocalBounds();
+    auto chainBounds = bounds.removeFromBottom(bounds.getHeight() * 0.5);
+    chainBounds.setBounds(chainBounds.getX(), chainBounds.getY() + chainBounds.getHeight() / 3 - 10, chainBounds.getWidth(), chainBounds.getHeight() / 3);
+    auto eqArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 5);
+    auto ampArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 4);
+    auto gateArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 3);
+    auto compArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 2);
+    auto verbArea = chainBounds.removeFromLeft(chainBounds.getWidth());
+    
+    ampButton.setBounds(ampArea);
+    gateButton.setBounds(gateArea);
+    verbButton.setBounds(verbArea);
+    compressorButton.setBounds(compArea);
+    
     
     drawNoiseGate();
     drawAmp();
@@ -424,6 +494,17 @@ void GuitarAmpGUIAudioProcessorEditor::buttonClicked (juce::Button* button)
         }
         effectTitleLabel.setVisible(true);
     }
+}
+
+std::vector<juce::Component*> GuitarAmpGUIAudioProcessorEditor::getChainComps()
+{
+    return
+    {
+        &gateButton,
+        &ampButton,
+        &verbButton,
+        &compressorButton
+    };
 }
 
 std::vector<juce::Component*> GuitarAmpGUIAudioProcessorEditor::getNoiseGateComps()
