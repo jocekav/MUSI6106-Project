@@ -299,7 +299,8 @@ void GuitarAmpGUIAudioProcessorEditor::paint (juce::Graphics& g)
                             juce::Point<float> (responseArea.getWidth(), responseArea.getY() + responseArea.getHeight() / 2 - 10));
     g.drawLine (line, 3.0f);
     
-    
+    g.drawText("IN", responseArea.getX(), responseArea.getY() + responseArea.getHeight() / 2, 20, 10, juce::Justification::centred);
+    g.drawText("OUT", responseArea.getWidth() - 30, responseArea.getY() + responseArea.getHeight() / 2, 30, 10, juce::Justification::centred);
 }
 
 void GuitarAmpGUIAudioProcessorEditor::resized()
