@@ -157,6 +157,7 @@ private:
     const double R3 = 25e3;
     const double R4 = 56e3;
 
+
     const double t = 0.5;
     const double l = 0.5;
     const double m = 0.5;
@@ -182,6 +183,34 @@ private:
         juce::dsp::SingleTubeProcessor<float>, juce::dsp::Gain<float>> ampProcessorChain;
 
     bool isActive;
+    std::string suffix;
+};
+
+
+class CSmartGuitarAmp  : public ProcessorBase
+{
+public:
+    static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params, int i);
+    static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params);
+    const juce::String getName() const override { return "SGAmp";}//+suffix; }
+    CSmartGuitarAmp(juce::AudioProcessorValueTreeState* apvts, int instanceNumber);
+
+    void prepareToPlay(double sampleRate, int samplesPerBlock) override;
+    void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
+    void reset() override;
+    void update();
+    juce::AudioProcessorValueTreeState* m_pAPVTS;
+private:
+    bool isBypassed = false;
+    juce::LinearSmoothedValue<float> inputgain, threshold, ratio, attack, release, makeupgain;
+    bool isActive;
+
+    int amp_lead = 1; // 1 = clean, 0 = lead
+    float ampCleanDrive = 1.0;
+    float ampLeadDrive = 1.0;
+    float ampMaster = 1.0;
+    WaveNet waveNet; // Amp Clean Channel / Lead Channel
+
     std::string suffix;
 };
 

@@ -16,7 +16,7 @@ jobs:
     name: ${{ matrix.artifact }}
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false # show all errors for each platform (vs. cancel jobs on error)
+      fail-fast: true # show all errors for each platform (vs. cancel jobs on error)
       matrix:
         os: [windows-latest, ubuntu-latest, macos-11.0]
         include:
