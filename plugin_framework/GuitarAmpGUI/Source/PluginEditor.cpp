@@ -514,7 +514,6 @@ void GuitarAmpGUIAudioProcessorEditor::updateToggleState(juce::Button* button)
         showGate = true;
         for (auto* comp : getNoiseGateComps())
         {
-            drawNoiseGate();
             addAndMakeVisible(comp);
         }
     }
@@ -523,7 +522,6 @@ void GuitarAmpGUIAudioProcessorEditor::updateToggleState(juce::Button* button)
         showAmp = true;
         for (auto* comp : getAmpComps())
         {
-            drawAmp();
             addAndMakeVisible(comp);
         }
     }
@@ -532,7 +530,6 @@ void GuitarAmpGUIAudioProcessorEditor::updateToggleState(juce::Button* button)
         showVerb = true;
         for (auto* comp : getReverbComps())
         {
-            drawReverb();
             addAndMakeVisible(comp);
         }
     }
@@ -541,7 +538,6 @@ void GuitarAmpGUIAudioProcessorEditor::updateToggleState(juce::Button* button)
         showComp = true;
         for (auto* comp : getCompressorComps())
         {
-            drawCompressor();
             addAndMakeVisible(comp);
         }
     }
