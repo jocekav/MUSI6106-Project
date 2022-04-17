@@ -74,6 +74,7 @@ public:
     void drawReverb();
     void drawCompressor();
     void drawEQ();
+    void drawPhaser();
     
     enum RadioButtonIDs
     {
@@ -92,7 +93,8 @@ private:
     ampButton,
     verbButton,
     compressorButton,
-    eqButton;
+    eqButton,
+    phaserButton;
     
     
     using APVTS = juce::AudioProcessorValueTreeState;
@@ -201,6 +203,25 @@ private:
     eqPeakGainSliderLabel,
     eqPeakQSliderLabel;
     
+    // Phaser Components
+    CustomRotarySlider phaserRateSlider,
+    phaserDepthSlider,
+    phaserFcSlider,
+    phaserFeedbackSlider,
+    phaserBlendSlider;
+    
+    APVTS::SliderAttachment phaserRateSliderAttachment,
+    phaserDepthSliderAttachment,
+    phaserFcSliderAttachment,
+    phaserFeedbackSliderAttachment,
+    phaserBlendSliderAttachment;
+    
+    juce::Label phaserRateSliderLabel,
+    phaserDepthSliderLabel,
+    phaserFcSliderLabel,
+    phaserFeedbackSliderLabel,
+    phaserBlendSliderLabel;
+    
     
     juce::Label effectTitleLabel;
     
@@ -213,6 +234,8 @@ private:
     std::vector<juce::Component*> getCompressorComps();
     
     std::vector<juce::Component*> getEqComps();
+    
+    std::vector<juce::Component*> getPhaserComps();
     
     std::vector<juce::Component*> getChainComps();
     

@@ -214,11 +214,24 @@ eqPeakFreqSliderAttachment(audioProcessor.apTreeState, "PeakFreq", eqPeakFreqSli
 eqPeakGainSliderAttachment(audioProcessor.apTreeState, "PeakGain", eqPeakGainSlider),
 eqPeakQSliderAttachment(audioProcessor.apTreeState, "PeakQ", eqPeakQSlider),
 
+phaserRateSlider(*audioProcessor.apTreeState.getParameter("phaserRate"), "Hz"),
+phaserDepthSlider(*audioProcessor.apTreeState.getParameter("phaserDepth"), ""),
+phaserFcSlider(*audioProcessor.apTreeState.getParameter("phaserFc"), "Hz"),
+phaserFeedbackSlider(*audioProcessor.apTreeState.getParameter("phaserFeedback"), "%"),
+phaserBlendSlider(*audioProcessor.apTreeState.getParameter("phaserBlend"), "%"),
+
+phaserRateSliderAttachment(audioProcessor.apTreeState, "phaserRate", phaserRateSlider),
+phaserDepthSliderAttachment(audioProcessor.apTreeState, "phaserDepth", phaserDepthSlider),
+phaserFcSliderAttachment(audioProcessor.apTreeState, "phaserFc", phaserFcSlider),
+phaserFeedbackSliderAttachment(audioProcessor.apTreeState, "phaserFeedback", phaserFeedbackSlider),
+phaserBlendSliderAttachment(audioProcessor.apTreeState, "phaserBlend", phaserBlendSlider),
+
 gateButton("GATE"),
 ampButton("AMP"),
 verbButton("REVERB"),
 compressorButton("COMP"),
-eqButton("EQ")
+eqButton("EQ"),
+phaserButton("PHASER")
 
 {
     // Make sure that before the constructor has finished, you've set the
@@ -242,12 +255,14 @@ eqButton("EQ")
     verbButton.setRadioGroupId(EffectShown);
     compressorButton.setRadioGroupId(EffectShown);
     eqButton.setRadioGroupId(EffectShown);
+    phaserButton.setRadioGroupId(EffectShown);
     
     gateButton.onClick = [this] { updateToggleState (&gateButton); };
     ampButton.onClick = [this] { updateToggleState (&ampButton); };
     verbButton.onClick = [this] { updateToggleState (&verbButton); };
     compressorButton.onClick = [this] { updateToggleState (&compressorButton); };
     eqButton.onClick = [this] { updateToggleState (&eqButton); };
+    phaserButton.onClick = [this] { updateToggleState (&phaserButton); };
     
     ampButton.setState(juce::Button::ButtonState::buttonDown);
     
@@ -294,24 +309,27 @@ void GuitarAmpGUIAudioProcessorEditor::resized()
     
     auto bounds = getLocalBounds();
     auto chainBounds = bounds.removeFromBottom(bounds.getHeight() * 0.5);
-    chainBounds.setBounds(chainBounds.getX(), chainBounds.getY() + chainBounds.getHeight() / 3 - 10, chainBounds.getWidth(), chainBounds.getHeight() / 3);
-    auto eqArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 5);
-    auto ampArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 4);
-    auto gateArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 3);
-    auto compArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 2);
+    chainBounds.setBounds(chainBounds.getX() + 40, chainBounds.getY() + chainBounds.getHeight() / 3 - 10, chainBounds.getWidth() - 80, chainBounds.getHeight() / 3);
+    auto eqArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 6);
+    auto ampArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 5);
+    auto gateArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 4);
+    auto compArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 3);
+    auto phaserArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 2);
     auto verbArea = chainBounds.removeFromLeft(chainBounds.getWidth());
     
+    eqButton.setBounds(eqArea);
     ampButton.setBounds(ampArea);
     gateButton.setBounds(gateArea);
-    verbButton.setBounds(verbArea);
     compressorButton.setBounds(compArea);
-    eqButton.setBounds(eqArea);
+    phaserButton.setBounds(phaserArea);
+    verbButton.setBounds(verbArea);
     
     
     drawNoiseGate();
     drawReverb();
     drawCompressor();
     drawEQ();
+    drawPhaser();
     drawAmp();
     
 }
@@ -561,6 +579,50 @@ void GuitarAmpGUIAudioProcessorEditor::drawEQ()
 
 }
 
+void GuitarAmpGUIAudioProcessorEditor::drawPhaser()
+{
+    auto bounds = getLocalBounds();
+    auto responseArea = bounds.removeFromBottom(bounds.getHeight() * 0.5);
+    
+    auto labelArea = bounds.removeFromTop(bounds.getHeight() * .33);
+    effectTitleLabel.setBounds(labelArea.getX() + 10, labelArea.getY() + 10, labelArea.getWidth() - 20, labelArea.getHeight() - 20);
+    effectTitleLabel.setFont(juce::Font(32.f, juce::Font::bold));
+    effectTitleLabel.setText("OUR PHASER", juce::dontSendNotification);
+    effectTitleLabel.setColour (juce::Label::textColourId, juce::Colours::white);
+    effectTitleLabel.setJustificationType (juce::Justification::left);
+    
+    auto phaserRateArea = bounds.removeFromLeft(bounds.getWidth() * 0.2);
+    auto phaserDepthArea = bounds.removeFromLeft(bounds.getWidth() * 0.25);
+    auto phaserFcArea = bounds.removeFromLeft(bounds.getWidth() * 0.33);
+    auto phaserFeedbackArea = bounds.removeFromLeft(bounds.getWidth() * 0.5);
+    auto phaserBlendArea = bounds.removeFromLeft(bounds.getWidth());
+    
+    phaserRateSlider.setBounds(phaserRateArea.getX() + 20, phaserRateArea.getY() + 20, phaserRateArea.getWidth() - 40, phaserRateArea.getHeight() - 40);
+    phaserRateSliderLabel.setBounds(phaserRateArea.getX() + 20, phaserRateArea.getY() + phaserRateArea.getHeight() - 40, phaserRateArea.getWidth() - 40, 20);
+    phaserRateSliderLabel.setText("Rate", juce::dontSendNotification);
+    phaserRateSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    phaserDepthSlider.setBounds(phaserDepthArea.getX() + 20, phaserDepthArea.getY() + 20, phaserDepthArea.getWidth() - 40, phaserDepthArea.getHeight() - 40);
+    phaserDepthSliderLabel.setBounds(phaserDepthArea.getX() + 20, phaserDepthArea.getY() + phaserDepthArea.getHeight() - 40, phaserDepthArea.getWidth() - 40, 20);
+    phaserDepthSliderLabel.setText("Depth", juce::dontSendNotification);
+    phaserDepthSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    phaserFcSlider.setBounds(phaserFcArea.getX() + 20, phaserFcArea.getY() + 20, phaserFcArea.getWidth() - 40, phaserFcArea.getHeight() - 40);
+    phaserFcSliderLabel.setBounds(phaserFcArea.getX() + 20, phaserFcArea.getY() + phaserFcArea.getHeight() - 40, phaserFcArea.getWidth() - 40, 20);
+    phaserFcSliderLabel.setText("Center Freq", juce::dontSendNotification);
+    phaserFcSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    phaserFeedbackSlider.setBounds(phaserFeedbackArea.getX() + 20, phaserFeedbackArea.getY() + 20, phaserFeedbackArea.getWidth() - 40, phaserFeedbackArea.getHeight() - 40);
+    phaserFeedbackSliderLabel.setBounds(phaserFeedbackArea.getX() + 20, phaserFeedbackArea.getY() + phaserFeedbackArea.getHeight() - 40, phaserFeedbackArea.getWidth() - 40, 20);
+    phaserFeedbackSliderLabel.setText("Feedback", juce::dontSendNotification);
+    phaserFeedbackSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    phaserBlendSlider.setBounds(phaserBlendArea.getX() + 20, phaserBlendArea.getY() + 20, phaserBlendArea.getWidth() - 40, phaserBlendArea.getHeight() - 40);
+    phaserBlendSliderLabel.setBounds(phaserBlendArea.getX() + 20, phaserBlendArea.getY() + phaserBlendArea.getHeight() - 40, phaserBlendArea.getWidth() - 40, 20);
+    phaserBlendSliderLabel.setText("Blend", juce::dontSendNotification);
+    phaserBlendSliderLabel.setJustificationType (juce::Justification::centred);
+}
+
 void GuitarAmpGUIAudioProcessorEditor::buttonClicked (juce::Button* button)
 {
     if (button == &switchEffectButton)
@@ -585,6 +647,7 @@ void GuitarAmpGUIAudioProcessorEditor::updateToggleState(juce::Button* button)
     bool showVerb = false;
     bool showComp = false;
     bool showEq = false;
+    bool showPhaser = false;
     
     if (button == &gateButton)
     {
@@ -634,6 +697,16 @@ void GuitarAmpGUIAudioProcessorEditor::updateToggleState(juce::Button* button)
         
         effectTitleLabel.setText("OUR EQ", juce::dontSendNotification);
     }
+    if (button == &phaserButton)
+    {
+        showPhaser = true;
+        for (auto* comp : getPhaserComps())
+        {
+            addAndMakeVisible(comp);
+        }
+        
+        effectTitleLabel.setText("OUR PHASER", juce::dontSendNotification);
+    }
     
     
     for (auto* comp : getNoiseGateComps())
@@ -656,6 +729,10 @@ void GuitarAmpGUIAudioProcessorEditor::updateToggleState(juce::Button* button)
     {
         comp->setVisible(showEq);
     }
+    for (auto* comp : getPhaserComps())
+    {
+        comp->setVisible(showPhaser);
+    }
     
     effectTitleLabel.setVisible(true);
     
@@ -669,7 +746,8 @@ std::vector<juce::Component*> GuitarAmpGUIAudioProcessorEditor::getChainComps()
         &ampButton,
         &verbButton,
         &compressorButton,
-        &eqButton
+        &eqButton,
+        &phaserButton
     };
 }
 
@@ -764,6 +842,23 @@ std::vector<juce::Component*> GuitarAmpGUIAudioProcessorEditor::getEqComps()
         &eqPeakFreqSliderLabel,
         &eqPeakGainSliderLabel,
         &eqPeakQSliderLabel
+    };
+}
+
+std::vector<juce::Component*> GuitarAmpGUIAudioProcessorEditor::getPhaserComps()
+{
+    return
+    {
+        &phaserRateSlider,
+        &phaserDepthSlider,
+        &phaserFcSlider,
+        &phaserFeedbackSlider,
+        &phaserBlendSlider,
+        &phaserRateSliderLabel,
+        &phaserDepthSliderLabel,
+        &phaserFcSliderLabel,
+        &phaserFeedbackSliderLabel,
+        &phaserBlendSliderLabel
     };
 }
 
