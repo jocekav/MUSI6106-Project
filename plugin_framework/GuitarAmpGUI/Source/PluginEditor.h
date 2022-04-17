@@ -67,6 +67,7 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
     void buttonClicked (juce::Button* button);
+    void updateToggleState(juce::Button* button);
     void drawNoiseGate();
     void drawAmp();
     void drawReverb();

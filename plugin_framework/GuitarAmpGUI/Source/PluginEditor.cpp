@@ -95,6 +95,7 @@ void LookAndFeel::drawToggleButton (juce::Graphics &g,
     
 }
 
+
 void CustomRotarySlider::paint(juce::Graphics &g)
 {
     using namespace juce;
@@ -204,20 +205,20 @@ compMakeUpGainSliderAttachment(audioProcessor.apTreeState, "compMakeupGain", com
 //        addAndMakeVisible(comp);
 //    }
     
-//    for (auto* comp : getAmpComps())
-//    {
-//        addAndMakeVisible(comp);
-//    }
+    for (auto* comp : getAmpComps())
+    {
+        addAndMakeVisible(comp);
+    }
     
 //    for (auto* comp : getReverbComps())
 //    {
 //        addAndMakeVisible(comp);
 //    }
     
-    for (auto* comp : getCompressorComps())
-    {
-        addAndMakeVisible(comp);
-    }
+//    for (auto* comp : getCompressorComps())
+//    {
+//        addAndMakeVisible(comp);
+//    }
     
     for (auto* comp : getChainComps())
     {
@@ -231,10 +232,15 @@ compMakeUpGainSliderAttachment(audioProcessor.apTreeState, "compMakeupGain", com
     verbButton.setRadioGroupId(EffectShown);
     compressorButton.setRadioGroupId(EffectShown);
     
+    gateButton.onClick = [this] { updateToggleState (&gateButton); };
+    ampButton.onClick = [this] { updateToggleState (&ampButton); };
+    verbButton.onClick = [this] { updateToggleState (&verbButton); };
+    compressorButton.onClick = [this] { updateToggleState (&compressorButton); };
     
-    addAndMakeVisible (switchEffectButton);
-    switchEffectButton.setButtonText ("Switch Effect");
-    switchEffectButton.addListener(this);
+    
+//    addAndMakeVisible (switchEffectButton);
+//    switchEffectButton.setButtonText ("Switch Effect");
+//    switchEffectButton.addListener(this);
     
     setSize (700, 500);
 }
@@ -494,6 +500,72 @@ void GuitarAmpGUIAudioProcessorEditor::buttonClicked (juce::Button* button)
         }
         effectTitleLabel.setVisible(true);
     }
+}
+
+void GuitarAmpGUIAudioProcessorEditor::updateToggleState(juce::Button* button)
+{
+    bool showGate = false;
+    bool showAmp = false;
+    bool showVerb = false;
+    bool showComp = false;
+    
+    if (button == &gateButton)
+    {
+        showGate = true;
+        for (auto* comp : getNoiseGateComps())
+        {
+            drawNoiseGate();
+            addAndMakeVisible(comp);
+        }
+    }
+    if (button == &ampButton)
+    {
+        showAmp = true;
+        for (auto* comp : getAmpComps())
+        {
+            drawAmp();
+            addAndMakeVisible(comp);
+        }
+    }
+    if (button == &verbButton)
+    {
+        showVerb = true;
+        for (auto* comp : getReverbComps())
+        {
+            drawReverb();
+            addAndMakeVisible(comp);
+        }
+    }
+    if (button == &compressorButton)
+    {
+        showComp = true;
+        for (auto* comp : getCompressorComps())
+        {
+            drawCompressor();
+            addAndMakeVisible(comp);
+        }
+    }
+    
+    
+    for (auto* comp : getNoiseGateComps())
+    {
+        comp->setVisible(showGate);
+    }
+    for (auto* comp : getAmpComps())
+    {
+        comp->setVisible(showAmp);
+    }
+    for (auto* comp : getReverbComps())
+    {
+        comp->setVisible(showVerb);
+    }
+    for (auto* comp : getCompressorComps())
+    {
+        comp->setVisible(showComp);
+    }
+    
+    effectTitleLabel.setVisible(true);
+    
 }
 
 std::vector<juce::Component*> GuitarAmpGUIAudioProcessorEditor::getChainComps()
