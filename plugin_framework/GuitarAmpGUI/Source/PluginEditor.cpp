@@ -295,8 +295,8 @@ void GuitarAmpGUIAudioProcessorEditor::paint (juce::Graphics& g)
 //    switchEffectButton.setBounds(responseArea);
     
     g.setColour(juce::Colour(255u, 255u, 255u));
-    juce::Line<float> line (juce::Point<float> (responseArea.getX(), responseArea.getY() + responseArea.getHeight() / 2),
-                            juce::Point<float> (responseArea.getWidth(), responseArea.getY() + responseArea.getHeight() / 2));
+    juce::Line<float> line (juce::Point<float> (responseArea.getX(), responseArea.getY() + responseArea.getHeight() / 2 - 10),
+                            juce::Point<float> (responseArea.getWidth(), responseArea.getY() + responseArea.getHeight() / 2 - 10));
     g.drawLine (line, 3.0f);
     
     
@@ -309,11 +309,11 @@ void GuitarAmpGUIAudioProcessorEditor::resized()
     
     auto bounds = getLocalBounds();
     auto chainBounds = bounds.removeFromBottom(bounds.getHeight() * 0.5);
-    chainBounds.setBounds(chainBounds.getX() + 40, chainBounds.getY() + chainBounds.getHeight() / 3 - 10, chainBounds.getWidth() - 80, chainBounds.getHeight() / 3);
-    auto eqArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 6);
-    auto ampArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 5);
-    auto gateArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 4);
-    auto compArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 3);
+    chainBounds.setBounds(chainBounds.getX() + 40, chainBounds.getY() + chainBounds.getHeight() / 3 - 10, chainBounds.getWidth() - 60, chainBounds.getHeight() / 3);
+    auto gateArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 6);
+    auto compArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 5);
+    auto eqArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 4);
+    auto ampArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 3);
     auto phaserArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 2);
     auto verbArea = chainBounds.removeFromLeft(chainBounds.getWidth());
     
