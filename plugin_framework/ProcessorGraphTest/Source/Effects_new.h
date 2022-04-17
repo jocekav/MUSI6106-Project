@@ -134,6 +134,40 @@ private:
 };
 
 
+
+
+
+
+
+//================================================================================================================
+//  Static tanh waveshaping
+//================================================================================================================
+class CTanhWaveshaping : public ProcessorBase
+{
+public:
+    const juce::String getName() const override { return "TanhWaveshaping" + suffix; }
+    CTanhWaveshaping(juce::AudioProcessorValueTreeState* apvts, int instanceNumber);
+    void prepareToPlay(double sampleRate, int samplesPerBlock) override;
+    void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
+    void reset() override;
+    juce::AudioProcessorValueTreeState* m_pAPVTS;
+
+private:
+    enum
+    {
+        preGainIndex,
+        waveshaperIndex,
+        postGainIndex
+    };
+
+
+    juce::dsp::ProcessorChain<juce::dsp::Gain<float>, juce::dsp::WaveShaper<float>, 
+        juce::dsp::Gain<float>> TanhProcessorChain;
+
+    bool isActive;
+    std::string suffix;
+};
+
 //================================================================================================================
 //  Analog Tube Preamp Emulation Processor Nodes
 //================================================================================================================
@@ -156,7 +190,6 @@ private:
     const double R2 = 1e6;
     const double R3 = 25e3;
     const double R4 = 56e3;
-
 
     const double t = 0.5;
     const double l = 0.5;
@@ -209,7 +242,7 @@ private:
     float ampCleanDrive = 1.0;
     float ampLeadDrive = 1.0;
     float ampMaster = 1.0;
-    WaveNet waveNet; // Amp Clean Channel / Lead Channel
+    // WaveNet waveNet; // Amp Clean Channel / Lead Channel
 
     std::string suffix;
 };
