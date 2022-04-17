@@ -24,6 +24,7 @@ struct LookAndFeel : juce::LookAndFeel_V4
                            juce::ToggleButton &toggle,
                            bool shouldDrawButtonAsHighlighted,
                            bool shouldDrawButtonAsDown) override;
+
 };
 
 
@@ -72,6 +73,7 @@ public:
     void drawAmp();
     void drawReverb();
     void drawCompressor();
+    void drawEQ();
     
     enum RadioButtonIDs
     {
@@ -89,7 +91,9 @@ private:
     juce::ToggleButton gateButton,
     ampButton,
     verbButton,
-    compressorButton;
+    compressorButton,
+    eqButton;
+    
     
     using APVTS = juce::AudioProcessorValueTreeState;
     
@@ -172,6 +176,32 @@ private:
     compReleaseSliderLabel,
     compMakeUpGainSliderLabel;
     
+    // EQ Components
+    CustomRotarySlider eqLowCutFreqSlider,
+    eqLowCutSlopeSlider,
+    eqHighCutFreqSlider,
+    eqHighCutSlopeSlider,
+    eqPeakFreqSlider,
+    eqPeakGainSlider,
+    eqPeakQSlider;
+    
+    APVTS::SliderAttachment eqLowCutFreqSliderAttachment,
+    eqLowCutSlopeSliderAttachment,
+    eqHighCutFreqSliderAttachment,
+    eqHighCutSlopeSliderAttachment,
+    eqPeakFreqSliderAttachment,
+    eqPeakGainSliderAttachment,
+    eqPeakQSliderAttachment;
+    
+    juce::Label eqLowCutFreqSliderLabel,
+    eqLowCutSlopeSliderLabel,
+    eqHighCutFreqSliderLabel,
+    eqHighCutSlopeSliderLabel,
+    eqPeakFreqSliderLabel,
+    eqPeakGainSliderLabel,
+    eqPeakQSliderLabel;
+    
+    
     juce::Label effectTitleLabel;
     
     std::vector<juce::Component*> getNoiseGateComps();
@@ -182,6 +212,8 @@ private:
     
     std::vector<juce::Component*> getCompressorComps();
     
+    std::vector<juce::Component*> getEqComps();
+    
     std::vector<juce::Component*> getChainComps();
     
     LookAndFeel lnf;
@@ -190,27 +222,4 @@ private:
 };
 
 
-//class ButtonComponent   : public juce::Component,
-//                               public juce::Button::Listener
-//{
-//public:
-//    ButtonComponent()
-//    {
-//        // ...
-//    }
-//
-//    ~ButtonComponent()
-//    {
-//        // ...
-//    }
-//
-//    void resized() override
-//    {
-//        // ...
-//    }
-//
-//    void buttonClicked (juce::Button* button) override // [2]
-//    {
-//    }
-//}
  

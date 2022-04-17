@@ -93,6 +93,9 @@ void LookAndFeel::drawToggleButton (juce::Graphics &g,
         g.drawLine (line, 2.0f);
     }
     
+    auto text = toggle.getButtonText();
+    g.drawFittedText(text, bounds, juce::Justification::centred, 1);
+    
 }
 
 
@@ -193,32 +196,40 @@ compThresholdSliderAttachment(audioProcessor.apTreeState, "compThreshold", compT
 compRatioSliderAttachment(audioProcessor.apTreeState, "compRatio", compRatioSlider),
 compAttackSliderAttachment(audioProcessor.apTreeState, "compAttack", compAttackSlider),
 compReleaseSliderAttachment(audioProcessor.apTreeState, "compRelease", compReleaseSlider),
-compMakeUpGainSliderAttachment(audioProcessor.apTreeState, "compMakeupGain", compMakeUpGainSlider)
+compMakeUpGainSliderAttachment(audioProcessor.apTreeState, "compMakeupGain", compMakeUpGainSlider),
 
+eqLowCutFreqSlider(*audioProcessor.apTreeState.getParameter("LowCutFreq"), "Hz"),
+eqLowCutSlopeSlider(*audioProcessor.apTreeState.getParameter("LowCutSlope"), ""),
+eqHighCutFreqSlider(*audioProcessor.apTreeState.getParameter("HighCutFreq"), "Hz"),
+eqHighCutSlopeSlider(*audioProcessor.apTreeState.getParameter("HighCutSlope"), ""),
+eqPeakFreqSlider(*audioProcessor.apTreeState.getParameter("PeakFreq"), "Hz"),
+eqPeakGainSlider(*audioProcessor.apTreeState.getParameter("PeakGain"), "dB"),
+eqPeakQSlider(*audioProcessor.apTreeState.getParameter("PeakQ"), ""),
+
+eqLowCutFreqSliderAttachment(audioProcessor.apTreeState, "LowCutFreq", eqLowCutFreqSlider),
+eqLowCutSlopeSliderAttachment(audioProcessor.apTreeState, "LowCutSlope", eqLowCutSlopeSlider),
+eqHighCutFreqSliderAttachment(audioProcessor.apTreeState, "HighCutFreq", eqHighCutFreqSlider),
+eqHighCutSlopeSliderAttachment(audioProcessor.apTreeState, "HighCutSlope", eqHighCutSlopeSlider),
+eqPeakFreqSliderAttachment(audioProcessor.apTreeState, "PeakFreq", eqPeakFreqSlider),
+eqPeakGainSliderAttachment(audioProcessor.apTreeState, "PeakGain", eqPeakGainSlider),
+eqPeakQSliderAttachment(audioProcessor.apTreeState, "PeakQ", eqPeakQSlider),
+
+gateButton("GATE"),
+ampButton("AMP"),
+verbButton("REVERB"),
+compressorButton("COMP"),
+eqButton("EQ")
 
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     
-//    for (auto* comp : getNoiseGateComps())
-//    {
-//        addAndMakeVisible(comp);
-//    }
     
     for (auto* comp : getAmpComps())
     {
         addAndMakeVisible(comp);
     }
-    
-//    for (auto* comp : getReverbComps())
-//    {
-//        addAndMakeVisible(comp);
-//    }
-    
-//    for (auto* comp : getCompressorComps())
-//    {
-//        addAndMakeVisible(comp);
-//    }
+    effectTitleLabel.setText("OUR AMP", juce::dontSendNotification);
     
     for (auto* comp : getChainComps())
     {
@@ -226,16 +237,19 @@ compMakeUpGainSliderAttachment(audioProcessor.apTreeState, "compMakeupGain", com
         comp -> setLookAndFeel(&lnf);
     }
     
-    
     gateButton.setRadioGroupId(EffectShown);
     ampButton.setRadioGroupId(EffectShown);
     verbButton.setRadioGroupId(EffectShown);
     compressorButton.setRadioGroupId(EffectShown);
+    eqButton.setRadioGroupId(EffectShown);
     
     gateButton.onClick = [this] { updateToggleState (&gateButton); };
     ampButton.onClick = [this] { updateToggleState (&ampButton); };
     verbButton.onClick = [this] { updateToggleState (&verbButton); };
     compressorButton.onClick = [this] { updateToggleState (&compressorButton); };
+    eqButton.onClick = [this] { updateToggleState (&eqButton); };
+    
+    ampButton.setState(juce::Button::ButtonState::buttonDown);
     
     
 //    addAndMakeVisible (switchEffectButton);
@@ -291,12 +305,14 @@ void GuitarAmpGUIAudioProcessorEditor::resized()
     gateButton.setBounds(gateArea);
     verbButton.setBounds(verbArea);
     compressorButton.setBounds(compArea);
+    eqButton.setBounds(eqArea);
     
     
     drawNoiseGate();
-    drawAmp();
     drawReverb();
     drawCompressor();
+    drawEQ();
+    drawAmp();
     
 }
 
@@ -485,6 +501,66 @@ void GuitarAmpGUIAudioProcessorEditor::drawCompressor()
     compMakeUpGainSliderLabel.setJustificationType (juce::Justification::centred);
 }
 
+void GuitarAmpGUIAudioProcessorEditor::drawEQ()
+{
+    auto bounds = getLocalBounds();
+    auto responseArea = bounds.removeFromBottom(bounds.getHeight() * 0.5);
+    
+    auto labelArea = bounds.removeFromTop(bounds.getHeight() * .33);
+    effectTitleLabel.setBounds(labelArea.getX() + 10, labelArea.getY() + 10, labelArea.getWidth() - 20, labelArea.getHeight() - 20);
+    effectTitleLabel.setFont(juce::Font(32.f, juce::Font::bold));
+    effectTitleLabel.setText("OUR EQ", juce::dontSendNotification);
+    effectTitleLabel.setColour (juce::Label::textColourId, juce::Colours::white);
+    effectTitleLabel.setJustificationType (juce::Justification::left);
+    
+    auto eqHighCutArea = bounds.removeFromLeft(bounds.getWidth() * 0.33);
+    auto eqHighCutSlopeArea = eqHighCutArea.removeFromTop(eqHighCutArea.getHeight() * 0.5);
+    auto eqHighCutFreqArea = eqHighCutArea;
+    auto eqPeakArea = bounds.removeFromLeft(bounds.getWidth() * 0.5);
+    auto eqPeakFreqArea = eqPeakArea.removeFromTop(eqPeakArea.getHeight() * 0.5);
+    auto eqPeakGainArea = eqPeakArea.removeFromLeft(eqPeakArea.getWidth() * 0.5);
+    auto eqPeakQArea = eqPeakArea;
+    auto eqLowCutArea = bounds.removeFromLeft(bounds.getWidth());
+    auto eqLowCutSlopeArea = eqLowCutArea.removeFromTop(eqLowCutArea.getHeight() * 0.5);
+    auto eqLowCutFreqArea = eqLowCutArea;
+    
+    eqHighCutSlopeSlider.setBounds(eqHighCutSlopeArea.getX() - 20, eqHighCutSlopeArea.getY() - 10, eqHighCutSlopeArea.getWidth(), eqHighCutSlopeArea.getHeight());
+    eqHighCutSlopeSliderLabel.setBounds(eqHighCutSlopeArea.getX() - 20, eqHighCutSlopeArea.getY() + eqHighCutSlopeArea.getHeight() - 25, eqHighCutSlopeArea.getWidth(), 10);
+    eqHighCutSlopeSliderLabel.setText("High Cut Slope", juce::dontSendNotification);
+    eqHighCutSlopeSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    eqHighCutFreqSlider.setBounds(eqHighCutFreqArea.getX() - 20, eqHighCutFreqArea.getY() - 10, eqHighCutFreqArea.getWidth(), eqHighCutFreqArea.getHeight());
+    eqHighCutFreqSliderLabel.setBounds(eqHighCutFreqArea.getX() - 20, eqHighCutFreqArea.getY() + eqHighCutFreqArea.getHeight() - 25, eqHighCutFreqArea.getWidth(), 10);
+    eqHighCutFreqSliderLabel.setText("High Cut Freq", juce::dontSendNotification);
+    eqHighCutFreqSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    eqPeakFreqSlider.setBounds(eqPeakFreqArea.getX() - 20, eqPeakFreqArea.getY() - 10, eqPeakFreqArea.getWidth(), eqPeakFreqArea.getHeight());
+    eqPeakFreqSliderLabel.setBounds(eqPeakFreqArea.getX() - 20, eqPeakFreqArea.getY() + eqPeakFreqArea.getHeight() - 25, eqPeakFreqArea.getWidth(), 10);
+    eqPeakFreqSliderLabel.setText("Peak Freq", juce::dontSendNotification);
+    eqPeakFreqSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    eqPeakGainSlider.setBounds(eqPeakGainArea.getX() - 20, eqPeakGainArea.getY() - 10, eqPeakGainArea.getWidth(), eqPeakGainArea.getHeight());
+    eqPeakGainSliderLabel.setBounds(eqPeakGainArea.getX() - 20, eqPeakGainArea.getY() + eqPeakGainArea.getHeight() - 25, eqPeakGainArea.getWidth(), 10);
+    eqPeakGainSliderLabel.setText("Peak Gain", juce::dontSendNotification);
+    eqPeakGainSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    eqPeakQSlider.setBounds(eqPeakQArea.getX() - 20, eqPeakQArea.getY() - 10, eqPeakQArea.getWidth(), eqPeakQArea.getHeight());
+    eqPeakQSliderLabel.setBounds(eqPeakQArea.getX() - 20, eqPeakQArea.getY() + eqPeakQArea.getHeight() - 25, eqPeakQArea.getWidth(), 10);
+    eqPeakQSliderLabel.setText("Peak Q", juce::dontSendNotification);
+    eqPeakQSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    eqLowCutSlopeSlider.setBounds(eqLowCutSlopeArea.getX() - 20, eqLowCutSlopeArea.getY() - 10, eqLowCutSlopeArea.getWidth(), eqLowCutSlopeArea.getHeight());
+    eqLowCutSlopeSliderLabel.setBounds(eqLowCutSlopeArea.getX() - 20, eqLowCutSlopeArea.getY() + eqLowCutSlopeArea.getHeight() - 25, eqLowCutSlopeArea.getWidth(), 10);
+    eqLowCutSlopeSliderLabel.setText("Low Cut Slope", juce::dontSendNotification);
+    eqLowCutSlopeSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    eqLowCutFreqSlider.setBounds(eqLowCutFreqArea.getX() - 20, eqLowCutFreqArea.getY() - 10, eqLowCutFreqArea.getWidth(), eqLowCutFreqArea.getHeight());
+    eqLowCutFreqSliderLabel.setBounds(eqLowCutFreqArea.getX() - 20, eqLowCutFreqArea.getY() + eqLowCutFreqArea.getHeight() - 25, eqLowCutFreqArea.getWidth(), 10);
+    eqLowCutFreqSliderLabel.setText("Low Cut Freq", juce::dontSendNotification);
+    eqLowCutFreqSliderLabel.setJustificationType (juce::Justification::centred);
+
+}
+
 void GuitarAmpGUIAudioProcessorEditor::buttonClicked (juce::Button* button)
 {
     if (button == &switchEffectButton)
@@ -508,6 +584,7 @@ void GuitarAmpGUIAudioProcessorEditor::updateToggleState(juce::Button* button)
     bool showAmp = false;
     bool showVerb = false;
     bool showComp = false;
+    bool showEq = false;
     
     if (button == &gateButton)
     {
@@ -516,6 +593,7 @@ void GuitarAmpGUIAudioProcessorEditor::updateToggleState(juce::Button* button)
         {
             addAndMakeVisible(comp);
         }
+        effectTitleLabel.setText("OUR NOISE GATE", juce::dontSendNotification);
     }
     if (button == &ampButton)
     {
@@ -524,6 +602,7 @@ void GuitarAmpGUIAudioProcessorEditor::updateToggleState(juce::Button* button)
         {
             addAndMakeVisible(comp);
         }
+        effectTitleLabel.setText("OUR AMP", juce::dontSendNotification);
     }
     if (button == &verbButton)
     {
@@ -532,6 +611,8 @@ void GuitarAmpGUIAudioProcessorEditor::updateToggleState(juce::Button* button)
         {
             addAndMakeVisible(comp);
         }
+        
+        effectTitleLabel.setText("OUR REVERB", juce::dontSendNotification);
     }
     if (button == &compressorButton)
     {
@@ -540,6 +621,18 @@ void GuitarAmpGUIAudioProcessorEditor::updateToggleState(juce::Button* button)
         {
             addAndMakeVisible(comp);
         }
+        
+        effectTitleLabel.setText("OUR COMPRESSOR", juce::dontSendNotification);
+    }
+    if (button == &eqButton)
+    {
+        showEq = true;
+        for (auto* comp : getEqComps())
+        {
+            addAndMakeVisible(comp);
+        }
+        
+        effectTitleLabel.setText("OUR EQ", juce::dontSendNotification);
     }
     
     
@@ -559,6 +652,10 @@ void GuitarAmpGUIAudioProcessorEditor::updateToggleState(juce::Button* button)
     {
         comp->setVisible(showComp);
     }
+    for (auto* comp : getEqComps())
+    {
+        comp->setVisible(showEq);
+    }
     
     effectTitleLabel.setVisible(true);
     
@@ -571,7 +668,8 @@ std::vector<juce::Component*> GuitarAmpGUIAudioProcessorEditor::getChainComps()
         &gateButton,
         &ampButton,
         &verbButton,
-        &compressorButton
+        &compressorButton,
+        &eqButton
     };
 }
 
@@ -645,6 +743,27 @@ std::vector<juce::Component*> GuitarAmpGUIAudioProcessorEditor::getCompressorCom
         &compReleaseSliderLabel,
         &compMakeUpGainSliderLabel,
         &effectTitleLabel
+    };
+}
+
+std::vector<juce::Component*> GuitarAmpGUIAudioProcessorEditor::getEqComps()
+{
+    return
+    {
+        &eqLowCutFreqSlider,
+        &eqLowCutSlopeSlider,
+        &eqHighCutFreqSlider,
+        &eqHighCutSlopeSlider,
+        &eqPeakFreqSlider,
+        &eqPeakGainSlider,
+        &eqPeakQSlider,
+        &eqLowCutFreqSliderLabel,
+        &eqLowCutSlopeSliderLabel,
+        &eqHighCutFreqSliderLabel,
+        &eqHighCutSlopeSliderLabel,
+        &eqPeakFreqSliderLabel,
+        &eqPeakGainSliderLabel,
+        &eqPeakQSliderLabel
     };
 }
 
