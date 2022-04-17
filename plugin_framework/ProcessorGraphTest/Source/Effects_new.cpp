@@ -404,7 +404,47 @@ void CNoiseGateProcessor::reset()
 {
     NoiseGate.reset();
 }
+//================================================================================================================
 
+CTanhWaveshaping::CTanhWaveshaping(juce::AudioProcessorValueTreeState* apvts, int instanceNumber)
+{
+    auto& waveshaper = TanhProcessorChain.template get<waveshaperIndex>();
+    waveshaper.functionToUse = [](float x) { return std::tanh(x); };
+
+    auto& preGain = TanhProcessorChain.template get<preGainIndex>();
+    preGain.setGainDecibels(0.0f);
+    auto& postGain = TanhProcessorChain.template get<postGainIndex>();
+    postGain.setGainDecibels(0.0f);
+}
+
+void CTanhWaveshaping::prepareToPlay(double sampleRate, int samplesPerBlock)
+{
+    auto channels = static_cast<juce::uint32> (fmin(getMainBusNumInputChannels(), getMainBusNumOutputChannels()));
+    juce::dsp::ProcessSpec spec{ sampleRate, static_cast<juce::uint32> (samplesPerBlock) };
+    TanhProcessorChain.prepare(spec);
+}
+
+void CTanhWaveshaping::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer&)
+{
+    const auto totalNumInputChannels = getTotalNumInputChannels();
+    const auto totalNumOutputChannels = getTotalNumOutputChannels();
+
+    const auto numChannels = fmin(totalNumInputChannels, totalNumOutputChannels);
+    const auto numSamples = buffer.getNumSamples();
+
+    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+        buffer.clear(i, 0, buffer.getNumSamples());
+
+    juce::dsp::AudioBlock<float> block(buffer);
+    juce::dsp::ProcessContextReplacing<float> context(block);
+
+    TanhProcessorChain.process(context);
+}
+
+void CTanhWaveshaping::reset()
+{
+    TanhProcessorChain.reset();
+}
 
 //================================================================================================================
 CPreampProcessorChain::CPreampProcessorChain(juce::AudioProcessorValueTreeState* apvts, int instanceNumber)
@@ -586,3 +626,5 @@ void CabSimProcessor::reset()
 {
     convolutionCabSim.reset();
 }
+
+
