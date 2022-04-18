@@ -24,7 +24,14 @@ struct LookAndFeel : juce::LookAndFeel_V4
                            juce::ToggleButton &toggle,
                            bool shouldDrawButtonAsHighlighted,
                            bool shouldDrawButtonAsDown) override;
-
+    
+    void drawLinearSlider(juce::Graphics &,
+                          int x, int y, int width, int height,
+                          float     sliderPos,
+                          float     minSliderPos,
+                          float     maxSliderPos,
+                          const juce::Slider::SliderStyle,
+                          juce::Slider &) override;
 };
 
 
@@ -53,6 +60,7 @@ private:
     juce::RangedAudioParameter* param;
     juce::String suffix;
 };
+
 
 //==============================================================================
 /**
@@ -96,8 +104,18 @@ private:
     eqButton,
     phaserButton;
     
-    
     using APVTS = juce::AudioProcessorValueTreeState;
+    
+    // Chain in and out gain
+    CustomRotarySlider inputGainSlider,
+    outputGainSlider;
+//    juce::Slider inputGainSlider,
+//    outputGainSlider;
+    
+    APVTS::SliderAttachment inputGainSliderAttachment,
+    outputGainSliderAttachment;
+
+
     
     // Noise Gate Components
     CustomRotarySlider gateThresholdSlider,

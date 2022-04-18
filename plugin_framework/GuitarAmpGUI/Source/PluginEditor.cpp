@@ -62,6 +62,45 @@ void LookAndFeel::drawRotarySlider (juce::Graphics& g,
     }
 }
 
+void LookAndFeel::drawLinearSlider(juce::Graphics& g,
+                                    int x, int y, int width, int height,
+                                   float sliderPos,
+                                   float minSliderPos,
+                                   float maxSliderPos,
+                                   const juce::Slider::SliderStyle style,
+                                   juce::Slider& slider)
+{
+    using namespace juce;
+    
+    auto bounds = Rectangle<float>(x, y, width, height);
+    g.setColour(Colour(196u, 196u, 196u));
+    
+//    if (auto* customSlider = dynamic_cast<CustomVerticalSlider*>(&slider))
+//    {
+        auto center = bounds.getCentre();
+
+        Path p;
+
+        p.addRectangle ((float) x,
+                            sliderPos, (float) width,
+                            1.0f + height - sliderPos);
+
+        auto baseColour = slider.findColour
+     (Slider::rotarySliderFillColourId).withMultipliedSaturation
+     (slider.isEnabled () ? 1.0f : 0.5f)
+     .withMultipliedAlpha (0.8f);
+
+        g.setColour (baseColour);
+        g.fillPath (p);
+
+        auto lineThickness = jmin (15.0f,
+                             jmin (width, height) * 0.45f) * 0.1f;
+        g.drawRect (slider.getLocalBounds ().
+                                    toFloat (), lineThickness);
+
+//    }
+}
+
 void LookAndFeel::drawToggleButton (juce::Graphics &g,
                        juce::ToggleButton &toggle,
                        bool shouldDrawButtonAsHighlighted,
@@ -95,7 +134,7 @@ void LookAndFeel::drawToggleButton (juce::Graphics &g,
     
     auto text = toggle.getButtonText();
     g.drawFittedText(text, bounds, juce::Justification::centred, 1);
-    
+
 }
 
 
@@ -226,6 +265,12 @@ phaserFcSliderAttachment(audioProcessor.apTreeState, "phaserFc", phaserFcSlider)
 phaserFeedbackSliderAttachment(audioProcessor.apTreeState, "phaserFeedback", phaserFeedbackSlider),
 phaserBlendSliderAttachment(audioProcessor.apTreeState, "phaserBlend", phaserBlendSlider),
 
+inputGainSlider(*audioProcessor.apTreeState.getParameter("inputGain"), "dB"),
+outputGainSlider(*audioProcessor.apTreeState.getParameter("outputGain"), "dB"),
+
+inputGainSliderAttachment(audioProcessor.apTreeState, "inputGain", inputGainSlider),
+outputGainSliderAttachment(audioProcessor.apTreeState, "outputGain", outputGainSlider),
+
 gateButton("GATE"),
 ampButton("AMP"),
 verbButton("REVERB"),
@@ -324,7 +369,18 @@ void GuitarAmpGUIAudioProcessorEditor::resized()
     compressorButton.setBounds(compArea);
     phaserButton.setBounds(phaserArea);
     verbButton.setBounds(verbArea);
+
+    bounds = getLocalBounds();
+    auto inputArea = bounds.removeFromBottom(bounds.getHeight() * 0.5);
+    inputArea.setBounds(-70, inputArea.getY() + inputArea.getHeight() - 80, inputArea.getWidth() / 3.5, inputArea.getHeight() / 3.5);
     
+    inputGainSlider.setBounds(inputArea);
+    
+    bounds = getLocalBounds();
+    auto outputArea = bounds.removeFromBottom(bounds.getHeight() * 0.5);
+    outputArea.setBounds(outputArea.getX() + outputArea.getWidth() - 130, outputArea.getY() + outputArea.getHeight() - 80, outputArea.getWidth() / 3.5, outputArea.getHeight() / 3.5);
+    
+    outputGainSlider.setBounds(outputArea);
     
     drawNoiseGate();
     drawReverb();
@@ -748,7 +804,9 @@ std::vector<juce::Component*> GuitarAmpGUIAudioProcessorEditor::getChainComps()
         &verbButton,
         &compressorButton,
         &eqButton,
-        &phaserButton
+        &phaserButton,
+        &inputGainSlider,
+        &outputGainSlider
     };
 }
 
