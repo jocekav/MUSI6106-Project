@@ -112,29 +112,45 @@ void LookAndFeel::drawToggleButton (juce::Graphics &g,
     bounds.setBounds(bounds.getX(), bounds.getY(), bounds.getWidth() - bounds.getWidth() / 4, bounds.getHeight());
     
     bool toggleState = toggle.getToggleState();
-    auto color = toggleState ? juce::Colour(196u, 196u, 196u) : juce::Colour(109u, 103u, 95u);
-    g.setColour(color);
-    g.fillRect(bounds);
     
-    auto signArea = bounds.removeFromRight((bounds.getWidth() / 4));
-    signArea.removeFromBottom(bounds.getHeight() - bounds.getHeight() / 3.5);
-    g.setColour(Colours::white);
-
     
-    juce::Line<float> line (juce::Point<float> (signArea.getX() + 3, signArea.getY() + signArea.getHeight() / 2),
-                            juce::Point<float> (signArea.getX() + signArea.getWidth() - 3, signArea.getY() + signArea.getHeight() / 2));
-    g.drawLine (line, 2.0f);
-    
-    if (!toggleState)
+    if (auto* customSlider = dynamic_cast<CustomToggle*>(&toggle))
     {
-        juce::Line<float> line (juce::Point<float> (signArea.getX() + signArea.getWidth() / 2, signArea.getY() + 3),
-                                juce::Point<float> (signArea.getX() + signArea.getWidth() / 2, signArea.getY() + signArea.getHeight() - 2));
-        g.drawLine (line, 2.0f);
+        auto color = toggleState ? juce::Colour(196u, 196u, 196u) : juce::Colour(109u, 103u, 95u);
+        g.setColour(color);
+        g.fillRect(bounds);
     }
-    
-    auto text = toggle.getButtonText();
-    g.drawFittedText(text, bounds, juce::Justification::centred, 1);
+    else
+    {
+        auto color = toggleState ? juce::Colour(196u, 196u, 196u) : juce::Colour(109u, 103u, 95u);
+        g.setColour(color);
+        g.fillRect(bounds);
+        
+        auto signArea = bounds.removeFromRight((bounds.getWidth() / 4));
+        signArea.removeFromBottom(bounds.getHeight() - bounds.getHeight() / 3.5);
+        g.setColour(Colours::white);
 
+        
+        juce::Line<float> line (juce::Point<float> (signArea.getX() + 3, signArea.getY() + signArea.getHeight() / 2),
+                                juce::Point<float> (signArea.getX() + signArea.getWidth() - 3, signArea.getY() + signArea.getHeight() / 2));
+        g.drawLine (line, 2.0f);
+        
+        if (!toggleState)
+        {
+            juce::Line<float> line (juce::Point<float> (signArea.getX() + signArea.getWidth() / 2, signArea.getY() + 3),
+                                    juce::Point<float> (signArea.getX() + signArea.getWidth() / 2, signArea.getY() + signArea.getHeight() - 2));
+            g.drawLine (line, 2.0f);
+        }
+        
+        auto text = toggle.getButtonText();
+        g.drawFittedText(text, bounds, juce::Justification::centred, 1);
+    }
+
+}
+
+void CustomToggle::paint(juce::Graphics &g)
+{
+    getLookAndFeel().drawToggleButton(g, *this, false, false);
 }
 
 
@@ -190,6 +206,7 @@ gateThresholdSlider(*audioProcessor.apTreeState.getParameter("gateThreshold"), "
 gateRatioSlider(*audioProcessor.apTreeState.getParameter("gateRatio"), ""),
 gateAttackSlider(*audioProcessor.apTreeState.getParameter("gateAttack"), "s"),
 gateReleaseSlider(*audioProcessor.apTreeState.getParameter("gateRelease"), "s"),
+gateBypassToggle(*audioProcessor.apTreeState.getParameter("gateBypass"), ""),
 
 gateThresholdSliderAttachment(audioProcessor.apTreeState, "gateThreshold", gateThresholdSlider),
 gateRatioSliderAttachment(audioProcessor.apTreeState, "gateRatio", gateRatioSlider),
@@ -204,6 +221,7 @@ ampEmphasisFreqSlider(*audioProcessor.apTreeState.getParameter("ampEmphasis"), "
 ampEmphasisGainSlider(*audioProcessor.apTreeState.getParameter("ampEmphasisGain"), "dB"),
 ampPostLpfSlider(*audioProcessor.apTreeState.getParameter("ampPostLPF"), "Hz"),
 ampPostHpfSlider(*audioProcessor.apTreeState.getParameter("ampPostHPF"), "Hz"),
+ampBypassToggle(*audioProcessor.apTreeState.getParameter("ampBypass"), ""),
 
 ampDriveSliderAttachment(audioProcessor.apTreeState, "ampDrive", ampDriveSlider),
 ampBlendSliderAttachment(audioProcessor.apTreeState, "ampBlend", ampBlendSlider),
@@ -220,6 +238,7 @@ ampTypeComboBoxAttachment(audioProcessor.apTreeState, "ampType", ampTypeComboBox
 rvbBlendSlider(*audioProcessor.apTreeState.getParameter("rvbBlend"), "%"),
 rvbRoomSizeSlider(*audioProcessor.apTreeState.getParameter("rvbRoomSize"), ""),
 rvbDampingSlider(*audioProcessor.apTreeState.getParameter("rvbDamping"), ""),
+verbBypassToggle(*audioProcessor.apTreeState.getParameter("rvbBypass"), ""),
 
 rvbBlendSliderAttachment(audioProcessor.apTreeState, "rvbBlend", rvbBlendSlider),
 rvbRoomSizeSliderAttachment(audioProcessor.apTreeState, "rvbRoomSize", rvbRoomSizeSlider),
@@ -230,6 +249,7 @@ compRatioSlider(*audioProcessor.apTreeState.getParameter("compRatio"), ""),
 compAttackSlider(*audioProcessor.apTreeState.getParameter("compAttack"), "ms"),
 compReleaseSlider(*audioProcessor.apTreeState.getParameter("compRelease"), "ms"),
 compMakeUpGainSlider(*audioProcessor.apTreeState.getParameter("compMakeupGain"), "dB"),
+compBypassToggle(*audioProcessor.apTreeState.getParameter("compBypass"), ""),
 
 compThresholdSliderAttachment(audioProcessor.apTreeState, "compThreshold", compThresholdSlider),
 compRatioSliderAttachment(audioProcessor.apTreeState, "compRatio", compRatioSlider),
@@ -244,6 +264,7 @@ eqHighCutSlopeSlider(*audioProcessor.apTreeState.getParameter("HighCutSlope"), "
 eqPeakFreqSlider(*audioProcessor.apTreeState.getParameter("PeakFreq"), "Hz"),
 eqPeakGainSlider(*audioProcessor.apTreeState.getParameter("PeakGain"), "dB"),
 eqPeakQSlider(*audioProcessor.apTreeState.getParameter("PeakQ"), ""),
+eqBypassToggle(*audioProcessor.apTreeState.getParameter("eqBypass"), ""),
 
 eqLowCutFreqSliderAttachment(audioProcessor.apTreeState, "LowCutFreq", eqLowCutFreqSlider),
 eqLowCutSlopeSliderAttachment(audioProcessor.apTreeState, "LowCutSlope", eqLowCutSlopeSlider),
@@ -258,6 +279,7 @@ phaserDepthSlider(*audioProcessor.apTreeState.getParameter("phaserDepth"), ""),
 phaserFcSlider(*audioProcessor.apTreeState.getParameter("phaserFc"), "Hz"),
 phaserFeedbackSlider(*audioProcessor.apTreeState.getParameter("phaserFeedback"), "%"),
 phaserBlendSlider(*audioProcessor.apTreeState.getParameter("phaserBlend"), "%"),
+phaserBypassToggle(*audioProcessor.apTreeState.getParameter("phaserBypass"), ""),
 
 phaserRateSliderAttachment(audioProcessor.apTreeState, "phaserRate", phaserRateSlider),
 phaserDepthSliderAttachment(audioProcessor.apTreeState, "phaserDepth", phaserDepthSlider),
@@ -369,6 +391,13 @@ void GuitarAmpGUIAudioProcessorEditor::resized()
     compressorButton.setBounds(compArea);
     phaserButton.setBounds(phaserArea);
     verbButton.setBounds(verbArea);
+    
+    gateBypassToggle.setBounds(gateArea.getX() + gateArea.getWidth() / 4, gateArea.getY() - 30, gateArea.getWidth() / 4, gateArea.getHeight() / 4);
+    ampBypassToggle.setBounds(ampArea.getX() + ampArea.getWidth() / 4, ampArea.getY() - 30, ampArea.getWidth() / 4, ampArea.getHeight() / 4);
+    eqBypassToggle.setBounds(eqArea.getX() + eqArea.getWidth() / 4, eqArea.getY() - 30, eqArea.getWidth() / 4, eqArea.getHeight() / 4);
+    compBypassToggle.setBounds(compArea.getX() + compArea.getWidth() / 4, compArea.getY() - 30, compArea.getWidth() / 4, compArea.getHeight() / 4);
+    verbBypassToggle.setBounds(verbArea.getX() + verbArea.getWidth() / 4, verbArea.getY() - 30, verbArea.getWidth() / 4, verbArea.getHeight() / 4);
+    phaserBypassToggle.setBounds(phaserArea.getX() + phaserArea.getWidth() / 4, phaserArea.getY() - 30, phaserArea.getWidth() / 4, phaserArea.getHeight() / 4);
 
     bounds = getLocalBounds();
     auto inputArea = bounds.removeFromBottom(bounds.getHeight() * 0.5);
@@ -388,6 +417,8 @@ void GuitarAmpGUIAudioProcessorEditor::resized()
     drawEQ();
     drawPhaser();
     drawAmp();
+    
+    ampButton.setState(juce::Button::ButtonState::buttonDown);
     
 }
 
@@ -806,7 +837,13 @@ std::vector<juce::Component*> GuitarAmpGUIAudioProcessorEditor::getChainComps()
         &eqButton,
         &phaserButton,
         &inputGainSlider,
-        &outputGainSlider
+        &outputGainSlider,
+        &gateBypassToggle,
+        &compBypassToggle,
+        &verbBypassToggle,
+        &eqBypassToggle,
+        &phaserBypassToggle,
+        &ampBypassToggle
     };
 }
 

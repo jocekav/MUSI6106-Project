@@ -61,6 +61,31 @@ private:
     juce::String suffix;
 };
 
+struct CustomToggle : juce::ToggleButton
+{
+    CustomToggle(juce::RangedAudioParameter& rap, const juce::String& unitSuffix) : juce::ToggleButton(),
+    param(&rap),
+    suffix(unitSuffix)
+    {
+        setLookAndFeel(&lnf);
+    }
+    
+    ~CustomToggle()
+    {
+        setLookAndFeel(nullptr);
+    }
+    
+    void paint(juce::Graphics& g) override;
+    juce::Rectangle<int> getSliderBounds() const;
+    int getTextHeight() const { return 14; }
+    juce::String getDisplayString() const;
+private:
+    LookAndFeel lnf;
+    
+    juce::RangedAudioParameter* param;
+    juce::String suffix;
+};
+
 
 //==============================================================================
 /**
@@ -115,7 +140,6 @@ private:
     APVTS::SliderAttachment inputGainSliderAttachment,
     outputGainSliderAttachment;
 
-
     
     // Noise Gate Components
     CustomRotarySlider gateThresholdSlider,
@@ -132,6 +156,8 @@ private:
     gateRatioSliderLabel,
     gateAttackSliderLabel,
     gateReleaseSliderLabel;
+    
+    CustomToggle gateBypassToggle;
     
     // Amp Components
     CustomRotarySlider ampDriveSlider,
@@ -164,6 +190,8 @@ private:
     juce::ComboBox ampTypeComboBox;
     APVTS::ComboBoxAttachment ampTypeComboBoxAttachment;
     
+    CustomToggle ampBypassToggle;
+    
     // Reverb Components
     CustomRotarySlider rvbBlendSlider,
     rvbRoomSizeSlider,
@@ -176,6 +204,8 @@ private:
     juce::Label rvbBlendSliderLabel,
     rvbRoomSizeSliderLabel,
     rvbDampingSliderLabel;
+    
+    CustomToggle verbBypassToggle;
     
     // Compessor Components
     CustomRotarySlider compThresholdSlider,
@@ -195,6 +225,8 @@ private:
     compAttackSliderLabel,
     compReleaseSliderLabel,
     compMakeUpGainSliderLabel;
+    
+    CustomToggle compBypassToggle;
     
     // EQ Components
     CustomRotarySlider eqLowCutFreqSlider,
@@ -221,6 +253,8 @@ private:
     eqPeakGainSliderLabel,
     eqPeakQSliderLabel;
     
+    CustomToggle eqBypassToggle;
+    
     // Phaser Components
     CustomRotarySlider phaserRateSlider,
     phaserDepthSlider,
@@ -239,6 +273,8 @@ private:
     phaserFcSliderLabel,
     phaserFeedbackSliderLabel,
     phaserBlendSliderLabel;
+    
+    CustomToggle phaserBypassToggle;
     
     
     juce::Label effectTitleLabel;
