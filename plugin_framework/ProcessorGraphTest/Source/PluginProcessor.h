@@ -70,7 +70,7 @@ public:
 
     Node::Ptr inputGainNode;
     Node::Ptr noisegateNode;
-//    Node::Ptr eqNode;
+    Node::Ptr eqNode;
     Node::Ptr compressorNode;
 //    Node::Ptr amplifierNode;
     Node::Ptr reverbNode;

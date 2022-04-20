@@ -5,6 +5,38 @@
 
 #ifndef PROCESSORGRAPHTEST_EFFECTS_NEW_H
 #define PROCESSORGRAPHTEST_EFFECTS_NEW_H
+//================================================================================================================
+//  EQ Processor Node
+//================================================================================================================
+class CEqualizerProcessor  : public ProcessorBase
+{
+public:
+
+    static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params, int i);
+    static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params);
+
+    const juce::String getName() const override { return "EQ"+suffix; }
+    CEqualizerProcessor(juce::AudioProcessorValueTreeState* apvts, int instanceNumber);
+
+    void prepareToPlay(double sampleRate, int samplesPerBlock) override;
+    void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
+    void reset() override;
+    void update();
+    juce::AudioProcessorValueTreeState* m_pAPVTS;
+private:
+    //Filters
+    juce::IIRFilter lowPass [2];
+    juce::IIRFilter lowMid[2];
+    juce::IIRFilter midFilter[2];
+    juce::IIRFilter highMid[2];
+    juce::IIRFilter highPass[2];
+
+
+    bool isBypassed = false;
+    juce::LinearSmoothedValue<float> lowPassFreq, lowPassQ, lowMidFreq, lowMidQ, lowMidGain, midFreq, midQ, midGain, highMidFreq, highMidQ, highMidGain, highPassFreq, highPassQ;
+    bool isActive=false;
+    std::string suffix;
+};
 
 //================================================================================================================
 //  Compressor Processor Node

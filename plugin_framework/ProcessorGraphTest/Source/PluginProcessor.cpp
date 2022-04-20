@@ -265,6 +265,9 @@ void ProcessorGraphTestAudioProcessor::initialiseAudioNodes(juce::ReferenceCount
     noisegateNode = mainProcessor->addNode(std::make_unique<CNoiseGateProcessor>(&apvts,0));
     audioNodeList.add(noisegateNode);
 
+    eqNode = mainProcessor->addNode(std::make_unique<CEqualizerProcessor>(&apvts,0));
+    audioNodeList.add(eqNode);
+
     compressorNode = mainProcessor->addNode(std::make_unique<CCompressorProcessor>(&apvts,0));
     audioNodeList.add(compressorNode);
 
@@ -289,10 +292,11 @@ juce::AudioProcessorValueTreeState::ParameterLayout ProcessorGraphTestAudioProce
     // ADD PARAMS BELOW
     CGainProcessor::addToParameterLayout(params,0); // Input Gain
     CNoiseGateProcessor::addToParameterLayout(params,0);
-//
+    CEqualizerProcessor::addToParameterLayout(params, 0); // EQ
     CCompressorProcessor::addToParameterLayout(params,0); // Compressor Params
     CReverbProcessor::addToParameterLayout(params,0); // Reverb Params
     CPhaserProcessor::addToParameterLayout(params,0);
+
 
 //    CGainProcessor::addToParameterLayout(params); // Input Gain
 //    CNoiseGateProcessor::addToParameterLayout(params);
