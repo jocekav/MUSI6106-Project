@@ -157,7 +157,7 @@ private:
     float ampCleanDrive = 1.0;
     float ampLeadDrive = 1.0;
     float ampMaster = 1.0;
-    WaveNet waveNet; // Amp Clean Channel / Lead Channel
+    //WaveNet waveNet; // Amp Clean Channel / Lead Channel
 
     std::string suffix;
 };

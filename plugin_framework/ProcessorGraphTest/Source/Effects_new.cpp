@@ -18,7 +18,7 @@ void CCompressorProcessor::addToParameterLayout(std::vector<std::unique_ptr<juce
     std::string rel = "CompressorRelease_" + num;
     std::string mkg = "CompressorMakeupGain_" + num;
 
-    params.push_back(std::make_unique<juce::AudioParameterBool>(byp, "Bypass", false));
+    params.push_back(std::make_unique<juce::AudioParameterBool>(byp, "Bypass", true));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(ipg, "Input Gain", -30.f, 30.f, 0.f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(thr, "Threshold", -60.f, 0.f, -6.f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(rto, "Ratio", 1.f, 40.f, 1.f));
