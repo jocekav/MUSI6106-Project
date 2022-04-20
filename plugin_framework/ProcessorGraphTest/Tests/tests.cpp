@@ -38,6 +38,30 @@ TEST_CASE("processor: BusesLayoutSupportMono", "[processor]")
     processor.releaseResources();
 }
 
+TEST_CASE("processor: BusesLayoutSupportStereo", "[processor]")
+{
+    std::cout << "Testing processor stereo support" << std::endl;
+    //    auto processor     = ProcessorGraphTestAudioProcessor();
+    ProcessorGraphTestAudioProcessor processor;
+    auto layout = juce::AudioProcessor::BusesLayout{};
+    layout.inputBuses = juce::AudioChannelSet::stereo();
+    layout.outputBuses = juce::AudioChannelSet::stereo();
+
+    REQUIRE(processor.isBusesLayoutSupported(layout));
+    processor.releaseResources();
+}
+
+TEST_CASE("processor: latencyAddition", "[processor]")
+{
+    std::cout << "Testing processor latency increase" << std::endl;
+    ProcessorGraphTestAudioProcessor processor;
+    processor.setLatencySamples(9);
+   
+    REQUIRE(processor.getLatencySamples() == 9);
+    processor.releaseResources();
+}
+
+
 TEST_CASE("processor: apvts value set/get", "[params-apvts]")
 {
     std::cout << "Testing apvts param value set/get" << std::endl;
@@ -64,3 +88,73 @@ TEST_CASE("processor: create nodes and test naming","[create-nodes]")
     }
 }
 
+TEST_CASE("processor: does not accept midi", "[midi]")
+{
+    ProcessorGraphTestAudioProcessor processor;
+    REQUIRE(processor.acceptsMidi() == false);
+}
+
+
+
+// check that it never goes above 1
+
+
+//next tests: put input through and check output for various configurations!
+TEST_CASE("bypass all effects", "[processor]")
+{
+    constexpr auto numChannels = 2;
+    constexpr auto numSamples = 64;
+
+    auto midi = juce::MidiBuffer{};
+    auto buffer = juce::AudioBuffer<float>{ numChannels, numSamples };
+
+    // fill buffer with all 1.0
+    for (auto i = 0; i < numChannels; i++)
+    {
+        for (auto j = 0; j < numSamples; j++) { buffer.setSample(i, j, 1.0f); }
+    }
+
+    ProcessorGraphTestAudioProcessor processor;
+    
+    std::cout << "about to getrawparametervalue" << std::endl;
+    //processor.apvts.getRawParameterValue("gain")->store(0.0f);
+    processor.apvts.state.setProperty("GainValue_0", 5.0f, nullptr);
+    auto phaserBypP = processor.apvts.state.getPropertyPointer("PhaserByprass_0");
+    
+  //  processor.apvts.state.setProperty(phaserBypP, true, nullptr);
+    processor.apvts.state.setProperty("NoiseGateBypass_0", true, nullptr);
+    processor.apvts.state.setProperty("CompressorBypass_0", true, nullptr);
+    processor.apvts.state.setProperty("ReverbBypass_0", 1.0f, nullptr);
+    juce::XmlElement::TextFormat text;
+    std::cout << processor.apvts.state.toXmlString(text) << std::endl;
+
+    //AudioProcessorParameterWithID* pParam = parameters.getParameter("GainValue_0"); 
+    //pParam->beginChangeGesture(); 
+    //pParam->setValueNotifyingHost(paramValue); 
+   // pParam->endChangeGesture();
+
+        
+    // processor.apvts.state.setProperty("PhaserBypass", 0.0f, nullptr);
+
+
+
+    //processor.apvts.state.setProperty("CompressorBypass_0", true, nullptr);
+    // bypass all effects:
+    //processor.apvts.state.setProperty("CompressorBypass_0", true, nullptr);
+
+    std::cout << "about to preparetoplay" << std::endl;
+    processor.prepareToPlay(44100.0, numSamples);
+    processor.processBlock(buffer, midi);
+
+    // buffer should be silent
+    for (auto i = 0; i < numChannels; i++)
+    {
+        for (auto j = 0; j < numSamples; j++)
+        {
+            auto const sample = buffer.getSample(i, j);
+            REQUIRE(sample == 1.0f);
+        }
+    }
+
+    processor.releaseResources();
+}
