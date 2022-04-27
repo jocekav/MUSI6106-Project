@@ -67,10 +67,26 @@ TEST_CASE("processor: apvts value set/get", "[params-apvts]")
     std::cout << "Testing apvts param value set/get" << std::endl;
     //    auto processor     = ProcessorGraphTestAudioProcessor();
     ProcessorGraphTestAudioProcessor processor;
-    REQUIRE(processor.apvts.getRawParameterValue("CompressorBypass_0")->load() == false);
-    processor.apvts.state.setProperty("CompressorBypass_0",true,nullptr);
-//    REQUIRE(static_cast<bool>(testPlugin.apvts.getRawParameterValue("CompressorBypass_0")->load()) == true);
-    REQUIRE(static_cast<bool>(processor.apvts.state.getProperty("CompressorBypass_0")) == true);
+
+   /* juce::Value bypassReverb = processor.apvts.getParameterAsValue("ReverbBypass_0");
+    bypassReverb = true;*/
+
+    // CompressorInputGain_0 should be set to 0.f in defaults, test
+    juce::Value compressorInputGainTest = processor.apvts.getParameterAsValue("CompressorInputGain_0");
+
+    juce::Value testVal;
+    testVal.setValue(0.f);
+
+
+    REQUIRE(compressorInputGainTest.operator==(testVal));
+
+    // check what happens when we set input gain to 0.88f
+    float intermediateValue = 0.88f;
+    compressorInputGainTest = intermediateValue;
+    juce::Value compressorInputGain2 = processor.apvts.getParameterAsValue("CompressorInputGain_0");
+    juce::Value theTestVal;
+    theTestVal.setValue(intermediateValue);
+    REQUIRE(compressorInputGain2.operator==(theTestVal));
 }
 
 
@@ -108,42 +124,58 @@ TEST_CASE("bypass all effects", "[processor]")
     auto midi = juce::MidiBuffer{};
     auto buffer = juce::AudioBuffer<float>{ numChannels, numSamples };
 
-    // fill buffer with all 1.0
-    for (auto i = 0; i < numChannels; i++)
-    {
-        for (auto j = 0; j < numSamples; j++) { buffer.setSample(i, j, 1.0f); }
-    }
-
     ProcessorGraphTestAudioProcessor processor;
-    
+
+    juce::Identifier gettingName = processor.apvts.state.getPropertyName(0);
+    std::cout << gettingName.toString() << std::endl;
+
+
+    auto param = processor.apvts.state.getProperty("PhaserBypass_0");
+
     std::cout << "about to getrawparametervalue" << std::endl;
     //processor.apvts.getRawParameterValue("gain")->store(0.0f);
     processor.apvts.state.setProperty("GainValue_0", 5.0f, nullptr);
-    auto phaserBypP = processor.apvts.state.getPropertyPointer("PhaserByprass_0");
+    auto phaserBypP = processor.apvts.state.getPropertyPointer("PhaserBypass_0");
     
   //  processor.apvts.state.setProperty(phaserBypP, true, nullptr);
-    processor.apvts.state.setProperty("NoiseGateBypass_0", true, nullptr);
-    processor.apvts.state.setProperty("CompressorBypass_0", true, nullptr);
-    processor.apvts.state.setProperty("ReverbBypass_0", 1.0f, nullptr);
+    processor.apvts.state.setProperty("byp", true, nullptr);
+    
+    // audioparmeterwithid poimter and setting it to the addres return by createandaddparaeeer
+    //setValueNotifyingHost
+    //getparemerterasvalue
+    juce::Value bypassPhaser = processor.apvts.getParameterAsValue("PhaserBypass_0");
+    bypassPhaser = true;
+    juce::Value bypassCompressor = processor.apvts.getParameterAsValue("CompressorBypass_0");
+    bypassCompressor = true;
+    juce::Value bypassEqualizer = processor.apvts.getParameterAsValue("EqualizerBypass_0");
+    bypassEqualizer = true;
+    juce::Value bypassNoiseGate = processor.apvts.getParameterAsValue("NoiseGateBypass_0");
+    bypassNoiseGate = true;
+    juce::Value bypassReverb = processor.apvts.getParameterAsValue("ReverbBypass_0");
+    bypassReverb = true;
+
+    juce::Value gain0 = processor.apvts.getParameterAsValue("GainValue_0");
+    gain0 = 0;
+    juce::Value gain1 = processor.apvts.getParameterAsValue("GainValue_1");
+    gain1 = 0;
+
+
+
+
     juce::XmlElement::TextFormat text;
     std::cout << processor.apvts.state.toXmlString(text) << std::endl;
 
-    //AudioProcessorParameterWithID* pParam = parameters.getParameter("GainValue_0"); 
-    //pParam->beginChangeGesture(); 
-    //pParam->setValueNotifyingHost(paramValue); 
-   // pParam->endChangeGesture();
-
-        
-    // processor.apvts.state.setProperty("PhaserBypass", 0.0f, nullptr);
-
-
-
-    //processor.apvts.state.setProperty("CompressorBypass_0", true, nullptr);
-    // bypass all effects:
-    //processor.apvts.state.setProperty("CompressorBypass_0", true, nullptr);
 
     std::cout << "about to preparetoplay" << std::endl;
     processor.prepareToPlay(44100.0, numSamples);
+
+
+
+    // fill buffer with all 0.0
+    for (auto i = 0; i < numChannels; i++)
+    {
+        for (auto j = 0; j < numSamples; j++) { buffer.setSample(i, j, 0.0f); }
+    }
     processor.processBlock(buffer, midi);
 
     // buffer should be silent
@@ -152,9 +184,32 @@ TEST_CASE("bypass all effects", "[processor]")
         for (auto j = 0; j < numSamples; j++)
         {
             auto const sample = buffer.getSample(i, j);
-            REQUIRE(sample == 1.0f);
+            REQUIRE(sample == 0.0f);
+        }
+    }
+    // fill buffer with all 0.5
+    for (auto i = 0; i < numChannels; i++)
+    {
+        for (auto j = 0; j < numSamples; j++) { buffer.setSample(i, j, 0.5f); }
+    }
+    processor.processBlock(buffer, midi);
+
+    // buffer should be silent
+    for (auto i = 0; i < numChannels; i++)
+    {
+        for (auto j = 0; j < numSamples; j++)
+        {
+            auto const sample = buffer.getSample(i, j);
+            REQUIRE(sample == 0.5f);
         }
     }
 
+
+
     processor.releaseResources();
+
+
+    
+
+
 }
