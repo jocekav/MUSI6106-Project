@@ -113,6 +113,10 @@ void CEqualizerProcessor::reset()
 
 void CEqualizerProcessor::update()
 {
+
+    isBypassed = static_cast<bool>(m_pAPVTS->getRawParameterValue("EqualizerBypass" + suffix)->load());
+
+
     lowPassFreq.setTargetValue(m_pAPVTS->getRawParameterValue("EqualizerLPF" + suffix)->load());
     lowPassQ.setTargetValue(m_pAPVTS->getRawParameterValue("EqualizerLPFQ" + suffix)->load());
 
@@ -286,6 +290,7 @@ void CGainProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 void CGainProcessor::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer &)
 {
     this->update();
+
     if(!isActive)
         return;
     juce::dsp::AudioBlock<float> block(buffer);
@@ -367,9 +372,9 @@ void CReverbProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 void CReverbProcessor::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer &)
 {
     this->update();
-    if (!isActive)
+    if(!isActive)
         return;
-    if (isBypassed)
+    if(isBypassed)
         return;
     const auto totalNumInputChannels  = getTotalNumInputChannels();
     const auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -543,3 +548,13 @@ void CNoiseGateProcessor::reset()
 {
     NoiseGate.reset();
 }
+
+
+// struct containing all the words, each word has an array of the values
+
+
+
+
+
+
+
