@@ -151,6 +151,8 @@ bool ProcessorGraphTestAudioProcessor::isBusesLayoutSupported (const BusesLayout
 
 void ProcessorGraphTestAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
+    this->updateGraph();
+
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -247,6 +249,68 @@ void ProcessorGraphTestAudioProcessor::initialiseGraph()
     connectMidiNodes();
 }
 
+void ProcessorGraphTestAudioProcessor::updateGraph()
+{
+    //bool hasChanged = false;
+
+    //juce::Array<juce::AudioParameterChoice*> choices{ AmpSlot };
+    //juce::ReferenceCountedArray<juce::AudioProcessorGraph::Node> AmpNode;
+    //    mainProcessor->getNode(AmpNodeIndex);
+    //
+
+    //auto& choice = choices.getReference(0);
+    //auto  ampSlot = audioNodeList.getUnchecked(3);
+
+    //switch (choice->getIndex()) {
+    //case EmptyIndex:
+    //    if (ampSlot != nullptr)
+    //    {
+    //        if (ampSlot->getProcessor()->getName() == "Bypass")
+    //            break;
+    //        mainProcessor->removeNode(ampSlot.get());
+    //    }
+    //    audioNodeList.set(AmpNodeIndex, bypassAmpNode);
+    //    hasChanged = true;
+    //    break;
+
+    //case WaveshaperIndex:
+    //    if (ampSlot != nullptr)
+    //    {
+    //        if (ampSlot->getProcessor()->getName() == "TanhWaveshaping")
+    //            break;
+    //        mainProcessor->removeNode(ampSlot.get());
+    //    }
+    //    audioNodeList.set(AmpNodeIndex, waveshapingNode);
+    //    hasChanged = true;
+    //    break;
+
+    //case AnalogAmpIndex:
+    //    if (ampSlot != nullptr)
+    //    {
+    //        if (ampSlot->getProcessor()->getName() == "TanhWaveshaping")
+    //            break;
+    //        mainProcessor->removeNode(ampSlot.get());
+    //    }
+    //    audioNodeList.set(AmpNodeIndex, AnalogAmpNode);
+    //    hasChanged = true;
+    //    break;
+
+    //    //case SGAIndex:
+    //    //    if (ampSlot != nullptr)
+    //    //    {
+    //    //        if (ampSlot->getProcessor()->getName() == "SGAmp")
+    //    //            break;
+
+    //    //        mainProcessor->removeNode(ampSlot.get());
+    //    //    }
+    //    //    audioNodeList.set(AmpNodeIndex, SGANode);
+    //    //    hasChanged = true;
+    //    //    break;
+    //}
+    
+}
+
+
 //==============================================================================
 //     TODO: EDIT THE TWO FUNCTIONS BELOW TO ADD A NODE TO THE GRAPH
 //==============================================================================
@@ -271,8 +335,8 @@ void ProcessorGraphTestAudioProcessor::initialiseAudioNodes(juce::ReferenceCount
     reverbNode = mainProcessor->addNode(std::make_unique<CReverbProcessor>(&apvts,0));
     audioNodeList.add(reverbNode);
 
-    amplifierNode = mainProcessor->addNode(std::make_unique<CPreampProcessorChain>(&apvts, 0));
-    audioNodeList.add(amplifierNode);
+    AmpInterfaceNode = mainProcessor->addNode(std::make_unique<CAmpIf>(&apvts, 0));
+    audioNodeList.add(AmpInterfaceNode);
 
     phaserNode = mainProcessor->addNode(std::make_unique<CPhaserProcessor>(&apvts,0));
     audioNodeList.add(phaserNode);
@@ -280,7 +344,11 @@ void ProcessorGraphTestAudioProcessor::initialiseAudioNodes(juce::ReferenceCount
     outputGainNode = mainProcessor->addNode(std::make_unique<CGainProcessor>(&apvts,1));
     audioNodeList.add(outputGainNode);
 
+    //waveshapingNode = mainProcessor->addNode(std::make_unique<CTanhWaveshaping>(&apvts, 0));
+    //AnalogAmpNode = mainProcessor->addNode(std::make_unique<CPreampProcessorChain>(&apvts, 0));
+    // SGANode = CSmartGuitarAmp->addNode(std::make_unique<CBypassAmp>(&apvts, 0));
 }
+
 
 juce::AudioProcessorValueTreeState::ParameterLayout ProcessorGraphTestAudioProcessor::createParameterLayout()
 {
@@ -297,6 +365,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout ProcessorGraphTestAudioProce
     CDelayProcessor::addToParameterLayout(params, 0);
     CReverbProcessor::addToParameterLayout(params,0); // Reverb Params
     CPhaserProcessor::addToParameterLayout(params,0);
+    CAmpIf::addToParameterLayout(params, 0);
 
 
 //    CGainProcessor::addToParameterLayout(params); // Input Gain
@@ -305,8 +374,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout ProcessorGraphTestAudioProce
 //    CCompressorProcessor::addToParameterLayout(params); // Compressor Params
 //    CReverbProcessor::addToParameterLayout(params); // Reverb Params
 //    CPhaserProcessor::addToParameterLayout(params);
-
-//    TODO: Find a way to change the name of the parameter from gain to output gain
+//
+////    TODO: Find a way to change the name of the parameter from gain to output gain
     CGainProcessor::addToParameterLayout(params, 1); // Output Gain
 
 
