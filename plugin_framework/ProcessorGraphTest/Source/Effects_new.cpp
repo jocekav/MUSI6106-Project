@@ -406,7 +406,83 @@ void CNoiseGateProcessor::reset()
 }
 //================================================================================================================
 
-CTanhWaveshaping::CTanhWaveshaping(juce::AudioProcessorValueTreeState* apvts, int instanceNumber)
+CAmpIf::CAmpIf(juce::AudioProcessorValueTreeState* apvts, int instanceNumber)
+{
+    m_pAPVTS = apvts;
+    suffix = "_" + std::to_string(instanceNumber);
+    this->update();
+}
+CAmpIf::CAmpIf()
+{
+    // this->update();
+}
+
+void CAmpIf::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>>& params, int i = 0)
+{
+    std::string num = std::to_string(i);
+    std::string byp = "AmpBypass_" + num;
+    std::string choice = "Amp_" + num;
+
+    params.push_back(std::make_unique<juce::AudioParameterBool>(byp, "Bypass", false));
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(choice, "Amp Model", juce::StringArray{ "TanhWaveshaping", "AnalogAmp", "SGAmp" }, 0));
+}
+
+void CAmpIf::update()
+{
+    previousAmp = actualAmp;
+    isBypassed = m_pAPVTS->getRawParameterValue("AmpBypass" + suffix)->load();
+    actualAmp = static_cast<ampNode> (m_pAPVTS->getRawParameterValue("Amp" + suffix)->load());
+
+    if (!ampInit)
+    {
+        CAmp = static_cast<ProcessorBase*> (new CTanhWaveshaping());
+        ampInit = true;
+    }
+    else if (previousAmp != actualAmp)
+    {
+        delete[] CAmp;
+        switch (actualAmp) {
+        case WaveshaperIndex:
+            CAmp = static_cast<ProcessorBase*> (new CTanhWaveshaping());
+            break;
+        case AnalogAmpIndex:
+            CAmp = static_cast<ProcessorBase*> (new CPreampProcessorChain());
+            break;
+        case SGAIndex:
+            CAmp = static_cast<ProcessorBase*> (new WaveNetVaProcessor());
+            break;
+        }
+        CAmp->prepareToPlay(auxSampleRate, auxSamplesPerBlock);
+    }
+
+}
+
+void CAmpIf::prepareToPlay(double sampleRate, int samplesPerBlock)
+{
+    auxSampleRate = sampleRate;
+    auxSamplesPerBlock = samplesPerBlock;
+
+    CAmp->prepareToPlay(sampleRate, samplesPerBlock);
+}
+
+void CAmpIf::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer& midiBuffer)
+{
+    this->update();
+    if (!isActive)
+        return;
+    if (isBypassed)
+        return;
+    CAmp->processBlock(buffer, midiBuffer);
+
+}
+
+void CAmpIf::reset()
+{
+    CAmp->reset();
+}
+
+
+CTanhWaveshaping::CTanhWaveshaping()
 {
     auto& waveshaper = TanhProcessorChain.template get<waveshaperIndex>();
     waveshaper.functionToUse = [](float x) { return std::tanh(x); };
@@ -447,10 +523,8 @@ void CTanhWaveshaping::reset()
 }
 
 //================================================================================================================
-CPreampProcessorChain::CPreampProcessorChain(juce::AudioProcessorValueTreeState* apvts, int instanceNumber)
+CPreampProcessorChain::CPreampProcessorChain()
 {
-    m_pAPVTS = apvts;
-    suffix = "_" + std::to_string(instanceNumber);
 }
 
 void CPreampProcessorChain::prepareToPlay(double sampleRate, int samplesPerBlock)
@@ -530,10 +604,8 @@ std::array<float, 8> CPreampProcessorChain::tonestackCalcParam(double sampleRate
 }
 
 //================================================================================================================
-WaveNetVaProcessor::WaveNetVaProcessor(juce::AudioProcessorValueTreeState* apvts, int instanceNumber)
+WaveNetVaProcessor::WaveNetVaProcessor()
 {
-    m_pAPVTS = apvts;
-    suffix = "_" + std::to_string(instanceNumber);
 }
 
 void WaveNetVaProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)

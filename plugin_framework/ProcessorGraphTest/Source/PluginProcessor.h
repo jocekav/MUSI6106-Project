@@ -68,33 +68,33 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    enum nodeIndex
+    {
+        InputGainNodeIndex,
+        NoiseGateNodeIndex,
+        //EqNodeIndex,
+        CompressorNodeIndex,
+        AmpNodeIndex,
+        ReverbNodeIndex,
+        PhaserNodeIndex,
+        OutputGainNodeIndex
+    };
+
     Node::Ptr inputGainNode;
     Node::Ptr noisegateNode;
-//    Node::Ptr eqNode;
+    //Node::Ptr eqNode;
     Node::Ptr compressorNode;
-    Node::Ptr amplifierNode;
+
     Node::Ptr reverbNode;
     Node::Ptr phaserNode;
     Node::Ptr outputGainNode;
 
+    Node::Ptr AmpInterfaceNode;
+    //Node::Ptr waveshapingNode;
+    //Node::Ptr AnalogAmpNode;
+    //Node::Ptr SGANode
+        ;
 
-    // TODO: FOR FUTURE CODE TO CHANGE THE ORDER OF FX
-    juce::StringArray processorChoices { "Empty", "Noise Gate", "EQ", "Compressor", "Reverb", "Phaser", "Gain", "Amplifier" };
-    juce::AudioParameterChoice* processorSlot1;
-    juce::AudioParameterChoice* processorSlot2;
-    juce::AudioParameterChoice* processorSlot3;
-    juce::AudioParameterChoice* processorSlot4;
-    juce::AudioParameterChoice* processorSlot5;
-    juce::AudioParameterChoice* processorSlot6;
-    juce::AudioParameterChoice* processorSlot7;
-
-    Node::Ptr node1;
-    Node::Ptr node2;
-    Node::Ptr node3;
-    Node::Ptr node4;
-    Node::Ptr node5;
-    Node::Ptr node6;
-    Node::Ptr node7;
 
     juce::AudioProcessorValueTreeState apvts;
 private:
@@ -102,12 +102,23 @@ private:
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     std::unique_ptr<juce::AudioProcessorGraph> mainProcessor;
 
+    enum ampNode
+    {
+        EmptyIndex,
+        WaveshaperIndex,
+        AnalogAmpIndex,
+        SGAIndex
+    };
+
+
+    //juce::AudioParameterChoice* AmpSlot = (new juce::AudioParameterChoice("slot1", "Slot 1", processorChoices, 0));
+
     void initialiseAudioNodes(juce::ReferenceCountedArray<juce::AudioProcessorGraph::Node>& audioNodeList);
     void connectAudioNodes(juce::ReferenceCountedArray<juce::AudioProcessorGraph::Node>& audioNodeList);
-    void connectAudioNodes();
     void connectMidiNodes();
     void initialiseGraph();
     void updateGraph();
+
 
     juce::AudioProcessorGraph::Node::Ptr midiInputNode;
     juce::AudioProcessorGraph::Node::Ptr midiOutputNode;
