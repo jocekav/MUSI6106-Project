@@ -1,0 +1,84 @@
+{
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_custom_target",
+			"add_dependencies"
+		],
+		"files" : 
+		[
+			"3rd-party/eigen/doc/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 82,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 105,
+				"parent" : 0
+			}
+		]
+	},
+	"dependencies" : 
+	[
+		{
+			"backtrace" : 2,
+			"id" : "all_examples::@9f39094cc4b419f4f5c9"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "all_snippets::@10847917d53db1a3cc46"
+		}
+	],
+	"id" : "doc-eigen-prerequisites::@9f39094cc4b419f4f5c9",
+	"name" : "doc-eigen-prerequisites",
+	"paths" : 
+	{
+		"build" : "3rd-party/eigen/doc",
+		"source" : "3rd-party/eigen/doc"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		},
+		{
+			"name" : "CMake Rules",
+			"sourceIndexes" : 
+			[
+				1
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "cmake-build-debug/3rd-party/eigen/doc/CMakeFiles/doc-eigen-prerequisites",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 0,
+			"isGenerated" : true,
+			"path" : "cmake-build-debug/3rd-party/eigen/doc/CMakeFiles/doc-eigen-prerequisites.rule",
+			"sourceGroupIndex" : 1
+		}
+	],
+	"type" : "UTILITY"
+}

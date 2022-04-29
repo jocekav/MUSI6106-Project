@@ -1,0 +1,80 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"3rd-party/eigen/unsupported/Eigen/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 26,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 31,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Devel",
+			"destination" : "include/eigen3/unsupported/Eigen",
+			"paths" : 
+			[
+				"3rd-party/eigen/unsupported/Eigen/AdolcForward",
+				"3rd-party/eigen/unsupported/Eigen/AlignedVector3",
+				"3rd-party/eigen/unsupported/Eigen/ArpackSupport",
+				"3rd-party/eigen/unsupported/Eigen/AutoDiff",
+				"3rd-party/eigen/unsupported/Eigen/BVH",
+				"3rd-party/eigen/unsupported/Eigen/EulerAngles",
+				"3rd-party/eigen/unsupported/Eigen/FFT",
+				"3rd-party/eigen/unsupported/Eigen/IterativeSolvers",
+				"3rd-party/eigen/unsupported/Eigen/KroneckerProduct",
+				"3rd-party/eigen/unsupported/Eigen/LevenbergMarquardt",
+				"3rd-party/eigen/unsupported/Eigen/MatrixFunctions",
+				"3rd-party/eigen/unsupported/Eigen/MoreVectorization",
+				"3rd-party/eigen/unsupported/Eigen/MPRealSupport",
+				"3rd-party/eigen/unsupported/Eigen/NNLS",
+				"3rd-party/eigen/unsupported/Eigen/NonLinearOptimization",
+				"3rd-party/eigen/unsupported/Eigen/NumericalDiff",
+				"3rd-party/eigen/unsupported/Eigen/OpenGLSupport",
+				"3rd-party/eigen/unsupported/Eigen/Polynomials",
+				"3rd-party/eigen/unsupported/Eigen/Skyline",
+				"3rd-party/eigen/unsupported/Eigen/SparseExtra",
+				"3rd-party/eigen/unsupported/Eigen/SpecialFunctions",
+				"3rd-party/eigen/unsupported/Eigen/Splines"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Devel",
+			"destination" : "include/eigen3/unsupported/Eigen",
+			"paths" : 
+			[
+				"3rd-party/eigen/unsupported/Eigen/src"
+			],
+			"type" : "directory"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "3rd-party/eigen/unsupported/Eigen",
+		"source" : "3rd-party/eigen/unsupported/Eigen"
+	}
+}

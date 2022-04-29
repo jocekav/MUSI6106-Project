@@ -1,0 +1,43 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"3rd-party/JUCE/extras/Build/juceaide/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 118,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "bin/JUCE-6.1.6",
+			"paths" : 
+			[
+				"cmake-build-debug/3rd-party/JUCE/tools/extras/Build/juceaide/juceaide_artefacts/Debug/juceaide"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "3rd-party/JUCE/extras/Build/juceaide",
+		"source" : "3rd-party/JUCE/extras/Build/juceaide"
+	}
+}

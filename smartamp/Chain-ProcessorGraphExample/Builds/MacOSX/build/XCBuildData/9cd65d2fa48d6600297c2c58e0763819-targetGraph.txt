@@ -1,0 +1,4 @@
+Target dependency graph (2 targets)
+AudioProcessorGraphTutorial - Shared Code in AudioProcessorGraphTutorial, no dependencies
+AudioProcessorGraphTutorial - Standalone Plugin in AudioProcessorGraphTutorial, depends on:
+AudioProcessorGraphTutorial - Shared Code in AudioProcessorGraphTutorial (explicit)

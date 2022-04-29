@@ -1,0 +1,10 @@
+# ninja log v5
+0	43	0	/Users/shanjiang/Documents/GitHub/MUSI6106-Project/plugin_framework/ProcessorGraphTest/cmake-build-release/3rd-party/JUCE/tools/CMakeFiles/cmake.verify_globs	dae980529eb826ee
+1	2710	1650232278863346246	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_data_structures/juce_data_structures.mm.o	9f142aba1bf1086a
+0	3115	1650232279268589081	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/juce_build_tools/juce_build_tools.cpp.o	969cff96731a9113
+1	3532	1650232279679833534	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_events/juce_events.mm.o	99d76a9afb5817d9
+0	3634	1650232279784993988	extras/Build/juceaide/CMakeFiles/juceaide.dir/Main.cpp.o	d7730b2d70a091a7
+1	6573	1650232282681634094	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_graphics/juce_graphics.mm.o	d71055e45516d6f9
+1	6591	1650232282734888945	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_core/juce_core.mm.o	eab4d8b423871a37
+0	14112	1650232290245354298	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_gui_basics/juce_gui_basics.mm.o	889aa3c813c281d6
+14113	15104	1650232291264437587	extras/Build/juceaide/juceaide_artefacts/Debug/juceaide	b24d9b61d922bd57

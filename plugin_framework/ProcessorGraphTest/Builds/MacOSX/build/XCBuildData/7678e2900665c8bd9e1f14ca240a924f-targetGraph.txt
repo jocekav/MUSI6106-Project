@@ -1,0 +1,4 @@
+Target dependency graph (2 targets)
+ProcessorGraphTest - Shared Code in ProcessorGraphTest, no dependencies
+ProcessorGraphTest - VST3 in ProcessorGraphTest, depends on:
+ProcessorGraphTest - Shared Code in ProcessorGraphTest (explicit)

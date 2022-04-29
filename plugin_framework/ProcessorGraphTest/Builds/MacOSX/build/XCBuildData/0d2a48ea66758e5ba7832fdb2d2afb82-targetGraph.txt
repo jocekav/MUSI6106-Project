@@ -1,0 +1,13 @@
+Target dependency graph (5 targets)
+ProcessorGraphTest - Shared Code in ProcessorGraphTest, no dependencies
+ProcessorGraphTest - AU in ProcessorGraphTest, depends on:
+ProcessorGraphTest - Shared Code in ProcessorGraphTest (explicit)
+ProcessorGraphTest - VST3 in ProcessorGraphTest, depends on:
+ProcessorGraphTest - Shared Code in ProcessorGraphTest (explicit)
+ProcessorGraphTest - Standalone Plugin in ProcessorGraphTest, depends on:
+ProcessorGraphTest - Shared Code in ProcessorGraphTest (explicit)
+ProcessorGraphTest - All in ProcessorGraphTest, depends on:
+ProcessorGraphTest - VST3 in ProcessorGraphTest (explicit)
+ProcessorGraphTest - AU in ProcessorGraphTest (explicit)
+ProcessorGraphTest - Standalone Plugin in ProcessorGraphTest (explicit)
+ProcessorGraphTest - Shared Code in ProcessorGraphTest (explicit)

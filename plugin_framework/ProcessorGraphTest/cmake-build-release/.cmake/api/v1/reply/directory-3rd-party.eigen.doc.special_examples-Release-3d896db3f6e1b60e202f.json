@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "3rd-party/eigen/doc/special_examples",
+		"source" : "3rd-party/eigen/doc/special_examples"
+	}
+}

@@ -1,0 +1,95 @@
+/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/Applications/CLion.app/Contents/bin/ninja/mac/ninja -G Ninja -S /Users/shanjiang/Documents/GitHub/MUSI6106-Project/plugin_framework/ProcessorGraphTest -B /Users/shanjiang/Documents/GitHub/MUSI6106-Project/plugin_framework/ProcessorGraphTest/cmake-build-debug
+-- The C compiler identification is AppleClang 13.0.0.13000029
+-- The CXX compiler identification is AppleClang 13.0.0.13000029
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Performing Test standard_math_library_linked_to_automatically
+-- Performing Test standard_math_library_linked_to_automatically - Success
+-- Standard libraries to link to explicitly: none
+-- Performing Test COMPILER_SUPPORT_WERROR
+-- Performing Test COMPILER_SUPPORT_WERROR - Success
+-- Performing Test COMPILER_SUPPORT_pedantic
+-- Performing Test COMPILER_SUPPORT_pedantic - Success
+-- Performing Test COMPILER_SUPPORT_Wall
+-- Performing Test COMPILER_SUPPORT_Wall - Success
+-- Performing Test COMPILER_SUPPORT_Wextra
+-- Performing Test COMPILER_SUPPORT_Wextra - Success
+-- Performing Test COMPILER_SUPPORT_Wundef
+-- Performing Test COMPILER_SUPPORT_Wundef - Success
+-- Performing Test COMPILER_SUPPORT_Wcastalign
+-- Performing Test COMPILER_SUPPORT_Wcastalign - Success
+-- Performing Test COMPILER_SUPPORT_Wcharsubscripts
+-- Performing Test COMPILER_SUPPORT_Wcharsubscripts - Success
+-- Performing Test COMPILER_SUPPORT_Wnonvirtualdtor
+-- Performing Test COMPILER_SUPPORT_Wnonvirtualdtor - Success
+-- Performing Test COMPILER_SUPPORT_Wunusedlocaltypedefs
+-- Performing Test COMPILER_SUPPORT_Wunusedlocaltypedefs - Success
+-- Performing Test COMPILER_SUPPORT_Wpointerarith
+-- Performing Test COMPILER_SUPPORT_Wpointerarith - Success
+-- Performing Test COMPILER_SUPPORT_Wwritestrings
+-- Performing Test COMPILER_SUPPORT_Wwritestrings - Success
+-- Performing Test COMPILER_SUPPORT_Wformatsecurity
+-- Performing Test COMPILER_SUPPORT_Wformatsecurity - Success
+-- Performing Test COMPILER_SUPPORT_Wshorten64to32
+-- Performing Test COMPILER_SUPPORT_Wshorten64to32 - Success
+-- Performing Test COMPILER_SUPPORT_Wlogicalop
+-- Performing Test COMPILER_SUPPORT_Wlogicalop - Failed
+-- Performing Test COMPILER_SUPPORT_Wenumconversion
+-- Performing Test COMPILER_SUPPORT_Wenumconversion - Success
+-- Performing Test COMPILER_SUPPORT_Wcpp11extensions
+-- Performing Test COMPILER_SUPPORT_Wcpp11extensions - Success
+-- Performing Test COMPILER_SUPPORT_Wdoublepromotion
+-- Performing Test COMPILER_SUPPORT_Wdoublepromotion - Success
+-- Performing Test COMPILER_SUPPORT_Wshadow
+-- Performing Test COMPILER_SUPPORT_Wshadow - Success
+-- Performing Test COMPILER_SUPPORT_Wnopsabi
+-- Performing Test COMPILER_SUPPORT_Wnopsabi - Success
+-- Performing Test COMPILER_SUPPORT_Wnovariadicmacros
+-- Performing Test COMPILER_SUPPORT_Wnovariadicmacros - Success
+-- Performing Test COMPILER_SUPPORT_Wnolonglong
+-- Performing Test COMPILER_SUPPORT_Wnolonglong - Success
+-- Performing Test COMPILER_SUPPORT_fnochecknew
+-- Performing Test COMPILER_SUPPORT_fnochecknew - Success
+-- Performing Test COMPILER_SUPPORT_fnocommon
+-- Performing Test COMPILER_SUPPORT_fnocommon - Success
+-- Performing Test COMPILER_SUPPORT_fstrictaliasing
+-- Performing Test COMPILER_SUPPORT_fstrictaliasing - Success
+-- Performing Test COMPILER_SUPPORT_wd981
+-- Performing Test COMPILER_SUPPORT_wd981 - Failed
+-- Performing Test COMPILER_SUPPORT_wd2304
+-- Performing Test COMPILER_SUPPORT_wd2304 - Failed
+-- Performing Test COMPILER_SUPPORT_OPENMP
+-- Performing Test COMPILER_SUPPORT_OPENMP - Failed
+-- Found unsuitable Qt version "5.9.7" from /opt/anaconda3/bin/qmake
+-- The Fortran compiler identification is GNU 11.2.0
+-- Found unsuitable Qt version "5.9.7" from /opt/anaconda3/bin/qmake
+-- Qt4 not found, so disabling the mandelbrot and opengl demos
+-- Could NOT find CLANG_FORMAT: Found unsuitable version "14.0.1", but required is exact version "9" (found /opt/homebrew/bin/clang-format)
+-- Could NOT find CHOLMOD (missing: CHOLMOD_INCLUDES CHOLMOD_LIBRARIES) 
+-- Could NOT find UMFPACK (missing: UMFPACK_INCLUDES UMFPACK_LIBRARIES) 
+-- Could NOT find KLU (missing: KLU_INCLUDES KLU_LIBRARIES) 
+-- Performing Test SUPERLU_HAS_GLOBAL_MEM_USAGE_T
+-- Performing Test SUPERLU_HAS_GLOBAL_MEM_USAGE_T - Success
+-- Performing Test SUPERLU_HAS_CLEAN_ENUMS
+-- Performing Test SUPERLU_HAS_CLEAN_ENUMS - Success
+-- Performing Test SUPERLU_HAS_GLOBALLU_T
+-- Performing Test SUPERLU_HAS_GLOBALLU_T - Success
+-- Found SuperLU: /opt/homebrew/include (found suitable version "5.0", minimum required is "4.0") 
+-- A version of Pastix has been found but pastix_nompi.h does not exist in the include directory. Because Eigen tests require a version without MPI, we disable the Pastix backend.
+-- 
+-- Configured Eigen 3.4.90
+-- 
+-- Configuring juceaide
+-- Building juceaide
+-- Exporting juceaide
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /Users/shanjiang/Documents/GitHub/MUSI6106-Project/plugin_framework/ProcessorGraphTest/cmake-build-debug

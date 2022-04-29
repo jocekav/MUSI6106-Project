@@ -1,0 +1,13 @@
+Target dependency graph (5 targets)
+AudioProcessorGraphTutorial - Shared Code in AudioProcessorGraphTutorial, no dependencies
+AudioProcessorGraphTutorial - AU in AudioProcessorGraphTutorial, depends on:
+AudioProcessorGraphTutorial - Shared Code in AudioProcessorGraphTutorial (explicit)
+AudioProcessorGraphTutorial - VST3 in AudioProcessorGraphTutorial, depends on:
+AudioProcessorGraphTutorial - Shared Code in AudioProcessorGraphTutorial (explicit)
+AudioProcessorGraphTutorial - Standalone Plugin in AudioProcessorGraphTutorial, depends on:
+AudioProcessorGraphTutorial - Shared Code in AudioProcessorGraphTutorial (explicit)
+AudioProcessorGraphTutorial - All in AudioProcessorGraphTutorial, depends on:
+AudioProcessorGraphTutorial - VST3 in AudioProcessorGraphTutorial (explicit)
+AudioProcessorGraphTutorial - AU in AudioProcessorGraphTutorial (explicit)
+AudioProcessorGraphTutorial - Standalone Plugin in AudioProcessorGraphTutorial (explicit)
+AudioProcessorGraphTutorial - Shared Code in AudioProcessorGraphTutorial (explicit)

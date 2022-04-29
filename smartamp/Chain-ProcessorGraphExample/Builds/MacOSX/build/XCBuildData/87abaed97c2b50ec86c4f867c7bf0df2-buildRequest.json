@@ -1,0 +1,71 @@
+{
+  "_buildCommand2" : {
+    "command" : "prepareForIndexing",
+    "enableIndexBuildArena" : false,
+    "targets" : null
+  },
+  "buildCommand" : "build",
+  "configuredTargets" : [
+    {
+      "guid" : "0b7fe4c43fba16ae8114a26385f7a4394a7798fbb78a33199775ed66d77b86f9"
+    },
+    {
+      "guid" : "0b7fe4c43fba16ae8114a26385f7a4395aa0e249abfd251a808d25466510498a"
+    },
+    {
+      "guid" : "0b7fe4c43fba16ae8114a26385f7a43965948fcc4796b0939eec916959712c8f"
+    },
+    {
+      "guid" : "0b7fe4c43fba16ae8114a26385f7a43958e9a621dc5ba03eb0764135448af449"
+    },
+    {
+      "guid" : "0b7fe4c43fba16ae8114a26385f7a439d07584ecfe3a83bf2adfd13464094f43"
+    }
+  ],
+  "containerPath" : "/Users/shanjiang/Documents/GitHub/MUSI6106-Project/smartamp/Chain-ProcessorGraphExample/Builds/MacOSX/AudioProcessorGraphTutorial.xcodeproj",
+  "continueBuildingAfterErrors" : true,
+  "enableIndexBuildArena" : false,
+  "hideShellScriptEnvironment" : false,
+  "parameters" : {
+    "action" : "build",
+    "activeArchitecture" : "arm64",
+    "activeRunDestination" : {
+      "disableOnlyActiveArch" : false,
+      "platform" : "macosx",
+      "sdk" : "macosx12.1",
+      "sdkVariant" : "macos",
+      "supportedArchitectures" : [
+        "arm64e",
+        "arm64",
+        "x86_64"
+      ],
+      "targetArchitecture" : "arm64"
+    },
+    "arenaInfo" : {
+      "buildIntermediatesPath" : "",
+      "buildProductsPath" : "",
+      "derivedDataPath" : "/Users/shanjiang/Library/Developer/Xcode/DerivedData",
+      "indexDataStoreFolderPath" : "/Users/shanjiang/Library/Developer/Xcode/DerivedData/AudioProcessorGraphTutorial-eqbradkdtqhwxecksvesjiyiftyx/Index/DataStore",
+      "indexEnableDataStore" : true,
+      "indexPCHPath" : "/Users/shanjiang/Library/Developer/Xcode/DerivedData/AudioProcessorGraphTutorial-eqbradkdtqhwxecksvesjiyiftyx/Index/PrecompiledHeaders",
+      "pchPath" : ""
+    },
+    "configurationName" : "Release",
+    "overrides" : {
+      "synthesized" : {
+        "table" : {
+          "ENABLE_PREVIEWS" : "NO"
+        }
+      }
+    }
+  },
+  "qos" : "default",
+  "schemeCommand" : "launch",
+  "schemeCommand2" : "launch",
+  "shouldCollectMetrics" : false,
+  "showNonLoggedProgress" : true,
+  "useDryRun" : true,
+  "useImplicitDependencies" : true,
+  "useLegacyBuildLocations" : false,
+  "useParallelTargets" : true
+}
