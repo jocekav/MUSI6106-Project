@@ -4,6 +4,8 @@
 
 #include "Effects_new.h"
 
+
+
 //================================================================================================================
 //  Compressor Processor Node
 //================================================================================================================
@@ -449,7 +451,7 @@ void CAmpIf::update()
             CAmp = static_cast<ProcessorBase*> (new CPreampProcessorChain());
             break;
         case SGAIndex:
-            CAmp = static_cast<ProcessorBase*> (new WaveNetVaProcessor());
+            CAmp = static_cast<ProcessorBase*> (new CSmartGuitarAmp());
             break;
         }
         CAmp->prepareToPlay(auxSampleRate, auxSamplesPerBlock);
@@ -482,6 +484,7 @@ void CAmpIf::reset()
 }
 
 
+//================================================================================================================
 CTanhWaveshaping::CTanhWaveshaping()
 {
     auto& waveshaper = TanhProcessorChain.template get<waveshaperIndex>();
@@ -535,13 +538,16 @@ void CPreampProcessorChain::prepareToPlay(double sampleRate, int samplesPerBlock
     auto channels = static_cast<juce::uint32> (fmin(getMainBusNumInputChannels(), getMainBusNumOutputChannels()));
     juce::dsp::ProcessSpec spec{ sampleRate, static_cast<juce::uint32> (samplesPerBlock), channels };
 
-    auto& filterTonestack = ampProcessorChain.template get<tonestackIndex>();
-    filterTonestack.state = *coeffs;
+    //auto& filterTonestack = ampProcessorChain.template get<tonestackIndex>();
+    //filterTonestack.state = *coeffs;
 
     auto& pregain = ampProcessorChain.template get<preGainIndex>();
     pregain.setGainDecibels(10);
+    //auto& drivegain = ampProcessorChain.template get<driveGainIndex>();
+    //drivegain.setGainDecibels(0);
     auto& postgain = ampProcessorChain.template get<postGainIndex>();
     postgain.setGainDecibels(-10);
+
 
     ampProcessorChain.prepare(spec);
 }
@@ -604,51 +610,119 @@ std::array<float, 8> CPreampProcessorChain::tonestackCalcParam(double sampleRate
 }
 
 //================================================================================================================
-WaveNetVaProcessor::WaveNetVaProcessor()
+//================================================================================================================
+//  SmartGuitarAmp Processor Node
+//================================================================================================================
+void CSmartGuitarAmp::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>>& params, int i = 0)
+{
+    std::string num = std::to_string(i);
+    std::string SGAmpBypass = "SGAmpBypass_" + num;
+    std::string SGAmpGain = "SGAmpGain_" + num;
+
+    params.push_back(std::make_unique<juce::AudioParameterBool>(SGAmpBypass, "SGAmpBypass", false));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(SGAmpGain, "SGAmpGain", -30.f, 30.f, 0.f));
+}
+
+void CSmartGuitarAmp::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>>& params)
+{
+    //std::string SGAmpBypass = "SGAmpBypass";
+    //std::string SGAmpGain = "SGAmpGain";
+
+    //params.push_back(std::make_unique<juce::AudioParameterBool>(SGAmpBypass, "SGAmpBypass", false));
+    //params.push_back(std::make_unique<juce::AudioParameterFloat>(SGAmpGain, "SGAmpGain", -30.f, 30.f, 0.f));
+}
+
+CSmartGuitarAmp::CSmartGuitarAmp(juce::AudioProcessorValueTreeState* apvts, int instanceNumber) :
+    waveNet(1, 1, 1, 1, "linear", { 1 })
 {
 }
 
-void WaveNetVaProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
-{
-    //waveNet.prepareToPlay(samplesPerBlock);
-
-    //File default_tone("/Users/shanjiang/Documents/GitHub/SmartGuitarAmp/models/test.json");
-    //loadConfig(default_tone);
-}
-
-void WaveNetVaProcessor::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer&)
-{
-    ////        buffer.applyGain(10.0);
-    //waveNet.process(buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), buffer.getNumSamples());
-    //if (waveNet.levelAdjust != 0.0) {
-    //    buffer.applyGain(waveNet.levelAdjust);
-    //}
-    //for (int ch = 1; ch < buffer.getNumChannels(); ++ch)
-    //{
-    //    buffer.copyFrom(ch, 0, buffer, 0, 0, buffer.getNumSamples());
-    //}
-}
-
-void WaveNetVaProcessor::reset()
+CSmartGuitarAmp::CSmartGuitarAmp() :
+    waveNet(1, 1, 1, 1, "linear", { 1 })
 {
 }
 
-//void WaveNetVaProcessor::loadConfig(File configFile)
-//{
-//    //this->suspendProcessing(true);
-//    //WaveNetLoader loader(dummyVar, configFile);
-//    //float levelAdjust = loader.levelAdjust;
-//    //int numChannels = loader.numChannels;
-//    //int inputChannels = loader.inputChannels;
-//    //int outputChannels = loader.outputChannels;
-//    //int filterWidth = loader.filterWidth;
-//    //std::vector<int> dilations = loader.dilations;
-//    //std::string activation = loader.activation;
-//    //waveNet.setParams(inputChannels, outputChannels, numChannels, filterWidth, activation, dilations, levelAdjust);
-//    //loader.loadVariables(waveNet);
-//    //this->suspendProcessing(false);
-//}
+void CSmartGuitarAmp::update()
+{
+}
 
+void CSmartGuitarAmp::prepareToPlay(double sampleRate, int samplesPerBlock)
+{
+    waveNet.prepareToPlay(samplesPerBlock);
+    juce::File default_tone("C:/Users/thiag/Documents/Git-repos/MUSI6106-Project/plugin_framework/ProcessorGraphTest/models/bluej_fullD_p0153.json");
+    this->suspendProcessing(true);
+    WaveNetLoader loader(default_tone);
+    float levelAdjust = loader.levelAdjust;
+    int numChannels = loader.numChannels;
+    int inputChannels = loader.inputChannels;
+    int outputChannels = loader.outputChannels;
+    int filterWidth = loader.filterWidth;
+    std::vector<int> dilations = loader.dilations;
+    std::string activation = loader.activation;
+    waveNet.setParams(inputChannels, outputChannels, numChannels, filterWidth, activation, dilations, levelAdjust);
+    loader.loadVariables(waveNet);
+
+    isActive = true;
+    this->suspendProcessing(false);
+}
+
+void CSmartGuitarAmp::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer&)
+{
+    if (!isActive)
+        return;
+    if (isBypassed)
+        return;
+
+    //float** upsampledBuffer = new float*[1];
+    //float** upsampledProcessedBuffer = new float*[1];
+    //upsampledBuffer[0] = new float[buffer.getNumSamples()];
+    //upsampledProcessedBuffer[0] = new float[buffer.getNumSamples()];
+
+    //resampleUp(buffer.getArrayOfReadPointers(), upsampledBuffer, buffer.getNumSamples());
+    //const float** auxUpsampleBuffer =  upsampledBuffer;
+    waveNet.process(buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), buffer.getNumSamples());
+    //resampleBack(upsampledProcessedBuffer, buffer.getArrayOfWritePointers(), buffer.getNumSamples());
+
+    for (int c = 1; c < buffer.getNumChannels(); ++c)
+        buffer.copyFrom(c, 0, buffer, 0, 0, buffer.getNumSamples());
+}
+
+void CSmartGuitarAmp::reset()
+{
+    waveNet.prepareToPlay(1024);
+}
+
+void CSmartGuitarAmp::resampleUp(const float** inputBuffer, float** outputBuffer, int numSamples)
+{
+    int error;
+    int outputSampleRate = 48000;
+
+    SRC_DATA src_data;
+    memset(&src_data, 0, sizeof(src_data));
+    src_data.data_in = inputBuffer[0];
+    src_data.data_out = outputBuffer[0];
+    src_data.input_frames = numSamples;
+    src_data.output_frames = numSamples;
+    src_data.src_ratio = outputSampleRate/getSampleRate();
+
+    error = src_simple(&src_data, 2, 1);
+}
+
+void CSmartGuitarAmp::resampleBack(float** inputBuffer, float** outputBuffer, int numSamples)
+{
+    int error;
+    int outputSampleRate = 48000;
+
+    SRC_DATA src_data;
+    memset(&src_data, 0, sizeof(src_data));
+    src_data.data_in = inputBuffer[0];
+    src_data.data_out = outputBuffer[0];
+    src_data.input_frames = numSamples;
+    src_data.output_frames = numSamples;
+    src_data.src_ratio = outputSampleRate / getSampleRate();
+
+    error = src_simple(&src_data, 2, 1);
+}
 //================================================================================================================
 //  Cabinet Simulator Processor Node
 //================================================================================================================
