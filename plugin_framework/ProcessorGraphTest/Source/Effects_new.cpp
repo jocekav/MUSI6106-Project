@@ -538,15 +538,15 @@ void CPreampProcessorChain::prepareToPlay(double sampleRate, int samplesPerBlock
     auto channels = static_cast<juce::uint32> (fmin(getMainBusNumInputChannels(), getMainBusNumOutputChannels()));
     juce::dsp::ProcessSpec spec{ sampleRate, static_cast<juce::uint32> (samplesPerBlock), channels };
 
-    //auto& filterTonestack = ampProcessorChain.template get<tonestackIndex>();
-    //filterTonestack.state = *coeffs;
+    auto& filterTonestack = ampProcessorChain.template get<tonestackIndex>();
+    filterTonestack.state = *coeffs;
 
     auto& pregain = ampProcessorChain.template get<preGainIndex>();
     pregain.setGainDecibels(10);
-    //auto& drivegain = ampProcessorChain.template get<driveGainIndex>();
-    //drivegain.setGainDecibels(0);
+    auto& drivegain = ampProcessorChain.template get<driveGainIndex>();
+    drivegain.setGainDecibels(0);
     auto& postgain = ampProcessorChain.template get<postGainIndex>();
-    postgain.setGainDecibels(-10);
+    postgain.setGainDecibels(-7);
 
 
     ampProcessorChain.prepare(spec);
@@ -673,15 +673,7 @@ void CSmartGuitarAmp::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBu
     if (isBypassed)
         return;
 
-    //float** upsampledBuffer = new float*[1];
-    //float** upsampledProcessedBuffer = new float*[1];
-    //upsampledBuffer[0] = new float[buffer.getNumSamples()];
-    //upsampledProcessedBuffer[0] = new float[buffer.getNumSamples()];
-
-    //resampleUp(buffer.getArrayOfReadPointers(), upsampledBuffer, buffer.getNumSamples());
-    //const float** auxUpsampleBuffer =  upsampledBuffer;
     waveNet.process(buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), buffer.getNumSamples());
-    //resampleBack(upsampledProcessedBuffer, buffer.getArrayOfWritePointers(), buffer.getNumSamples());
 
     for (int c = 1; c < buffer.getNumChannels(); ++c)
         buffer.copyFrom(c, 0, buffer, 0, 0, buffer.getNumSamples());
@@ -692,37 +684,7 @@ void CSmartGuitarAmp::reset()
     waveNet.prepareToPlay(1024);
 }
 
-void CSmartGuitarAmp::resampleUp(const float** inputBuffer, float** outputBuffer, int numSamples)
-{
-    int error;
-    int outputSampleRate = 48000;
 
-    SRC_DATA src_data;
-    memset(&src_data, 0, sizeof(src_data));
-    src_data.data_in = inputBuffer[0];
-    src_data.data_out = outputBuffer[0];
-    src_data.input_frames = numSamples;
-    src_data.output_frames = numSamples;
-    src_data.src_ratio = outputSampleRate/getSampleRate();
-
-    error = src_simple(&src_data, 2, 1);
-}
-
-void CSmartGuitarAmp::resampleBack(float** inputBuffer, float** outputBuffer, int numSamples)
-{
-    int error;
-    int outputSampleRate = 48000;
-
-    SRC_DATA src_data;
-    memset(&src_data, 0, sizeof(src_data));
-    src_data.data_in = inputBuffer[0];
-    src_data.data_out = outputBuffer[0];
-    src_data.input_frames = numSamples;
-    src_data.output_frames = numSamples;
-    src_data.src_ratio = outputSampleRate / getSampleRate();
-
-    error = src_simple(&src_data, 2, 1);
-}
 //================================================================================================================
 //  Cabinet Simulator Processor Node
 //================================================================================================================

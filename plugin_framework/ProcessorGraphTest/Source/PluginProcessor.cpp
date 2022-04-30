@@ -151,7 +151,6 @@ bool ProcessorGraphTestAudioProcessor::isBusesLayoutSupported (const BusesLayout
 
 void ProcessorGraphTestAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
-    this->updateGraph();
 
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
@@ -249,66 +248,6 @@ void ProcessorGraphTestAudioProcessor::initialiseGraph()
     connectMidiNodes();
 }
 
-void ProcessorGraphTestAudioProcessor::updateGraph()
-{
-    //bool hasChanged = false;
-
-    //juce::Array<juce::AudioParameterChoice*> choices{ AmpSlot };
-    //juce::ReferenceCountedArray<juce::AudioProcessorGraph::Node> AmpNode;
-    //    mainProcessor->getNode(AmpNodeIndex);
-    //
-
-    //auto& choice = choices.getReference(0);
-    //auto  ampSlot = audioNodeList.getUnchecked(3);
-
-    //switch (choice->getIndex()) {
-    //case EmptyIndex:
-    //    if (ampSlot != nullptr)
-    //    {
-    //        if (ampSlot->getProcessor()->getName() == "Bypass")
-    //            break;
-    //        mainProcessor->removeNode(ampSlot.get());
-    //    }
-    //    audioNodeList.set(AmpNodeIndex, bypassAmpNode);
-    //    hasChanged = true;
-    //    break;
-
-    //case WaveshaperIndex:
-    //    if (ampSlot != nullptr)
-    //    {
-    //        if (ampSlot->getProcessor()->getName() == "TanhWaveshaping")
-    //            break;
-    //        mainProcessor->removeNode(ampSlot.get());
-    //    }
-    //    audioNodeList.set(AmpNodeIndex, waveshapingNode);
-    //    hasChanged = true;
-    //    break;
-
-    //case AnalogAmpIndex:
-    //    if (ampSlot != nullptr)
-    //    {
-    //        if (ampSlot->getProcessor()->getName() == "TanhWaveshaping")
-    //            break;
-    //        mainProcessor->removeNode(ampSlot.get());
-    //    }
-    //    audioNodeList.set(AmpNodeIndex, AnalogAmpNode);
-    //    hasChanged = true;
-    //    break;
-
-    //    //case SGAIndex:
-    //    //    if (ampSlot != nullptr)
-    //    //    {
-    //    //        if (ampSlot->getProcessor()->getName() == "SGAmp")
-    //    //            break;
-
-    //    //        mainProcessor->removeNode(ampSlot.get());
-    //    //    }
-    //    //    audioNodeList.set(AmpNodeIndex, SGANode);
-    //    //    hasChanged = true;
-    //    //    break;
-    //}
-    
-}
 
 
 //==============================================================================
@@ -338,15 +277,15 @@ void ProcessorGraphTestAudioProcessor::initialiseAudioNodes(juce::ReferenceCount
     AmpInterfaceNode = mainProcessor->addNode(std::make_unique<CAmpIf>(&apvts, 0));
     audioNodeList.add(AmpInterfaceNode);
 
+    CabSimNode = mainProcessor->addNode(std::make_unique<CabSimProcessor>(&apvts, 0));
+    audioNodeList.add(CabSimNode);
+
     phaserNode = mainProcessor->addNode(std::make_unique<CPhaserProcessor>(&apvts,0));
     audioNodeList.add(phaserNode);
 
     outputGainNode = mainProcessor->addNode(std::make_unique<CGainProcessor>(&apvts,1));
     audioNodeList.add(outputGainNode);
 
-    //waveshapingNode = mainProcessor->addNode(std::make_unique<CTanhWaveshaping>(&apvts, 0));
-    //AnalogAmpNode = mainProcessor->addNode(std::make_unique<CPreampProcessorChain>(&apvts, 0));
-    // SGANode = CSmartGuitarAmp->addNode(std::make_unique<CBypassAmp>(&apvts, 0));
 }
 
 

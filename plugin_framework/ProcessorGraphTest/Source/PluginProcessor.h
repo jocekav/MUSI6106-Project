@@ -90,9 +90,7 @@ public:
     Node::Ptr outputGainNode;
 
     Node::Ptr AmpInterfaceNode;
-    //Node::Ptr waveshapingNode;
-    //Node::Ptr AnalogAmpNode;
-    //Node::Ptr SGANode
+    Node::Ptr CabSimNode;
         ;
 
 

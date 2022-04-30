@@ -6,7 +6,6 @@
 #include "./sga/WaveNet.h"
 #include "./sga/WaveNetLoader.h"
 
-#include "./SRC/samplerate.h"
 
 #ifndef PROCESSORGRAPHTEST_EFFECTS_NEW_H
 #define PROCESSORGRAPHTEST_EFFECTS_NEW_H
@@ -236,35 +235,35 @@ private:
     // Tone Stack param calculator
     std::array<float, 8> tonestackCalcParam(double sampleRate);
 
-    //enum
-    //{
-    //    preGainIndex,
-    //    firstTubeIndex,
-    //    tonestackIndex,
-    //    driveGainIndex,
-    //    secondTubeIndex,
-    //    postGainIndex
-    //};
-
-    //using Filter = juce::dsp::IIR::Filter<float>;
-    //using FilterCoefs = juce::dsp::IIR::Coefficients<float>;
-
-    //juce::dsp::ProcessorChain<juce::dsp::Gain<float>, juce::dsp::SingleTubeProcessor<float>,
-    //    juce::dsp::ProcessorDuplicator<Filter, FilterCoefs>, juce::dsp::Gain<float>,
-    //    juce::dsp::SingleTubeProcessor<float>, juce::dsp::Gain<float>> ampProcessorChain;
-
-
     enum
     {
         preGainIndex,
         firstTubeIndex,
+        tonestackIndex,
+        driveGainIndex,
+        secondTubeIndex,
         postGainIndex
     };
 
     using Filter = juce::dsp::IIR::Filter<float>;
     using FilterCoefs = juce::dsp::IIR::Coefficients<float>;
 
-    juce::dsp::ProcessorChain<juce::dsp::Gain<float>, juce::dsp::SingleTubeProcessor<float>,juce::dsp::Gain<float>> ampProcessorChain;
+    juce::dsp::ProcessorChain<juce::dsp::Gain<float>, juce::dsp::SingleTubeProcessor<float>,
+        juce::dsp::ProcessorDuplicator<Filter, FilterCoefs>, juce::dsp::Gain<float>,
+        juce::dsp::SingleTubeProcessor<float>, juce::dsp::Gain<float>> ampProcessorChain;
+
+
+    //enum
+    //{
+    //    preGainIndex,
+    //    firstTubeIndex,
+    //    postGainIndex
+    //};
+
+    //using Filter = juce::dsp::IIR::Filter<float>;
+    //using FilterCoefs = juce::dsp::IIR::Coefficients<float>;
+
+    //juce::dsp::ProcessorChain<juce::dsp::Gain<float>, juce::dsp::SingleTubeProcessor<float>,juce::dsp::Gain<float>> ampProcessorChain;
 
 
     bool isActive;
@@ -290,8 +289,6 @@ public:
     void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
     void reset() override;
     void update();
-    void resampleUp(const float** inputBuffer, float** outputBuffer, int numSamples);
-    void resampleBack(float** inputBuffer, float** outputBuffer, int numSamples);
     juce::AudioProcessorValueTreeState* m_pAPVTS;
 private:
     bool isBypassed = false;
