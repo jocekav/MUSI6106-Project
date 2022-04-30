@@ -15,6 +15,39 @@
 //    REQUIRE( Factorial(10) == 3628800 );
 //}
 
+void setBuffer(int numChannels, int numSamples, juce::AudioBuffer<float>&buffer, float sampleToSet) {
+    for (auto i = 0; i < numChannels; i++)
+    {
+        for (auto j = 0; j < numSamples; j++) { buffer.setSample(i, j, sampleToSet); }
+    }
+}
+void checkBuffer(int numChannels, int numSamples, juce::AudioBuffer<float> &buffer, float outputToCheck) {
+    for (auto i = 0; i < numChannels; i++)
+    {
+        for (auto j = 0; j < numSamples; j++)
+        {
+            auto const sample = buffer.getSample(i, j);
+            REQUIRE(sample == outputToCheck);
+        }
+    }
+}
+float checkBufferRatio(int numChannels, int numSamples, juce::AudioBuffer<float>& buffer, float inputToCheck) {
+    float aveSample = 0;
+    for (auto i = 0; i < numChannels; i++)
+    {
+        for (auto j = 0; j < numSamples; j++)
+        {
+            auto const sample = buffer.getSample(i, j);
+            // require the ratio to be less than 1
+            REQUIRE(float(sample)/float(inputToCheck) <= 1);
+
+            aveSample += sample;
+        }
+    }
+    return juce::Decibels::gainToDecibels(float(aveSample) / ((numChannels * numSamples) * (float(inputToCheck))));
+}
+
+
 TEST_CASE("processor: Name", "[processor]")
 {
     std::cout << "Testing processor name" << std::endl;
@@ -163,48 +196,115 @@ TEST_CASE("bypass all effects", "[processor]")
 
 
 
-    // fill buffer with all 0.0
-    for (auto i = 0; i < numChannels; i++)
-    {
-        for (auto j = 0; j < numSamples; j++) { buffer.setSample(i, j, 0.0f); }
-    }
-    processor.processBlock(buffer, midi);
-    // buffer should be silent
-    for (auto i = 0; i < numChannels; i++)
-    {
-        for (auto j = 0; j < numSamples; j++)
-        {
-            auto const sample = buffer.getSample(i, j);
-            REQUIRE(sample == 0.0f);
-        }
-    }
-    // fill buffer with all 0.5
-    for (auto i = 0; i < numChannels; i++)
-    {
-        for (auto j = 0; j < numSamples; j++) { buffer.setSample(i, j, 0.5f); }
-    }
+    std::cout << "about to preparetoplay" << std::endl;
+    processor.prepareToPlay(44100.0, numSamples);
+
+    setBuffer(numChannels, numSamples, buffer, 0.0f);
     processor.processBlock(buffer, midi);
 
-    // buffer should be silent
-    for (auto i = 0; i < numChannels; i++)
-    {
-        for (auto j = 0; j < numSamples; j++)
-        {
-            auto const sample = buffer.getSample(i, j);
-            REQUIRE(sample == 0.5f);
-        }
-    }
-
-
-
+    checkBuffer(numChannels, numSamples, buffer, 0.0f);
     processor.releaseResources();
+
+    setBuffer(numChannels, numSamples, buffer, 0.5f);
+    processor.processBlock(buffer, midi);
+
+    checkBuffer(numChannels, numSamples, buffer, 0.5f);
+    processor.releaseResources();
+
 }
 
 
 // REMAINING TESTS:
 //check only one effect at a time
 //get the ratio of output to input, then convert to db.it should be 0dB difference.
-//
+TEST_CASE("bypass each effect", "[processor]")
+{
+    constexpr auto numChannels = 2;
+    constexpr auto numSamples = 64;
+    auto midi = juce::MidiBuffer{};
+    auto buffer = juce::AudioBuffer<float>{ numChannels, numSamples };
+    ProcessorGraphTestAudioProcessor processor;
+
+    juce::Value bypassPhaser = processor.apvts.getParameterAsValue("PhaserBypass_0");
+    juce::Value bypassCompressor = processor.apvts.getParameterAsValue("CompressorBypass_0");
+    juce::Value bypassEqualizer = processor.apvts.getParameterAsValue("EqualizerBypass_0");
+    juce::Value bypassNoiseGate = processor.apvts.getParameterAsValue("NoiseGateBypass_0");
+    juce::Value bypassReverb = processor.apvts.getParameterAsValue("ReverbBypass_0");
+    juce::Value gain0 = processor.apvts.getParameterAsValue("GainValue_0");
+    juce::Value gain1 = processor.apvts.getParameterAsValue("GainValue_1");
+    gain0 = juce::Decibels::gainToDecibels(1);
+    gain1 = juce::Decibels::gainToDecibels(1);
+    bypassPhaser = true;
+    bypassCompressor = true;
+    bypassEqualizer = true;
+    bypassNoiseGate = true;
+    bypassReverb = true;
+
+    ////////////////////
+    // PHASOR ON
+    ////////////////////
+    bypassPhaser = false;
+    std::cout << "about to preparetoplay" << std::endl;
+    processor.prepareToPlay(44100.0, numSamples);
+
+    setBuffer(numChannels, numSamples, buffer, 0.5f);
+    processor.processBlock(buffer, midi);
+
+    float ratio = checkBufferRatio(numChannels, numSamples, buffer, 0.5f);
+    std::cout << "phasor: " << ratio << std::endl;
+    processor.releaseResources();
+    bypassPhaser = true;
+
+
+    ////////////////////
+    // COMPRESSOR ON
+    ////////////////////
+    bypassCompressor = false;
+
+    setBuffer(numChannels, numSamples, buffer, 0.5f);
+    processor.processBlock(buffer, midi);
+
+    ratio = checkBufferRatio(numChannels, numSamples, buffer, 0.5f);
+    std::cout << "Compressor: " << ratio << std::endl;
+    processor.releaseResources();
+    bypassCompressor = true;
+    
+    ////////////////////
+    // EQ ON
+    ////////////////////
+    bypassEqualizer = false;
+    setBuffer(numChannels, numSamples, buffer, 0.5f);
+    processor.processBlock(buffer, midi);
+    ratio = checkBufferRatio(numChannels, numSamples, buffer, 0.5f);
+    std::cout << "Equalizer: " << ratio << std::endl;
+    processor.releaseResources();
+    bypassEqualizer = true;
+
+    ////////////////////
+    // NOISE GATE ON
+    ////////////////////
+    bypassNoiseGate = false;
+    setBuffer(numChannels, numSamples, buffer, 0.5f);
+    processor.processBlock(buffer, midi);
+    ratio = checkBufferRatio(numChannels, numSamples, buffer, 0.5f);
+    std::cout << "Gate: " << ratio << std::endl;
+    processor.releaseResources();
+    bypassNoiseGate = true;
+
+    ////////////////////
+    // REVERB ON
+    ////////////////////
+    bypassReverb = false;
+    setBuffer(numChannels, numSamples, buffer, 0.5f);
+    processor.processBlock(buffer, midi);
+    ratio = checkBufferRatio(numChannels, numSamples, buffer, 0.5f);
+    std::cout << "Reverb: " << ratio << std::endl;
+    processor.releaseResources();
+    bypassReverb = true;
+}
+
+
+
 //bypass one at a time
 //
 //make sure max and min values dont make the outputs exceed 1 - for all effects on at once
