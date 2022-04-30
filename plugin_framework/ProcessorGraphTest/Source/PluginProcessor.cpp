@@ -175,7 +175,15 @@ void ProcessorGraphTestAudioProcessor::processBlock (juce::AudioBuffer<float>& b
 //        // ..do something to the data...
 //    }
 
-    // TODO: ADD JLIMIT FOR HARD LIMIT AT (-1,1)
+
+    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    {
+        auto *channelData = buffer.getWritePointer(channel);
+        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+        {
+            channelData[sample] = juce::jlimit(-1.0f, 1.0f,channelData[sample]);
+        }
+    }
 }
 
 //==============================================================================
@@ -186,8 +194,8 @@ bool ProcessorGraphTestAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* ProcessorGraphTestAudioProcessor::createEditor()
 {
-//    return new ProcessorGraphTestAudioProcessorEditor (*this);
-    return new juce::GenericAudioProcessorEditor (*this);
+    return new ProcessorGraphTestAudioProcessorEditor (*this);
+//    return new juce::GenericAudioProcessorEditor (*this);
 }
 
 //==============================================================================
