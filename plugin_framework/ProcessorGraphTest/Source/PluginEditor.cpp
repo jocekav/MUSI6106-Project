@@ -264,6 +264,34 @@ outputGainSliderAttachment(audioProcessor.apvts, "GainValue_1", outputGainSlider
 
 //EQ Attachments
 eqBypassToggle(*audioProcessor.apvts.getParameter("EqualizerBypass_0"), ""),
+eqLowPassFreqSlider(*audioProcessor.apvts.getParameter("EqualizerLPF_0"), "Hz"),
+eqLowPassQSlider(*audioProcessor.apvts.getParameter("EqualizerLPFQ_0"), ""),
+eqHighPassFreqSlider(*audioProcessor.apvts.getParameter("EqualizerHPF_0"), "Hz"),
+eqHighPassQSlider(*audioProcessor.apvts.getParameter("EqualizerHPFQ_0"), ""),
+eqLowMidFreqSlider(*audioProcessor.apvts.getParameter("EqualizerLMF_0"), "Hz"),
+eqLowMidQSlider(*audioProcessor.apvts.getParameter("EqualizerLMQ_0"), ""),
+eqLowMidGainSlider(*audioProcessor.apvts.getParameter("EqualizerLMGain_0"), "dB"),
+eqMidFreqSlider(*audioProcessor.apvts.getParameter("EqualizerMF_0"), "Hz"),
+eqMidQSlider(*audioProcessor.apvts.getParameter("EqualizerMQ_0"), ""),
+eqMidGainSlider(*audioProcessor.apvts.getParameter("EqualizerMGain_0"), "dB"),
+eqHighMidFreqSlider(*audioProcessor.apvts.getParameter("EqualizerHMF_0"), "Hz"),
+eqHighMidQSlider(*audioProcessor.apvts.getParameter("EqualizerHMQ_0"), ""),
+eqHighMidGainSlider(*audioProcessor.apvts.getParameter("EqualizerHMGain_0"), "dB"),
+
+eqLowPassFreqSliderAttachment(audioProcessor.apvts, "EqualizerLPF_0", eqLowPassFreqSlider),
+eqLowPassQSliderAttachment(audioProcessor.apvts, "EqualizerLPFQ_0", eqLowPassQSlider),
+eqHighPassFreqSliderAttachment(audioProcessor.apvts, "EqualizerHPF_0", eqHighPassFreqSlider),
+eqHighPassQSliderAttachment(audioProcessor.apvts, "EqualizerHPFQ_0", eqHighPassQSlider),
+eqLowMidFreqSliderAttachment(audioProcessor.apvts, "EqualizerLMF_0", eqLowMidFreqSlider),
+eqLowMidQSliderAttachment(audioProcessor.apvts, "EqualizerLMQ_0", eqLowMidQSlider),
+eqLowMidGainSliderAttachment(audioProcessor.apvts, "EqualizerLMGain_0", eqLowMidGainSlider),
+eqMidFreqSliderAattachment(audioProcessor.apvts, "EqualizerMF_0", eqMidFreqSlider),
+eqMidQSliderAttachment(audioProcessor.apvts, "EqualizerMQ_0", eqMidQSlider),
+eqMidGainSliderAttachment(audioProcessor.apvts, "EqualizerMGain_0", eqMidGainSlider),
+eqHighMidFreqSliderAttachment(audioProcessor.apvts, "EqualizerHMF_0", eqHighMidFreqSlider),
+eqHighMidQSliderAttachment(audioProcessor.apvts, "EqualizerHMQ_0", eqHighMidQSlider),
+eqHighMidGainSliderAttachment(audioProcessor.apvts, "EqualizerHMGain_0", eqHighMidGainSlider),
+
 
 //Amp Attachments
 //ampBypassToggle(*audioProcessor.apvts.getParameter("ampBypass"), ""),
@@ -307,7 +335,7 @@ phaserButton("PHASER")
      
      verbButton.setState(juce::Button::ButtonState::buttonDown);
     
-    setSize (700, 500);
+    setSize (700, 600);
 }
 
 ProcessorGraphTestAudioProcessorEditor::~ProcessorGraphTestAudioProcessorEditor()
@@ -381,7 +409,7 @@ void ProcessorGraphTestAudioProcessorEditor::resized()
     drawNoiseGate();
     drawReverb();
     drawCompressor();
-//    drawEQ();
+    drawEQ();
     drawPhaser();
 //    drawAmp();
         
@@ -500,6 +528,107 @@ void ProcessorGraphTestAudioProcessorEditor::drawCompressor()
      compMakeUpGainSliderLabel.setBounds(compMakeUpGainArea.getX() + 20, compMakeUpGainArea.getY() + compMakeUpGainArea.getHeight() - 40, compMakeUpGainArea.getWidth() - 40, 20);
      compMakeUpGainSliderLabel.setText("Makeup Gain", juce::dontSendNotification);
      compMakeUpGainSliderLabel.setJustificationType (juce::Justification::centred);
+}
+
+void ProcessorGraphTestAudioProcessorEditor::drawEQ()
+{
+    auto bounds = getLocalBounds();
+    auto responseArea = bounds.removeFromBottom(bounds.getHeight() * 0.5);
+    
+    auto labelArea = bounds.removeFromTop(bounds.getHeight() * .33);
+    effectTitleLabel.setBounds(labelArea.getX() + 10, labelArea.getY() + 10, labelArea.getWidth() - 20, labelArea.getHeight() - 20);
+    effectTitleLabel.setFont(juce::Font(32.f, juce::Font::bold));
+    effectTitleLabel.setText("OUR EQ", juce::dontSendNotification);
+    effectTitleLabel.setColour (juce::Label::textColourId, juce::Colours::white);
+    effectTitleLabel.setJustificationType (juce::Justification::left);
+    
+    auto eqLowArea = bounds.removeFromLeft(bounds.getWidth() * 0.2);
+    auto eqLowFreqArea = eqLowArea.removeFromTop(bounds.getHeight() * 0.5);
+    auto eqLowQArea = eqLowArea;
+    
+    auto eqLowMidArea = bounds.removeFromLeft(bounds.getWidth() * 0.25);
+    auto eqLowMidFreqArea = eqLowMidArea.removeFromTop(eqLowMidArea.getHeight() * 0.33);
+    auto eqLowMidQArea = eqLowMidArea.removeFromTop(eqLowMidArea.getHeight() * .5);
+    auto eqLowMidGainArea = eqLowMidArea.removeFromTop(eqLowMidArea.getHeight());
+    
+    auto eqMidArea = bounds.removeFromLeft(bounds.getWidth() * 0.33);
+    auto eqMidFreqArea = eqMidArea.removeFromTop(eqMidArea.getHeight() * 0.33);
+    auto eqMidQArea = eqMidArea.removeFromTop(eqMidArea.getHeight() * .5);
+    auto eqMidGainArea = eqMidArea.removeFromTop(eqMidArea.getHeight());
+    
+    auto eqHighMidArea = bounds.removeFromLeft(bounds.getWidth() * 0.5);
+    auto eqHighMidFreqArea = eqHighMidArea.removeFromTop(eqHighMidArea.getHeight() * 0.33);
+    auto eqHighMidQArea = eqHighMidArea.removeFromTop(eqHighMidArea.getHeight() * .5);
+    auto eqHighMidGainArea = eqHighMidArea.removeFromTop(eqHighMidArea.getHeight());
+    
+    auto eqHighArea = bounds.removeFromLeft(bounds.getWidth());
+    auto eqHighFreqArea = eqHighArea.removeFromTop(bounds.getHeight() * 0.5);
+    auto eqHighQArea = eqHighArea;
+    
+    eqLowPassFreqSlider.setBounds(eqLowFreqArea.getX() - 20, eqLowFreqArea.getY() - 10, eqLowFreqArea.getWidth(), eqLowFreqArea.getHeight());
+    eqLowPassFreqSliderLabel.setBounds(eqLowFreqArea.getX() - 20, eqLowFreqArea.getY() + eqLowFreqArea.getHeight() - 25, eqLowFreqArea.getWidth(), 10);
+    eqLowPassFreqSliderLabel.setText("Low Freq", juce::dontSendNotification);
+    eqLowPassFreqSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    eqLowPassQSlider.setBounds(eqLowQArea.getX() - 20, eqLowQArea.getY() - 10, eqLowQArea.getWidth(), eqLowQArea.getHeight());
+    eqLowPassFreqSliderLabel.setBounds(eqLowQArea.getX() - 20, eqLowQArea.getY() + eqLowQArea.getHeight() - 25, eqLowQArea.getWidth(), 10);
+    eqLowPassFreqSliderLabel.setText("Low Q", juce::dontSendNotification);
+    eqLowPassFreqSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    eqLowMidFreqSlider.setBounds(eqLowMidFreqArea.getX() - 20, eqLowMidFreqArea.getY() - 10, eqLowMidFreqArea.getWidth(), eqLowMidFreqArea.getHeight());
+    eqLowMidFreqSliderLabel.setBounds(eqLowMidFreqArea.getX() - 20, eqLowMidFreqArea.getY() + eqLowMidFreqArea.getHeight() - 25, eqLowMidFreqArea.getWidth(), 10);
+    eqLowMidFreqSliderLabel.setText("LowMid Freq", juce::dontSendNotification);
+    eqLowMidFreqSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    eqLowMidQSlider.setBounds(eqLowMidQArea.getX() - 20, eqLowMidQArea.getY() - 10, eqLowMidQArea.getWidth(), eqLowMidQArea.getHeight());
+    eqLowMidQSliderLabel.setBounds(eqLowMidQArea.getX() - 20, eqLowMidQArea.getY() + eqLowMidQArea.getHeight() - 25, eqLowMidQArea.getWidth(), 10);
+    eqLowMidQSliderLabel.setText("LowMid Q", juce::dontSendNotification);
+    eqLowMidQSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    eqLowMidGainSlider.setBounds(eqLowMidGainArea.getX() - 20, eqLowMidGainArea.getY() - 10, eqLowMidGainArea.getWidth(), eqLowMidGainArea.getHeight());
+    eqLowMidGainSliderLabel.setBounds(eqLowMidGainArea.getX() - 20, eqLowMidGainArea.getY() + eqLowMidGainArea.getHeight() - 25, eqLowMidGainArea.getWidth(), 10);
+    eqLowMidGainSliderLabel.setText("LowMid Gain", juce::dontSendNotification);
+    eqLowMidGainSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    eqMidFreqSlider.setBounds(eqMidFreqArea.getX() - 20, eqMidFreqArea.getY() - 10, eqMidFreqArea.getWidth(), eqMidFreqArea.getHeight());
+    eqMidFreqSliderLabel.setBounds(eqMidFreqArea.getX() - 20, eqMidFreqArea.getY() + eqMidFreqArea.getHeight() - 25, eqMidFreqArea.getWidth(), 10);
+    eqMidFreqSliderLabel.setText("Mid Freq", juce::dontSendNotification);
+    eqMidFreqSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    eqMidQSlider.setBounds(eqMidQArea.getX() - 20, eqMidQArea.getY() - 10, eqMidQArea.getWidth(), eqMidQArea.getHeight());
+    eqMidQSliderLabel.setBounds(eqMidQArea.getX() - 20, eqMidQArea.getY() + eqMidQArea.getHeight() - 25, eqMidQArea.getWidth(), 10);
+    eqMidQSliderLabel.setText("Mid Q", juce::dontSendNotification);
+    eqMidQSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    eqMidGainSlider.setBounds(eqMidGainArea.getX() - 20, eqMidGainArea.getY() - 10, eqMidGainArea.getWidth(), eqMidGainArea.getHeight());
+    eqMidGainSliderLabel.setBounds(eqMidGainArea.getX() - 20, eqMidGainArea.getY() + eqMidGainArea.getHeight() - 25, eqMidGainArea.getWidth(), 10);
+    eqMidGainSliderLabel.setText("Mid Gain", juce::dontSendNotification);
+    eqMidGainSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    eqHighMidFreqSlider.setBounds(eqHighMidFreqArea.getX() - 20, eqHighMidFreqArea.getY() - 10, eqHighMidFreqArea.getWidth(), eqHighMidFreqArea.getHeight());
+    eqHighMidFreqSliderLabel.setBounds(eqHighMidFreqArea.getX() - 20, eqHighMidFreqArea.getY() + eqHighMidFreqArea.getHeight() - 25, eqHighMidFreqArea.getWidth(), 10);
+    eqHighMidFreqSliderLabel.setText("HighMid Freq", juce::dontSendNotification);
+    eqHighMidFreqSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    eqHighMidQSlider.setBounds(eqHighMidQArea.getX() - 20, eqHighMidQArea.getY() - 10, eqHighMidQArea.getWidth(), eqHighMidQArea.getHeight());
+    eqHighMidQSliderLabel.setBounds(eqHighMidQArea.getX() - 20, eqHighMidQArea.getY() + eqHighMidQArea.getHeight() - 25, eqHighMidQArea.getWidth(), 10);
+    eqHighMidQSliderLabel.setText("HighMid Q", juce::dontSendNotification);
+    eqHighMidQSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    eqHighMidGainSlider.setBounds(eqHighMidGainArea.getX() - 20, eqHighMidGainArea.getY() - 10, eqHighMidGainArea.getWidth(), eqHighMidGainArea.getHeight());
+    eqHighMidGainSliderLabel.setBounds(eqHighMidGainArea.getX() - 20, eqHighMidGainArea.getY() + eqHighMidGainArea.getHeight() - 25, eqHighMidGainArea.getWidth(), 10);
+    eqHighMidGainSliderLabel.setText("HighMid Gain", juce::dontSendNotification);
+    eqHighMidGainSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    eqHighPassFreqSlider.setBounds(eqHighFreqArea.getX() - 20, eqHighFreqArea.getY() - 10, eqHighFreqArea.getWidth(), eqHighFreqArea.getHeight());
+    eqHighPassFreqSliderLabel.setBounds(eqHighFreqArea.getX() - 20, eqHighFreqArea.getY() + eqHighFreqArea.getHeight() - 25, eqHighFreqArea.getWidth(), 10);
+    eqHighPassFreqSliderLabel.setText("High Freq", juce::dontSendNotification);
+    eqHighPassFreqSliderLabel.setJustificationType (juce::Justification::centred);
+    
+    eqHighPassQSlider.setBounds(eqHighQArea.getX() - 20, eqHighQArea.getY() - 10, eqHighQArea.getWidth(), eqHighQArea.getHeight());
+    eqHighPassQSliderLabel.setBounds(eqHighQArea.getX() - 20, eqHighQArea.getY() + eqHighQArea.getHeight() - 25, eqHighQArea.getWidth(), 10);
+    eqHighPassQSliderLabel.setText("High Q", juce::dontSendNotification);
+    eqHighPassQSliderLabel.setJustificationType (juce::Justification::centred);
 }
 
 void ProcessorGraphTestAudioProcessorEditor::drawPhaser()
@@ -745,20 +874,32 @@ std::vector<juce::Component*> ProcessorGraphTestAudioProcessorEditor::getEqComps
 {
     return
     {
-//        &eqLowCutFreqSlider,
-//        &eqLowCutSlopeSlider,
-//        &eqHighCutFreqSlider,
-//        &eqHighCutSlopeSlider,
-//        &eqPeakFreqSlider,
-//        &eqPeakGainSlider,
-//        &eqPeakQSlider,
-//        &eqLowCutFreqSliderLabel,
-//        &eqLowCutSlopeSliderLabel,
-//        &eqHighCutFreqSliderLabel,
-//        &eqHighCutSlopeSliderLabel,
-//        &eqPeakFreqSliderLabel,
-//        &eqPeakGainSliderLabel,
-//        &eqPeakQSliderLabel
+        &eqLowPassFreqSlider,
+        &eqLowPassQSlider,
+        &eqHighPassFreqSlider,
+        &eqHighPassQSlider,
+        &eqLowMidFreqSlider,
+        &eqLowMidQSlider,
+        &eqLowMidGainSlider,
+        &eqMidFreqSlider,
+        &eqMidQSlider,
+        &eqMidGainSlider,
+        &eqHighMidFreqSlider,
+        &eqHighMidQSlider,
+        &eqHighMidGainSlider,
+        &eqLowPassFreqSliderLabel,
+        &eqLowPassQSliderLabel,
+        &eqHighPassFreqSliderLabel,
+        &eqHighPassQSliderLabel,
+        &eqLowMidFreqSliderLabel,
+        &eqLowMidQSliderLabel,
+        &eqLowMidGainSliderLabel,
+        &eqMidFreqSliderLabel,
+        &eqMidQSliderLabel,
+        &eqMidGainSliderLabel,
+        &eqHighMidFreqSliderLabel,
+        &eqHighMidQSliderLabel,
+        &eqHighMidGainSliderLabel
     };
 }
 
