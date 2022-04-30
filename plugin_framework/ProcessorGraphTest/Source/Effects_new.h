@@ -3,8 +3,10 @@
 //
 #include "BaseProcessor.h"
 #include "juce_TriodeWaveShaper.h"
-//#include "./sga/WaveNet.h"
-//#include "./sga/WaveNetLoader.h"
+#include "./sga/WaveNet.h"
+#include "./sga/WaveNetLoader.h"
+
+#include "./SRC/samplerate.h"
 
 #ifndef PROCESSORGRAPHTEST_EFFECTS_NEW_H
 #define PROCESSORGRAPHTEST_EFFECTS_NEW_H
@@ -234,78 +236,74 @@ private:
     // Tone Stack param calculator
     std::array<float, 8> tonestackCalcParam(double sampleRate);
 
+    //enum
+    //{
+    //    preGainIndex,
+    //    firstTubeIndex,
+    //    tonestackIndex,
+    //    driveGainIndex,
+    //    secondTubeIndex,
+    //    postGainIndex
+    //};
+
+    //using Filter = juce::dsp::IIR::Filter<float>;
+    //using FilterCoefs = juce::dsp::IIR::Coefficients<float>;
+
+    //juce::dsp::ProcessorChain<juce::dsp::Gain<float>, juce::dsp::SingleTubeProcessor<float>,
+    //    juce::dsp::ProcessorDuplicator<Filter, FilterCoefs>, juce::dsp::Gain<float>,
+    //    juce::dsp::SingleTubeProcessor<float>, juce::dsp::Gain<float>> ampProcessorChain;
+
+
     enum
     {
         preGainIndex,
         firstTubeIndex,
-        tonestackIndex,
-        driveGainIndex,
-        secondTubeIndex,
         postGainIndex
     };
 
     using Filter = juce::dsp::IIR::Filter<float>;
     using FilterCoefs = juce::dsp::IIR::Coefficients<float>;
 
-    juce::dsp::ProcessorChain<juce::dsp::Gain<float>, juce::dsp::SingleTubeProcessor<float>,
-        juce::dsp::ProcessorDuplicator<Filter, FilterCoefs>, juce::dsp::Gain<float>,
-        juce::dsp::SingleTubeProcessor<float>, juce::dsp::Gain<float>> ampProcessorChain;
+    juce::dsp::ProcessorChain<juce::dsp::Gain<float>, juce::dsp::SingleTubeProcessor<float>,juce::dsp::Gain<float>> ampProcessorChain;
+
 
     bool isActive;
     std::string suffix;
 };
 
 
-//class CSmartGuitarAmp  : public ProcessorBase
-//{
-//public:
-//    static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params, int i);
-//    static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params);
-//    const juce::String getName() const override { return "SGAmp";}//+suffix; }
-//    CSmartGuitarAmp();
-//
-//    void prepareToPlay(double sampleRate, int samplesPerBlock) override;
-//    void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
-//    void reset() override;
-//    void update();
-//
-//private:
-//    bool isBypassed = false;
-//    juce::LinearSmoothedValue<float> inputgain, threshold, ratio, attack, release, makeupgain;
-//    bool isActive;
-//
-//    int amp_lead = 1; // 1 = clean, 0 = lead
-//    float ampCleanDrive = 1.0;
-//    float ampLeadDrive = 1.0;
-//    float ampMaster = 1.0;
-//    // WaveNet waveNet; // Amp Clean Channel / Lead Channel
-//
-//    std::string suffix;
-//};
+
 
 //================================================================================================================
 //  Smart Guitar Processor Nodes
 //================================================================================================================
-class WaveNetVaProcessor : public ProcessorBase
+class CSmartGuitarAmp : public ProcessorBase
 {
 public:
+    static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>>& params, int i);
+    static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>>& params);
     const juce::String getName() const override { return "SGAmp" + suffix; }
-    WaveNetVaProcessor();
+    CSmartGuitarAmp(juce::AudioProcessorValueTreeState* apvts, int instanceNumber);
+    CSmartGuitarAmp();
+
     void prepareToPlay(double sampleRate, int samplesPerBlock) override;
     void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
     void reset() override;
-    // void loadConfig(File configFile);
-
-
-    // File loaded_tone;
-    juce::String loaded_tone_name;
-
+    void update();
+    void resampleUp(const float** inputBuffer, float** outputBuffer, int numSamples);
+    void resampleBack(float** inputBuffer, float** outputBuffer, int numSamples);
+    juce::AudioProcessorValueTreeState* m_pAPVTS;
 private:
+    bool isBypassed = false;
+    juce::LinearSmoothedValue<float> inputgain, threshold, ratio, attack, release, makeupgain;
     bool isActive;
-    std::string suffix;
-    //WaveNet waveNet;
-    //var dummyVar;
 
+    double auxSampleRate;
+
+    float ampMaster = 1.0;
+    WaveNet waveNet; // Amp Clean Channel / Lead Channel
+
+    std::string suffix;
 };
 
 //================================================================================================================

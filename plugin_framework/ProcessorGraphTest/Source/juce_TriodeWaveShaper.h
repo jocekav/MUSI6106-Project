@@ -133,7 +133,7 @@ public:
         auto& postFilterLow = singleTuberChain.template get<postFilterLowIndex>();
         postFilterLow.state = FilterCoefs::makeFirstOrderLowPass(spec.sampleRate, lowPassFilterFreq);
         auto& filterHigh = singleTuberChain.template get<filterHighIndex>();
-        filterHigh.state = FilterCoefs::makeFirstOrderLowPass(spec.sampleRate, highOassFilterFreq);
+        filterHigh.state = FilterCoefs::makeFirstOrderHighPass(spec.sampleRate, highOassFilterFreq);
 
         singleTuberChain.prepare(spec);
     };
@@ -151,8 +151,8 @@ public:
 
 private:
 
-    float lowPassFilterFreq = 15000;
-    float highOassFilterFreq = 45;
+    float lowPassFilterFreq = 10000;
+    float highOassFilterFreq = 40;
 
     enum
     {
@@ -167,6 +167,7 @@ private:
 
     juce::dsp::ProcessorChain<juce::dsp::ProcessorDuplicator<Filter, FilterCoefs>, juce::dsp::TriodeWaveShaper<float>,
         juce::dsp::ProcessorDuplicator<Filter, FilterCoefs>, juce::dsp::ProcessorDuplicator<Filter, FilterCoefs>> singleTuberChain;
+
 
 };
 
