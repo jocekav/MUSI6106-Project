@@ -649,7 +649,7 @@ void CSmartGuitarAmp::update()
 void CSmartGuitarAmp::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     waveNet.prepareToPlay(samplesPerBlock);
-    juce::File default_tone("C:/Users/thiag/Documents/Git-repos/MUSI6106-Project/plugin_framework/ProcessorGraphTest/models/bluej_fullD_p0153.json");
+    juce::File default_tone("C:/Users/thiag/Documents/Git-repos/MUSI6106-Project/plugin_framework/ProcessorGraphTest/Models/bias2_high_gain.json");
     this->suspendProcessing(true);
     WaveNetLoader loader(default_tone);
     float levelAdjust = loader.levelAdjust;
@@ -673,6 +673,7 @@ void CSmartGuitarAmp::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBu
     if (isBypassed)
         return;
 
+    buffer.applyGain(10.0);
     waveNet.process(buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), buffer.getNumSamples());
 
     for (int c = 1; c < buffer.getNumChannels(); ++c)
