@@ -273,8 +273,7 @@ CGainProcessor::CGainProcessor(juce::AudioProcessorValueTreeState* apvts, int in
 
 void CGainProcessor::update()
 {
-
-    gain.setTargetValue(juce::Decibels::decibelsToGain (m_pAPVTS->getRawParameterValue("GainValue"+suffix)->load()));
+    gain.setTargetValue((m_pAPVTS->getRawParameterValue("GainValue" + suffix)->load()));
     Gain.setGainDecibels(gain.getNextValue());
 
 }

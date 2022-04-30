@@ -126,19 +126,8 @@ TEST_CASE("bypass all effects", "[processor]")
 
     ProcessorGraphTestAudioProcessor processor;
 
-    juce::Identifier gettingName = processor.apvts.state.getPropertyName(0);
-    std::cout << gettingName.toString() << std::endl;
 
-
-    auto param = processor.apvts.state.getProperty("PhaserBypass_0");
-
-    std::cout << "about to getrawparametervalue" << std::endl;
-    //processor.apvts.getRawParameterValue("gain")->store(0.0f);
-    processor.apvts.state.setProperty("GainValue_0", 5.0f, nullptr);
-    auto phaserBypP = processor.apvts.state.getPropertyPointer("PhaserBypass_0");
-    
-  //  processor.apvts.state.setProperty(phaserBypP, true, nullptr);
-    processor.apvts.state.setProperty("byp", true, nullptr);
+    std::cout << "about to getparameterasvalue" << std::endl;
     
     // audioparmeterwithid poimter and setting it to the addres return by createandaddparaeeer
     //setValueNotifyingHost
@@ -155,9 +144,12 @@ TEST_CASE("bypass all effects", "[processor]")
     bypassReverb = true;
 
     juce::Value gain0 = processor.apvts.getParameterAsValue("GainValue_0");
-    gain0 = 0;
+    gain0 = juce::Decibels::gainToDecibels(1);
     juce::Value gain1 = processor.apvts.getParameterAsValue("GainValue_1");
-    gain1 = 0;
+    gain1 = juce::Decibels::gainToDecibels(1);
+    std::cout << juce::Decibels::decibelsToGain(processor.apvts.getRawParameterValue("GainValue_0")->load()) << std::endl;
+    std::cout << processor.apvts.getRawParameterValue("GainValue_0")->load() << std::endl;
+    
 
 
 
@@ -177,7 +169,6 @@ TEST_CASE("bypass all effects", "[processor]")
         for (auto j = 0; j < numSamples; j++) { buffer.setSample(i, j, 0.0f); }
     }
     processor.processBlock(buffer, midi);
-
     // buffer should be silent
     for (auto i = 0; i < numChannels; i++)
     {
@@ -207,9 +198,21 @@ TEST_CASE("bypass all effects", "[processor]")
 
 
     processor.releaseResources();
-
-
-    
-
-
 }
+
+
+// REMAINING TESTS:
+//check only one effect at a time
+//get the ratio of output to input, then convert to db.it should be 0dB difference.
+//
+//bypass one at a time
+//
+//make sure max and min values dont make the outputs exceed 1 - for all effects on at once
+//
+
+
+
+
+
+
+

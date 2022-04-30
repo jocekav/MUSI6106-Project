@@ -174,6 +174,8 @@ void ProcessorGraphTestAudioProcessor::processBlock (juce::AudioBuffer<float>& b
 //
 //        // ..do something to the data...
 //    }
+
+    // TODO: ADD JLIMIT FOR HARD LIMIT AT (-1,1)
 }
 
 //==============================================================================
