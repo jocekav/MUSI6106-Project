@@ -15,12 +15,6 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/3rd-party/cmake")
 # directories, and the current project version. This is a standard CMake command.
 
 project(GUITARAMPPLUGIN VERSION 0.0.1)
-add_subdirectory(3rd-party/eigen)
-set(Eigen3_DIR 3rd-party/eigen3/cmake/)
-set(EIGEN3_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/3rd-party/eigen)
-set(EIGEN_INCLUDE_PATH ${CMAKE_SOURCE_DIR}/3rd-party/eigen)
-find_package (Eigen3 3.3 NO_MODULE)
-include_directories(${EIGEN3_INCLUDE_DIR})
 # If you've installed JUCE somehow (via a package manager, or directly using the CMake install
 # target), you'll need to tell this project that it depends on the installed copy of JUCE. If you've
 # included JUCE directly in your source tree (perhaps as a submodule), you'll need to tell CMake to
@@ -115,7 +109,6 @@ target_link_libraries(GuitarAmpPlugin
         juce::juce_gui_extra
         juce::juce_audio_utils
         juce::juce_dsp
-        Eigen3::Eigen
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
