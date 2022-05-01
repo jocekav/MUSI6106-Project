@@ -151,30 +151,10 @@ void ProcessorGraphTestAudioProcessor::processBlock (juce::AudioBuffer<float>& b
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
-
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
     mainProcessor->processBlock(buffer, midiMessages);
-//    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-//    {
-//        auto* channelData = buffer.getWritePointer (channel);
-//
-//        // ..do something to the data...
-//    }
-
 
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
@@ -281,6 +261,9 @@ void ProcessorGraphTestAudioProcessor::initialiseAudioNodes(juce::ReferenceCount
     compressorNode = mainProcessor->addNode(std::make_unique<CCompressorProcessor>(&apvts,0));
     audioNodeList.add(compressorNode);
 
+    delayNode = mainProcessor->addNode(std::make_unique<CDelayProcessor>(&apvts, 0));
+    audioNodeList.add(compressorNode);
+
     reverbNode = mainProcessor->addNode(std::make_unique<CReverbProcessor>(&apvts,0));
     audioNodeList.add(reverbNode);
 
@@ -295,15 +278,16 @@ void ProcessorGraphTestAudioProcessor::initialiseAudioNodes(juce::ReferenceCount
 juce::AudioProcessorValueTreeState::ParameterLayout ProcessorGraphTestAudioProcessor::createParameterLayout()
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
-    // FIXME: The current method of appending a number will break when accessing
-    //  the parameter, since the update()has no way to know what the suffix
-    //  is, or what the parameter names are
+    // TODO: See if there is a way to dynamically add/access parameters
+    //  currently it is initiated only once,
+    //  when the plugin processor is initiated
 
     // ADD PARAMS BELOW
     CGainProcessor::addToParameterLayout(params,0); // Input Gain
     CNoiseGateProcessor::addToParameterLayout(params,0);
     CEqualizerProcessor::addToParameterLayout(params, 0); // EQ
     CCompressorProcessor::addToParameterLayout(params,0); // Compressor Params
+    CDelayProcessor::addToParameterLayout(params, 0);
     CReverbProcessor::addToParameterLayout(params,0); // Reverb Params
     CPhaserProcessor::addToParameterLayout(params,0);
 

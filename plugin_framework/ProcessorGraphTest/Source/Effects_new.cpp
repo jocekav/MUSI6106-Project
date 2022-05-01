@@ -65,8 +65,10 @@ void CEqualizerProcessor::addToParameterLayout(std::vector<std::unique_ptr<juce:
 
 void CEqualizerProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-    update();
-    reset();
+    this->reset();
+    this->update();
+    juce::dsp::ProcessSpec spec { sampleRate, static_cast<juce::uint32> (samplesPerBlock), 2 };
+    gainCorrection.prepare(spec);
     isActive=true;
 }
 
@@ -96,6 +98,10 @@ void CEqualizerProcessor::processBlock(juce::AudioSampleBuffer& buffer, juce::Mi
         midFilter[channel].processSamples(channelData, numSamples);
         highMid[channel].processSamples(channelData, numSamples);
     }
+    juce::dsp::AudioBlock<float> block(buffer);
+    juce::dsp::ProcessContextReplacing<float> context(block);
+    gainCorrection.process(context);
+
 }
 
 void CEqualizerProcessor::reset()
@@ -144,6 +150,7 @@ void CEqualizerProcessor::update()
         midFilter[channel].setCoefficients(juce::IIRCoefficients::makePeakFilter(sr, midFreq.getNextValue(), midQ.getNextValue(), juce::Decibels::decibelsToGain(midGain.getNextValue())));
         highMid[channel].setCoefficients(juce::IIRCoefficients::makePeakFilter(sr, highMidFreq.getNextValue(), highMidQ.getNextValue(), juce::Decibels::decibelsToGain(highMidGain.getNextValue())));
     }
+    gainCorrection.setGainDecibels(1.99483f);
 }
 
 
@@ -358,14 +365,17 @@ void CReverbProcessor::update()
     reverbParams.roomSize = roomsize.getNextValue();
 
     Reverb.setParameters(reverbParams);
-
+    gainCorrection.setGainDecibels(1.39541f);
 }
 
 void CReverbProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     Reverb.reset();
     this->update();
+    juce::dsp::ProcessSpec spec { sampleRate, static_cast<juce::uint32> (samplesPerBlock), 2 };
+    gainCorrection.prepare(spec);
     isActive=true;
+
 }
 
 void CReverbProcessor::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer &)
@@ -384,11 +394,15 @@ void CReverbProcessor::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiB
         Reverb.processMono (buffer.getWritePointer (0), buffer.getNumSamples());
     else if (numChannels == 2)
         Reverb.processStereo (buffer.getWritePointer (0), buffer.getWritePointer (1), buffer.getNumSamples());
+    juce::dsp::AudioBlock<float> block(buffer);
+    juce::dsp::ProcessContextReplacing<float> context(block);
+    gainCorrection.process(context);
 }
 
 void CReverbProcessor::reset()
 {
     Reverb.reset();
+    gainCorrection.reset();
 }
 
 //================================================================================================================
@@ -442,12 +456,15 @@ void CPhaserProcessor::update()
     Phaser.setCentreFrequency(fc.getNextValue());
     Phaser.setFeedback(feedback.getNextValue());
     Phaser.setMix(blend.getNextValue());
+
+    gainCorrection.setGainDecibels(2.12904f);
 }
 
 void CPhaserProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     juce::dsp::ProcessSpec spec { sampleRate, static_cast<juce::uint32> (samplesPerBlock), 2 };
     Phaser.prepare(spec);
+    gainCorrection.prepare(spec);
 
     isActive=true;
 }
@@ -463,11 +480,13 @@ void CPhaserProcessor::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiB
     juce::dsp::ProcessContextReplacing<float> context(block);
 
     Phaser.process(context);
+    gainCorrection.process(context);
 }
 
 void CPhaserProcessor::reset()
 {
     Phaser.reset();
+    gainCorrection.reset();
 }
 
 //================================================================================================================
@@ -548,7 +567,134 @@ void CNoiseGateProcessor::reset()
     NoiseGate.reset();
 }
 
+//================================================================================================================
+//  Delay Processor Node
+//================================================================================================================
 
+CDelayProcessor::CDelayProcessor(juce::AudioProcessorValueTreeState* apvts, int instanceNumber)
+{
+    m_pAPVTS = apvts;
+    suffix = "_" + std::to_string(instanceNumber);
+    this->update();
+}
+void CDelayProcessor::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params, int i =0)
+{
+    std::string num = std::to_string(i);
+    std::string byp = "DelayBypass_" + num;
+    std::string dly = "DelayTime_" + num;
+//    std::string fdbk = "DelayFeedback_" + num;
+    std::string blnd = "DelayBlend_" + num;
+
+    params.push_back(std::make_unique<juce::AudioParameterBool>(byp, "Bypass", false));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(dly, "Delay Time", juce::NormalisableRange<float>(0, 2000.f), 1000.f,"ms"));
+//    params.push_back(std::make_unique<juce::AudioParameterFloat>(fdbk, "Feedback", juce::NormalisableRange<float>(0.f, 1.f), 0.f,"%"));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(blnd, "Wet/Dry", juce::NormalisableRange<float>(0.f, 1.f), 1.f,"%"));
+}
+void CDelayProcessor::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &params)
+{
+
+}
+void CDelayProcessor::update()
+{
+    isBypassed = static_cast<bool>(m_pAPVTS->getRawParameterValue("DelayBypass"+suffix)->load());
+    delaytime.setTargetValue(m_pAPVTS->getRawParameterValue("DelayTime"+suffix)->load());
+    blend.setTargetValue(m_pAPVTS->getRawParameterValue("DelayBlend"+suffix)->load());
+
+    float fDelayValue = delaytime.getNextValue();
+    Blend = blend.getNextValue();
+    delayInSamples = fDelayValue * (float)getSampleRate() / 1000; //Delay Time is in ms
+    delayLine.setDelay(delayInSamples);
+}
+void CDelayProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
+{
+    m_fSampleRate = sampleRate;
+    delayBufferSamples = (int)(2000.f * (float)sampleRate)/1000 + 1 ; // 2000 is the max delay in ms
+    juce::dsp::ProcessSpec spec { sampleRate, static_cast<juce::uint32> (samplesPerBlock), 2 };
+    delayLine.prepare(spec);
+    delayLine.setMaximumDelayInSamples(static_cast<int>(2000.f*sampleRate/1000));
+    isActive = true;
+}
+void CDelayProcessor::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer &)
+{
+    this->update();
+    juce::ScopedNoDenormals noDenormals;
+    auto totalNumInputChannels  = getTotalNumInputChannels();
+    auto totalNumOutputChannels = getTotalNumOutputChannels();
+
+// if you've got more output channels than input clears extra outputs
+    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+        buffer.clear (i, 0, buffer.getNumSamples());
+
+    const int bufferLength = buffer.getNumSamples();
+    juce::dsp::AudioBlock<float> block(buffer);
+    juce::dsp::ProcessContextReplacing<float> context(block);
+    delayLine.process(context);
+//    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+//    {
+//        auto* channelData = buffer.getWritePointer(channel);
+//
+//        for (int i = 0; i < bufferLength; i++)
+//        {
+//
+////            delayLine.pushSample(channel, channelData[i]);
+////            channelData[i] = channelData[i]*(1-Blend) + (Blend *delayLine.popSample(channel, delayInSamples));
+//        }
+//    }
+//    delayBuffer.process(context);
+//    const int numInputChannels = getTotalNumInputChannels();
+//    const int numOutputChannels = getTotalNumOutputChannels();
+//    const int numSamples = buffer.getNumSamples();
+//
+//    //======================================
+//    this->update();
+//    if(!isActive)
+//        return;
+//    if(isBypassed)
+//        return;
+//    int localWritePosition;
+//
+//    for (int channel = 0; channel < numInputChannels; ++channel)
+//    {
+//        float* channelData = buffer.getWritePointer (channel);
+//        float* delayData = delayBuffer.getWritePointer (channel);
+//        localWritePosition = delayWritePosition;
+//
+//        for (int sample = 0; sample < numSamples; ++sample)
+//        {
+//            const float in = channelData[sample];
+//            float out = 0.0f;
+//
+//            float readPosition = fmodf ((float)localWritePosition - delayInSamples + (float)delayBufferSamples, delayBufferSamples);
+//            int localReadPosition = static_cast<int>(floorf(readPosition));
+//
+//            if (localReadPosition != localWritePosition) {
+//                float fraction = readPosition - (float)localReadPosition;
+//                float delayed1 = delayData[(localReadPosition + 0)];
+//                float delayed2 = delayData[(localReadPosition + 1) % delayBufferSamples];
+//                out = delayed1 + fraction * (delayed2 - delayed1);
+//
+//                channelData[sample] = in + Blend * (out - in);
+//                delayData[localWritePosition] = in + out * Feedback;
+//            }
+//
+//            if (++localWritePosition >= delayBufferSamples)
+//                localWritePosition -= delayBufferSamples;
+//        }
+//    }
+//
+//    delayWritePosition = localWritePosition;
+
+    //======================================
+
+//    for (int channel = numInputChannels; channel < numOutputChannels; ++channel)
+//        buffer.clear (channel, 0, numSamples);
+}
+void CDelayProcessor::reset()
+{
+//    isActive = false;
+    delayLine.reset();
+
+}
 // struct containing all the words, each word has an array of the values
 
 
