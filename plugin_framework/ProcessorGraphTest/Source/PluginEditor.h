@@ -240,51 +240,31 @@ private:
         CustomToggle compBypassToggle;
     APVTS::ButtonAttachment compBypassAttachment;
         
-    // EQ Components
-    CustomRotarySlider
-    eqLowPassFreqSlider,
-    eqLowPassQSlider,
-    eqHighPassFreqSlider,
-    eqHighPassQSlider,
-    eqLowMidFreqSlider,
-    eqLowMidQSlider,
-    eqLowMidGainSlider,
-    eqMidFreqSlider,
-    eqMidQSlider,
-    eqMidGainSlider,
-    eqHighMidFreqSlider,
-    eqHighMidQSlider,
-    eqHighMidGainSlider;
-
-    APVTS::SliderAttachment
-    eqLowPassFreqSliderAttachment,
-    eqLowPassQSliderAttachment,
-    eqHighPassFreqSliderAttachment,
-    eqHighPassQSliderAttachment,
-    eqLowMidFreqSliderAttachment,
-    eqLowMidQSliderAttachment,
-    eqLowMidGainSliderAttachment,
-    eqMidFreqSliderAattachment,
-    eqMidQSliderAttachment,
-    eqMidGainSliderAttachment,
-    eqHighMidFreqSliderAttachment,
-    eqHighMidQSliderAttachment,
-    eqHighMidGainSliderAttachment;
-
-    juce::Label eqLowPassFreqSliderLabel,
-    eqLowPassQSliderLabel,
-    eqHighPassFreqSliderLabel,
-    eqHighPassQSliderLabel,
-    eqLowMidFreqSliderLabel,
-    eqLowMidQSliderLabel,
-    eqLowMidGainSliderLabel,
-    eqMidFreqSliderLabel,
-    eqMidQSliderLabel,
-    eqMidGainSliderLabel,
-    eqHighMidFreqSliderLabel,
-    eqHighMidQSliderLabel,
-    eqHighMidGainSliderLabel;
-
+        // EQ Components
+//        CustomRotarySlider eqLowCutFreqSlider,
+//        eqLowCutSlopeSlider,
+//        eqHighCutFreqSlider,
+//        eqHighCutSlopeSlider,
+//        eqPeakFreqSlider,
+//        eqPeakGainSlider,
+//        eqPeakQSlider;
+//
+//        APVTS::SliderAttachment eqLowCutFreqSliderAttachment,
+//        eqLowCutSlopeSliderAttachment,
+//        eqHighCutFreqSliderAttachment,
+//        eqHighCutSlopeSliderAttachment,
+//        eqPeakFreqSliderAttachment,
+//        eqPeakGainSliderAttachment,
+//        eqPeakQSliderAttachment;
+//
+//        juce::Label eqLowCutFreqSliderLabel,
+//        eqLowCutSlopeSliderLabel,
+//        eqHighCutFreqSliderLabel,
+//        eqHighCutSlopeSliderLabel,
+//        eqPeakFreqSliderLabel,
+//        eqPeakGainSliderLabel,
+//        eqPeakQSliderLabel;
+//
         CustomToggle eqBypassToggle;
     APVTS::ButtonAttachment eqBypassAttachment;
         
