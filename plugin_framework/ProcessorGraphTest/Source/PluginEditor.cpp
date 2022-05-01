@@ -216,6 +216,7 @@ gateThresholdSliderAttachment(audioProcessor.apvts, "NoiseGateThreshold_0", gate
 gateRatioSliderAttachment(audioProcessor.apvts, "NoiseGateRatio_0", gateRatioSlider),
 gateAttackSliderAttachment(audioProcessor.apvts, "NoiseGateAttack_0", gateAttackSlider),
 gateReleaseSliderAttachment(audioProcessor.apvts, "NoiseGateRelease_0", gateReleaseSlider),
+gateBypassAttachment(audioProcessor.apvts, "NoiseGateBypass_0", gateBypassToggle),
 
 //Reverb Attachments
 rvbBlendSlider(*audioProcessor.apvts.getParameter("ReverbBlend_0"), "%"),
@@ -226,6 +227,7 @@ verbBypassToggle(*audioProcessor.apvts.getParameter("ReverbBypass_0"), ""),
 rvbBlendSliderAttachment(audioProcessor.apvts, "ReverbBlend_0", rvbBlendSlider),
 rvbRoomSizeSliderAttachment(audioProcessor.apvts, "ReverbRoomSize_0", rvbRoomSizeSlider),
 rvbDampingSliderAttachment(audioProcessor.apvts, "ReverbDamping_0", rvbDampingSlider),
+verbBypassAttachment(audioProcessor.apvts, "ReverbBypass_0", verbBypassToggle),
 
 //Compressor Attachments
 compThresholdSlider(*audioProcessor.apvts.getParameter("CompressorThreshold_0"), "dB"),
@@ -240,6 +242,7 @@ compRatioSliderAttachment(audioProcessor.apvts, "CompressorRatio_0", compRatioSl
 compAttackSliderAttachment(audioProcessor.apvts, "CompressorAttack_0", compAttackSlider),
 compReleaseSliderAttachment(audioProcessor.apvts, "CompressorRelease_0", compReleaseSlider),
 compMakeUpGainSliderAttachment(audioProcessor.apvts, "CompressorMakeupGain_0", compMakeUpGainSlider),
+compBypassAttachment(audioProcessor.apvts, "CompressorBypass_0", compBypassToggle),
 
 //Phaser Attachments
 phaserRateSlider(*audioProcessor.apvts.getParameter("PhaserRate_0"), "Hz"),
@@ -254,6 +257,7 @@ phaserDepthSliderAttachment(audioProcessor.apvts, "PhaserDepth_0", phaserDepthSl
 phaserFcSliderAttachment(audioProcessor.apvts, "PhaserFc_0", phaserFcSlider),
 phaserFeedbackSliderAttachment(audioProcessor.apvts, "PhaserFeedback_0", phaserFeedbackSlider),
 phaserBlendSliderAttachment(audioProcessor.apvts, "PhaserBlend_0", phaserBlendSlider),
+phaserBypassAttachment(audioProcessor.apvts, "PhaserBypass_0", phaserBypassToggle),
 
 //Gain Attachments
 inputGainSlider(*audioProcessor.apvts.getParameter("GainValue_0"), "dB"),
@@ -263,7 +267,6 @@ inputGainSliderAttachment(audioProcessor.apvts, "GainValue_0", inputGainSlider),
 outputGainSliderAttachment(audioProcessor.apvts, "GainValue_1", outputGainSlider),
 
 //EQ Attachments
-eqBypassToggle(*audioProcessor.apvts.getParameter("EqualizerBypass_0"), ""),
 eqLowPassFreqSlider(*audioProcessor.apvts.getParameter("EqualizerLPF_0"), "Hz"),
 eqLowPassQSlider(*audioProcessor.apvts.getParameter("EqualizerLPFQ_0"), ""),
 eqHighPassFreqSlider(*audioProcessor.apvts.getParameter("EqualizerHPF_0"), "Hz"),
@@ -277,6 +280,7 @@ eqMidGainSlider(*audioProcessor.apvts.getParameter("EqualizerMGain_0"), "dB"),
 eqHighMidFreqSlider(*audioProcessor.apvts.getParameter("EqualizerHMF_0"), "Hz"),
 eqHighMidQSlider(*audioProcessor.apvts.getParameter("EqualizerHMQ_0"), ""),
 eqHighMidGainSlider(*audioProcessor.apvts.getParameter("EqualizerHMGain_0"), "dB"),
+eqBypassToggle(*audioProcessor.apvts.getParameter("EqualizerBypass_0"), ""),
 
 eqLowPassFreqSliderAttachment(audioProcessor.apvts, "EqualizerLPF_0", eqLowPassFreqSlider),
 eqLowPassQSliderAttachment(audioProcessor.apvts, "EqualizerLPFQ_0", eqLowPassQSlider),
@@ -291,6 +295,7 @@ eqMidGainSliderAttachment(audioProcessor.apvts, "EqualizerMGain_0", eqMidGainSli
 eqHighMidFreqSliderAttachment(audioProcessor.apvts, "EqualizerHMF_0", eqHighMidFreqSlider),
 eqHighMidQSliderAttachment(audioProcessor.apvts, "EqualizerHMQ_0", eqHighMidQSlider),
 eqHighMidGainSliderAttachment(audioProcessor.apvts, "EqualizerHMGain_0", eqHighMidGainSlider),
+eqBypassAttachment(audioProcessor.apvts, "EqualizerBypass_0", eqBypassToggle),
 
 
 //Amp Attachments
@@ -335,7 +340,7 @@ phaserButton("PHASER")
      
      verbButton.setState(juce::Button::ButtonState::buttonDown);
     
-    setSize (700, 600);
+    setSize (700, 500);
 }
 
 ProcessorGraphTestAudioProcessorEditor::~ProcessorGraphTestAudioProcessorEditor()
