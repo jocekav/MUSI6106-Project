@@ -151,6 +151,7 @@ bool ProcessorGraphTestAudioProcessor::isBusesLayoutSupported (const BusesLayout
 
 void ProcessorGraphTestAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
+
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -247,6 +248,8 @@ void ProcessorGraphTestAudioProcessor::initialiseGraph()
     connectMidiNodes();
 }
 
+
+
 //==============================================================================
 //     TODO: EDIT THE TWO FUNCTIONS BELOW TO ADD A NODE TO THE GRAPH
 //==============================================================================
@@ -271,6 +274,12 @@ void ProcessorGraphTestAudioProcessor::initialiseAudioNodes(juce::ReferenceCount
     reverbNode = mainProcessor->addNode(std::make_unique<CReverbProcessor>(&apvts,0));
     audioNodeList.add(reverbNode);
 
+    AmpInterfaceNode = mainProcessor->addNode(std::make_unique<CAmpIf>(&apvts, 0));
+    audioNodeList.add(AmpInterfaceNode);
+
+    CabSimNode = mainProcessor->addNode(std::make_unique<CabSimProcessor>(&apvts, 0));
+    audioNodeList.add(CabSimNode);
+
     phaserNode = mainProcessor->addNode(std::make_unique<CPhaserProcessor>(&apvts,0));
     audioNodeList.add(phaserNode);
 
@@ -278,6 +287,7 @@ void ProcessorGraphTestAudioProcessor::initialiseAudioNodes(juce::ReferenceCount
     audioNodeList.add(outputGainNode);
 
 }
+
 
 juce::AudioProcessorValueTreeState::ParameterLayout ProcessorGraphTestAudioProcessor::createParameterLayout()
 {
@@ -294,6 +304,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout ProcessorGraphTestAudioProce
     CDelayProcessor::addToParameterLayout(params, 0);
     CReverbProcessor::addToParameterLayout(params,0); // Reverb Params
     CPhaserProcessor::addToParameterLayout(params,0);
+    CAmpIf::addToParameterLayout(params, 0);
 
 
 //    CGainProcessor::addToParameterLayout(params); // Input Gain
@@ -302,8 +313,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout ProcessorGraphTestAudioProce
 //    CCompressorProcessor::addToParameterLayout(params); // Compressor Params
 //    CReverbProcessor::addToParameterLayout(params); // Reverb Params
 //    CPhaserProcessor::addToParameterLayout(params);
-
-//    TODO: Find a way to change the name of the parameter from gain to output gain
+//
+////    TODO: Find a way to change the name of the parameter from gain to output gain
     CGainProcessor::addToParameterLayout(params, 1); // Output Gain
 
 

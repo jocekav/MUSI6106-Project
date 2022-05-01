@@ -4,6 +4,8 @@
 
 #include "Effects_new.h"
 
+
+
 //================================================================================================================
 //  EQ Processor Node
 //================================================================================================================
@@ -705,5 +707,326 @@ void CDelayProcessor::reset()
 
 
 
+CAmpIf::CAmpIf()
+{
+    // this->update();
+}
+
+void CAmpIf::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>>& params, int i = 0)
+{
+    std::string num = std::to_string(i);
+    std::string byp = "AmpBypass_" + num;
+    std::string choice = "Amp_" + num;
+
+    params.push_back(std::make_unique<juce::AudioParameterBool>(byp, "Bypass", false));
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(choice, "Amp Model", juce::StringArray{ "TanhWaveshaping", "AnalogAmp", "SGAmp" }, 0));
+}
+
+void CAmpIf::update()
+{
+    previousAmp = actualAmp;
+    isBypassed = m_pAPVTS->getRawParameterValue("AmpBypass" + suffix)->load();
+    actualAmp = static_cast<ampNode> (m_pAPVTS->getRawParameterValue("Amp" + suffix)->load());
+
+    if (!ampInit)
+    {
+        CAmp = static_cast<ProcessorBase*> (new CTanhWaveshaping());
+        ampInit = true;
+    }
+    else if (previousAmp != actualAmp)
+    {
+        delete[] CAmp;
+        switch (actualAmp) {
+        case WaveshaperIndex:
+            CAmp = static_cast<ProcessorBase*> (new CTanhWaveshaping());
+            break;
+        case AnalogAmpIndex:
+            CAmp = static_cast<ProcessorBase*> (new CPreampProcessorChain());
+            break;
+        case SGAIndex:
+            CAmp = static_cast<ProcessorBase*> (new CSmartGuitarAmp());
+            break;
+        }
+        CAmp->prepareToPlay(auxSampleRate, auxSamplesPerBlock);
+    }
+
+}
+
+void CAmpIf::prepareToPlay(double sampleRate, int samplesPerBlock)
+{
+    auxSampleRate = sampleRate;
+    auxSamplesPerBlock = samplesPerBlock;
+
+    CAmp->prepareToPlay(sampleRate, samplesPerBlock);
+}
+
+void CAmpIf::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer& midiBuffer)
+{
+    this->update();
+    if (!isActive)
+        return;
+    if (isBypassed)
+        return;
+    CAmp->processBlock(buffer, midiBuffer);
+
+}
+
+void CAmpIf::reset()
+{
+    CAmp->reset();
+}
+
+
+//================================================================================================================
+CTanhWaveshaping::CTanhWaveshaping()
+{
+    auto& waveshaper = TanhProcessorChain.template get<waveshaperIndex>();
+    waveshaper.functionToUse = [](float x) { return std::tanh(x); };
+
+    auto& preGain = TanhProcessorChain.template get<preGainIndex>();
+    preGain.setGainDecibels(0.0f);
+    auto& postGain = TanhProcessorChain.template get<postGainIndex>();
+    postGain.setGainDecibels(0.0f);
+}
+
+void CTanhWaveshaping::prepareToPlay(double sampleRate, int samplesPerBlock)
+{
+    auto channels = static_cast<juce::uint32> (fmin(getMainBusNumInputChannels(), getMainBusNumOutputChannels()));
+    juce::dsp::ProcessSpec spec{ sampleRate, static_cast<juce::uint32> (samplesPerBlock) };
+    TanhProcessorChain.prepare(spec);
+}
+
+void CTanhWaveshaping::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer&)
+{
+    const auto totalNumInputChannels = getTotalNumInputChannels();
+    const auto totalNumOutputChannels = getTotalNumOutputChannels();
+
+    const auto numChannels = fmin(totalNumInputChannels, totalNumOutputChannels);
+    const auto numSamples = buffer.getNumSamples();
+
+    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+        buffer.clear(i, 0, buffer.getNumSamples());
+
+    juce::dsp::AudioBlock<float> block(buffer);
+    juce::dsp::ProcessContextReplacing<float> context(block);
+
+    TanhProcessorChain.process(context);
+}
+
+void CTanhWaveshaping::reset()
+{
+    TanhProcessorChain.reset();
+}
+
+//================================================================================================================
+CPreampProcessorChain::CPreampProcessorChain()
+{
+}
+
+void CPreampProcessorChain::prepareToPlay(double sampleRate, int samplesPerBlock)
+{
+    std::array<float, 8> tonestackCoeff = tonestackCalcParam(sampleRate);
+    juce::dsp::IIR::Coefficients<float>::Ptr coeffs(new juce::dsp::IIR::Coefficients<float>(tonestackCoeff));
+
+    auto channels = static_cast<juce::uint32> (fmin(getMainBusNumInputChannels(), getMainBusNumOutputChannels()));
+    juce::dsp::ProcessSpec spec{ sampleRate, static_cast<juce::uint32> (samplesPerBlock), channels };
+
+    auto& filterTonestack = ampProcessorChain.template get<tonestackIndex>();
+    filterTonestack.state = *coeffs;
+
+    auto& pregain = ampProcessorChain.template get<preGainIndex>();
+    pregain.setGainDecibels(10);
+    auto& drivegain = ampProcessorChain.template get<driveGainIndex>();
+    drivegain.setGainDecibels(0);
+    auto& postgain = ampProcessorChain.template get<postGainIndex>();
+    postgain.setGainDecibels(-7);
+
+
+    ampProcessorChain.prepare(spec);
+}
+
+void CPreampProcessorChain::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer&)
+{
+    const auto totalNumInputChannels = getTotalNumInputChannels();
+    const auto totalNumOutputChannels = getTotalNumOutputChannels();
+
+    const auto numChannels = fmin(totalNumInputChannels, totalNumOutputChannels);
+    const auto numSamples = buffer.getNumSamples();
+
+    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+        buffer.clear(i, 0, buffer.getNumSamples());
+
+    juce::dsp::AudioBlock<float> block(buffer);
+    juce::dsp::ProcessContextReplacing<float> context(block);
+
+    ampProcessorChain.process(context);
+}
+
+void CPreampProcessorChain::reset()
+{
+    ampProcessorChain.reset();
+}
+
+// Tone Stack param calculator
+std::array<float, 8> CPreampProcessorChain::tonestackCalcParam(double sampleRate)
+{
+    std::array<float, 8> filterCoeff{};
+    double c = 2 * sampleRate;
+
+    double b1 = t * C1 * R1 + m * C3 * R3 + l * (C1 * R2 + C2 * R2) + (C1 * R3 + C2 * R3);
+    double b2 = t * (C1 * C2 * R2 * R4 + C1 * C3 * R1 * R4) - m * m * (C1 * C3 * R3 * R3 + C2 * C3 * R3 * R3) + m * (C1 * C3 * R1 * R3 + C1 * C3 * R3 * R3 + C2 * C3 * R3 * R3) + l * (C1 * C2 * R1 * R2 + C1 * C2 * R2 * R4 + C1 * C3 * R2 * R4) + l * m * (C1 * C3 * R2 * R3 + C2 * C3 * R2 * R3) + (C1 * C2 * R1 * R3 + C1 * C2 * R3 * R4 + C1 * C3 * R3 * R4);
+    double b3 = l * m * (C1 * C2 * C3 * R1 * R2 * R3 + C1 * C2 * C3 * R2 * R3 * R4) - m * m * (C1 * C2 * C3 * R1 * R3 * R3 + C1 * C2 * C3 * R3 * R3 * R4) + m * (C1 * C2 * C3 * R1 * R3 * R3 + C1 * C2 * C3 * R3 * R3 * R4) + t * (C1 * C2 * C3 * R1 * R3 * R4) - t * m * (C1 * C2 * C3 * R1 * 3 * R4) + t * l * (C1 * C2 * C3 * R1 * R2 * R4);
+    double a0 = 1;
+    double a1 = (C1 * R1 + C1 * R3 + C2 * R3 + C2 * R4 + C3 * R4) + m * C3 * R3 + l * (C1 * R2 + C2 * R2);
+    double a2 = m * (C1 * C3 * R1 * R3 - C2 * C3 * R3 * R4 + C1 * C3 * R3 * R3 + C2 * C3 * R3 * R3) + l * m * (C1 * C3 * R2 * R3 + C2 * C3 * R2 * R3) - m * m * (C1 * C3 * R3 * R3 + C2 * C3 * R3 * R3) + l * (C1 * C2 * R2 * R4 + C1 * C2 * R1 * R2 + C1 * C3 * R2 * R4 + C2 * C3 * R2 * R4) + (C1 * C2 * R1 * R4 + C1 * C3 * R1 * R4 + C1 * C2 * R3 * R4 + C1 * C2 * R1 * R3 + C1 * C3 * R3 * R4 + C2 * C3 * R3 * R4);
+    double a3 = l * m * (C1 * C2 * C3 * R1 * R2 * R3 + C1 * C2 * C3 * R2 * R3 * R4) - m * m * (C1 * C2 * C3 * R1 * R3 * R3 + C1 * C2 * C3 * R3 * R3 * R4) + m * (C1 * C2 * C3 * R3 * R3 * R4 + C1 * C2 * C3 * R1 * R3 * R3 - C1 * C2 * C3 * R1 * R3 * R4) + l * C1 * C2 * C3 * R1 * R2 * R4 + C1 * C2 * C3 * R1 * R3 * R4;
+
+    double A0 = -a0 - a1 * c - a2 * c * c - a3 * c * c * c;
+    double A1 = (-3 * a0) - (a1 * c) + (a2 * c * c) + (3 * a3 * c * c * c);
+    double A2 = (-3 * a0 + a1 * c + a2 * c * c - 3 * a3 * c * c * c);
+    double A3 = (-a0 + a1 * c - a2 * c * c + a3 * c * c * c);
+    double B0 = (-b1 * c - b2 * c * c - b3 * c * c * c);
+    double B1 = (-b1 * c + b2 * c * c + 3 * b3 * c * c * c);
+    double B2 = (b1 * c + b2 * c * c - 3 * b3 * c * c * c);
+    double B3 = (b1 * c - b2 * c * c + b3 * c * c * c);
+
+    filterCoeff[0] = static_cast<float>(B0 / A0);
+    filterCoeff[1] = static_cast<float>(B1 / A0);
+    filterCoeff[2] = static_cast<float>(B2 / A0);
+    filterCoeff[3] = static_cast<float>(B3 / A0);
+    filterCoeff[4] = static_cast<float>(1);
+    filterCoeff[5] = static_cast<float>(A1 / A0);
+    filterCoeff[6] = static_cast<float>(A2 / A0);
+    filterCoeff[7] = static_cast<float>(A3 / A0);
+
+    return filterCoeff;
+}
+
+//================================================================================================================
+//================================================================================================================
+//  SmartGuitarAmp Processor Node
+//================================================================================================================
+void CSmartGuitarAmp::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>>& params, int i = 0)
+{
+    std::string num = std::to_string(i);
+    std::string SGAmpBypass = "SGAmpBypass_" + num;
+    std::string SGAmpGain = "SGAmpGain_" + num;
+
+    params.push_back(std::make_unique<juce::AudioParameterBool>(SGAmpBypass, "SGAmpBypass", false));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(SGAmpGain, "SGAmpGain", -30.f, 30.f, 0.f));
+}
+
+void CSmartGuitarAmp::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>>& params)
+{
+    //std::string SGAmpBypass = "SGAmpBypass";
+    //std::string SGAmpGain = "SGAmpGain";
+
+    //params.push_back(std::make_unique<juce::AudioParameterBool>(SGAmpBypass, "SGAmpBypass", false));
+    //params.push_back(std::make_unique<juce::AudioParameterFloat>(SGAmpGain, "SGAmpGain", -30.f, 30.f, 0.f));
+}
+
+CSmartGuitarAmp::CSmartGuitarAmp(juce::AudioProcessorValueTreeState* apvts, int instanceNumber) :
+    waveNet(1, 1, 1, 1, "linear", { 1 })
+{
+}
+
+CSmartGuitarAmp::CSmartGuitarAmp() :
+    waveNet(1, 1, 1, 1, "linear", { 1 })
+{
+}
+
+void CSmartGuitarAmp::update()
+{
+}
+
+void CSmartGuitarAmp::prepareToPlay(double sampleRate, int samplesPerBlock)
+{
+    waveNet.prepareToPlay(samplesPerBlock);
+    juce::File default_tone("C:/Users/thiag/Documents/Git-repos/MUSI6106-Project/plugin_framework/ProcessorGraphTest/Models/bias2_high_gain.json");
+    this->suspendProcessing(true);
+    WaveNetLoader loader(default_tone);
+    float levelAdjust = loader.levelAdjust;
+    int numChannels = loader.numChannels;
+    int inputChannels = loader.inputChannels;
+    int outputChannels = loader.outputChannels;
+    int filterWidth = loader.filterWidth;
+    std::vector<int> dilations = loader.dilations;
+    std::string activation = loader.activation;
+    waveNet.setParams(inputChannels, outputChannels, numChannels, filterWidth, activation, dilations, levelAdjust);
+    loader.loadVariables(waveNet);
+
+    isActive = true;
+    this->suspendProcessing(false);
+}
+
+void CSmartGuitarAmp::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer&)
+{
+    if (!isActive)
+        return;
+    if (isBypassed)
+        return;
+
+    buffer.applyGain(10.0);
+    waveNet.process(buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), buffer.getNumSamples());
+
+    for (int c = 1; c < buffer.getNumChannels(); ++c)
+        buffer.copyFrom(c, 0, buffer, 0, 0, buffer.getNumSamples());
+}
+
+void CSmartGuitarAmp::reset()
+{
+    waveNet.prepareToPlay(1024);
+}
+
+
+//================================================================================================================
+//  Cabinet Simulator Processor Node
+//================================================================================================================
+
+CabSimProcessor::CabSimProcessor(juce::AudioProcessorValueTreeState* apvts, int instanceNumber)
+{
+    m_pAPVTS = apvts;
+    suffix = "_" + std::to_string(instanceNumber);
+
+    auto dir = juce::File::getCurrentWorkingDirectory();
+
+    int numTries = 0;
+
+    while (!dir.getChildFile("Resources").exists() && numTries++ < 15)
+        dir = dir.getParentDirectory();
+
+    auto& convolution = convolutionCabSim;
+
+    convolution.loadImpulseResponse(dir.getChildFile("Resources").getChildFile("guitar_amp.wav"),
+        juce::dsp::Convolution::Stereo::yes,
+        juce::dsp::Convolution::Trim::no,
+        1024);
+}
+
+void CabSimProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
+{
+    auto channels = static_cast<juce::uint32> (fmin(getMainBusNumInputChannels(), getMainBusNumOutputChannels()));
+
+    juce::dsp::ProcessSpec spec{ sampleRate, static_cast<juce::uint32> (samplesPerBlock) };
+    convolutionCabSim.prepare(spec);
+}
+
+void CabSimProcessor::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer&)
+{
+    auto totalNumInputChannels = getTotalNumInputChannels();
+    auto totalNumOutputChannels = getTotalNumOutputChannels();
+
+    for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+        buffer.clear(i, 0, buffer.getNumSamples());
+
+    auto block = juce::dsp::AudioBlock<float>(buffer);
+    auto context = juce::dsp::ProcessContextReplacing<float>(block);
+    convolutionCabSim.process(context);
+}
+
+void CabSimProcessor::reset()
+{
+    convolutionCabSim.reset();
+}
 
 
