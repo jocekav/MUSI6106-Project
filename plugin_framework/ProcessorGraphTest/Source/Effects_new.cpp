@@ -49,17 +49,17 @@ void CEqualizerProcessor::addToParameterLayout(std::vector<std::unique_ptr<juce:
     //Low Mid
     params.push_back(std::make_unique<juce::AudioParameterFloat>(lomidf,"Low-Mid Centre Frequency",juce::NormalisableRange<float>(20.0f,300.0f,1.0f,0.8f),200.0f,"Hz",juce::AudioProcessorParameter::genericParameter,valueToTextFunction,textToValueFunction));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(lomidq,"Low-Mid Q",juce::NormalisableRange<float>(0.0f,20.0f,1.0f,0.25f),1.0f,"Q",juce::AudioProcessorParameter::genericParameter,valueToTextFunction,textToValueFunction));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(lomidgain,"Low-Mid Gain",juce::NormalisableRange<float>(-40.0f,40.0f),0.0f,"dB",juce::AudioProcessorParameter::genericParameter,valueToTextFunction,textToValueFunction));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(lomidgain, "Low-Mid Gain", -40.0f, 40.0f, -2.0f));
 
     //Mid
     params.push_back(std::make_unique<juce::AudioParameterFloat>(midf,"Mid Centre Frequency",juce::NormalisableRange<float>(250.0f,2500.0f,1.0f,0.5f),800.0f,"Hz",juce::AudioProcessorParameter::genericParameter,valueToTextFunction,textToValueFunction));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(midq,"Mid Q",juce::NormalisableRange<float>(0.0f,20.0f,1.0f,0.25f),1.0f,"Q",juce::AudioProcessorParameter::genericParameter,valueToTextFunction,textToValueFunction));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(midgain,"Mid Gain",juce::NormalisableRange<float>(-40.0f,40.0f),0.0f,"dB",juce::AudioProcessorParameter::genericParameter,valueToTextFunction,textToValueFunction));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(midgain, "Mid Gain", -40.0f, 40.0f, -2.0f));
 
     //High Mid
     params.push_back(std::make_unique<juce::AudioParameterFloat>(himidf,"High-Mid Centre Frequency",juce::NormalisableRange<float>(2000.0f,20000.0f,1.0f,0.5f),4000.0f,"Hz",juce::AudioProcessorParameter::genericParameter,valueToTextFunction,textToValueFunction));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(himidq,"High-Mid Q",juce::NormalisableRange<float>(0.0f,20.0f,1.0f,0.25f),1.0f,"Q",juce::AudioProcessorParameter::genericParameter,valueToTextFunction,textToValueFunction));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(himidgain,"High-Mid Gain",juce::NormalisableRange<float>(-40.0f,40.0f),0.0f,"dB",juce::AudioProcessorParameter::genericParameter,valueToTextFunction,textToValueFunction));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(himidgain, "High-Mid Gain", -40.0f, 40.0f, -2.0f ));
 
 }
 
@@ -146,9 +146,13 @@ void CEqualizerProcessor::update()
     {
         lowPass[channel].setCoefficients(juce::IIRCoefficients::makeLowPass (sr, lowPassFreq.getNextValue(),lowPassQ.getNextValue()));
         highPass[channel].setCoefficients(juce::IIRCoefficients::makeHighPass(sr, highPassFreq.getNextValue(), highPassQ.getNextValue()));
-        lowMid[channel].setCoefficients(juce::IIRCoefficients::makePeakFilter(sr, lowMidFreq.getNextValue(), lowMidQ.getNextValue(), juce::Decibels::decibelsToGain(lowMidGain.getNextValue())));
-        midFilter[channel].setCoefficients(juce::IIRCoefficients::makePeakFilter(sr, midFreq.getNextValue(), midQ.getNextValue(), juce::Decibels::decibelsToGain(midGain.getNextValue())));
-        highMid[channel].setCoefficients(juce::IIRCoefficients::makePeakFilter(sr, highMidFreq.getNextValue(), highMidQ.getNextValue(), juce::Decibels::decibelsToGain(highMidGain.getNextValue())));
+        float lowMidGainInDB = lowMidGain.getNextValue();
+        float midGainInDB = midGain.getNextValue();
+        float highMidGainInDB = highMidGain.getNextValue();
+
+        lowMid[channel].setCoefficients(juce::IIRCoefficients::makePeakFilter(sr, lowMidFreq.getNextValue(), lowMidQ.getNextValue(),juce::Decibels::decibelsToGain(lowMidGainInDB )));
+        midFilter[channel].setCoefficients(juce::IIRCoefficients::makePeakFilter(sr, midFreq.getNextValue(), midQ.getNextValue(), juce::Decibels::decibelsToGain(midGainInDB)));
+        highMid[channel].setCoefficients(juce::IIRCoefficients::makePeakFilter(sr, highMidFreq.getNextValue(), highMidQ.getNextValue(), juce::Decibels::decibelsToGain(highMidGainInDB)));
     }
     gainCorrection.setGainDecibels(1.99483f);
 }
@@ -206,12 +210,12 @@ void CCompressorProcessor::update()
 {
 
     isBypassed = static_cast<bool>(m_pAPVTS->getRawParameterValue("CompressorBypass"+suffix)->load());
-    inputgain.setTargetValue(juce::Decibels::decibelsToGain (m_pAPVTS->getRawParameterValue("CompressorInputGain"+suffix)->load()));
+    inputgain.setTargetValue((m_pAPVTS->getRawParameterValue("CompressorInputGain"+suffix)->load()));
     threshold.setTargetValue(m_pAPVTS->getRawParameterValue("CompressorThreshold"+suffix)->load());
     ratio.setTargetValue(m_pAPVTS->getRawParameterValue("CompressorRatio"+suffix)->load());
     attack.setTargetValue(m_pAPVTS->getRawParameterValue("CompressorAttack"+suffix)->load());
     release.setTargetValue(m_pAPVTS->getRawParameterValue("CompressorRelease"+suffix)->load());
-    makeupgain.setTargetValue(juce::Decibels::decibelsToGain (m_pAPVTS->getRawParameterValue("CompressorMakeupGain"+suffix)->load()));
+    makeupgain.setTargetValue((m_pAPVTS->getRawParameterValue("CompressorMakeupGain"+suffix)->load()));
 
     Compressor.setThreshold(threshold.getNextValue());
     Compressor.setRatio(ratio.getNextValue());
