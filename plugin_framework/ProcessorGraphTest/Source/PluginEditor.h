@@ -167,6 +167,7 @@ private:
         gateReleaseSliderLabel;
         
         CustomToggle gateBypassToggle;
+    APVTS::ButtonAttachment gateBypassAttachment;
         
         // Amp Components
 //        CustomRotarySlider ampDriveSlider,
@@ -215,6 +216,7 @@ private:
         rvbDampingSliderLabel;
         
         CustomToggle verbBypassToggle;
+    APVTS::ButtonAttachment verbBypassAttachment;
         
         // Compessor Components
         CustomRotarySlider compThresholdSlider,
@@ -236,6 +238,7 @@ private:
         compMakeUpGainSliderLabel;
         
         CustomToggle compBypassToggle;
+    APVTS::ButtonAttachment compBypassAttachment;
         
     // EQ Components
     CustomRotarySlider
@@ -283,6 +286,7 @@ private:
     eqHighMidGainSliderLabel;
 
         CustomToggle eqBypassToggle;
+    APVTS::ButtonAttachment eqBypassAttachment;
         
         // Phaser Components
         CustomRotarySlider phaserRateSlider,
@@ -304,6 +308,7 @@ private:
         phaserBlendSliderLabel;
         
         CustomToggle phaserBypassToggle;
+    APVTS::ButtonAttachment phaserBypassAttachment;
         
         
         juce::Label effectTitleLabel;
