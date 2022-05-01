@@ -68,17 +68,17 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    enum nodeIndex
-    {
-        InputGainNodeIndex,
-        NoiseGateNodeIndex,
-        //EqNodeIndex,
-        CompressorNodeIndex,
-        AmpNodeIndex,
-        ReverbNodeIndex,
-        PhaserNodeIndex,
-        OutputGainNodeIndex
-    };
+    //enum nodeIndex
+    //{
+    //    InputGainNodeIndex,
+    //    NoiseGateNodeIndex,
+    //    //EqNodeIndex,
+    //    CompressorNodeIndex,
+    //    AmpNodeIndex,
+    //    ReverbNodeIndex,
+    //    PhaserNodeIndex,
+    //    OutputGainNodeIndex
+    //};
 
     Node::Ptr inputGainNode;
     Node::Ptr noisegateNode;

@@ -178,8 +178,8 @@ bool ProcessorGraphTestAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* ProcessorGraphTestAudioProcessor::createEditor()
 {
-    return new ProcessorGraphTestAudioProcessorEditor (*this);
-//    return new juce::GenericAudioProcessorEditor (*this);
+//    return new ProcessorGraphTestAudioProcessorEditor (*this);
+    return new juce::GenericAudioProcessorEditor (*this);
 }
 
 //==============================================================================
@@ -274,6 +274,12 @@ void ProcessorGraphTestAudioProcessor::initialiseAudioNodes(juce::ReferenceCount
     phaserNode = mainProcessor->addNode(std::make_unique<CPhaserProcessor>(&apvts,0));
     audioNodeList.add(phaserNode);
 
+    AmpInterfaceNode = mainProcessor->addNode(std::make_unique<CAmpIf>(&apvts, 0));
+    audioNodeList.add(AmpInterfaceNode);
+
+    CabSimNode = mainProcessor->addNode(std::make_unique<CabSimProcessor>(&apvts, 0));
+    audioNodeList.add(CabSimNode);
+
     outputGainNode = mainProcessor->addNode(std::make_unique<CGainProcessor>(&apvts,1));
     audioNodeList.add(outputGainNode);
 
@@ -294,7 +300,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout ProcessorGraphTestAudioProce
     CDelayProcessor::addToParameterLayout(params, 0);
     CReverbProcessor::addToParameterLayout(params,0); // Reverb Params
     CPhaserProcessor::addToParameterLayout(params,0);
-
+    CAmpIf::addToParameterLayout(params, 0);
 
 //    CGainProcessor::addToParameterLayout(params); // Input Gain
 //    CNoiseGateProcessor::addToParameterLayout(params);
