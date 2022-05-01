@@ -299,8 +299,12 @@ TEST_CASE("bypass each effect", "[processor]")
     processor.processBlock(buffer, midi);
     ratio = checkBufferRatio(numChannels, numSamples, buffer, 0.5f);
     std::cout << "Reverb: " << ratio << std::endl;
+    
     processor.releaseResources();
-    bypassReverb = true;
+
+
+
+
 }
 
 
@@ -309,6 +313,116 @@ TEST_CASE("bypass each effect", "[processor]")
 //
 //make sure max and min values dont make the outputs exceed 1 - for all effects on at once
 //
+
+TEST_CASE("Check Max Parameters", "[processor]")
+{
+    constexpr auto numChannels = 2;
+    constexpr auto numSamples = 64;
+    auto midi = juce::MidiBuffer{};
+    auto buffer = juce::AudioBuffer<float>{ numChannels, numSamples };
+    ProcessorGraphTestAudioProcessor processor;
+
+    juce::Value bypassPhaser = processor.apvts.getParameterAsValue("PhaserBypass_0");
+    juce::Value bypassCompressor = processor.apvts.getParameterAsValue("CompressorBypass_0");
+    juce::Value bypassEqualizer = processor.apvts.getParameterAsValue("EqualizerBypass_0");
+    juce::Value bypassNoiseGate = processor.apvts.getParameterAsValue("NoiseGateBypass_0");
+    juce::Value bypassReverb = processor.apvts.getParameterAsValue("ReverbBypass_0");
+    juce::Value gain0 = processor.apvts.getParameterAsValue("GainValue_0");
+    juce::Value gain1 = processor.apvts.getParameterAsValue("GainValue_1");
+    gain0 = juce::Decibels::gainToDecibels(1);
+    gain1 = juce::Decibels::gainToDecibels(1);
+    bypassPhaser = true;
+    bypassCompressor = true;
+    bypassEqualizer = true;
+    bypassNoiseGate = true;
+    bypassReverb = true;
+
+    //juce::XmlElement::TextFormat text;
+    //std::cout << processor.apvts.state.toXmlString(text) << std::endl;
+    processor.prepareToPlay(44100.0, numSamples);
+
+    setBuffer(numChannels, numSamples, buffer, 1.0f);
+    processor.processBlock(buffer, midi);
+    float ratio = checkBufferRatio(numChannels, numSamples, buffer, 1.0f);
+    std::cout << "Ratio: " << ratio << std::endl;
+    processor.releaseResources();
+
+
+
+    ////////////////////
+   // PHASOR ON
+   ////////////////////
+    bypassPhaser = false;
+    std::cout << "about to preparetoplay" << std::endl;
+    processor.prepareToPlay(44100.0, numSamples);
+
+    setBuffer(numChannels, numSamples, buffer, 1.0f);
+    processor.processBlock(buffer, midi);
+
+    ratio = checkBufferRatio(numChannels, numSamples, buffer, 1.0f);
+    std::cout << "phasor: " << ratio << std::endl;
+    processor.releaseResources();
+    bypassPhaser = true;
+
+
+    ////////////////////
+    // COMPRESSOR ON
+    ////////////////////
+    bypassCompressor = false;
+
+    setBuffer(numChannels, numSamples, buffer, 1.0f);
+    processor.processBlock(buffer, midi);
+
+    ratio = checkBufferRatio(numChannels, numSamples, buffer, 1.0f);
+    std::cout << "Compressor: " << ratio << std::endl;
+    processor.releaseResources();
+    bypassCompressor = true;
+
+    ////////////////////
+    // EQ ON
+    ////////////////////
+    bypassEqualizer = false;
+    setBuffer(numChannels, numSamples, buffer, 1.0f);
+    processor.processBlock(buffer, midi);
+    ratio = checkBufferRatio(numChannels, numSamples, buffer, 1.0f);
+    std::cout << "Equalizer: " << ratio << std::endl;
+    processor.releaseResources();
+    bypassEqualizer = true;
+
+    ////////////////////
+    // NOISE GATE ON
+    ////////////////////
+    bypassNoiseGate = false;
+    setBuffer(numChannels, numSamples, buffer, 1.0f);
+    processor.processBlock(buffer, midi);
+    ratio = checkBufferRatio(numChannels, numSamples, buffer, 1.0f);
+    std::cout << "Gate: " << ratio << std::endl;
+    processor.releaseResources();
+    bypassNoiseGate = true;
+
+    ////////////////////
+    // REVERB ON
+    ////////////////////
+    bypassReverb = false;
+    setBuffer(numChannels, numSamples, buffer, 1.0f);
+    processor.processBlock(buffer, midi);
+    ratio = checkBufferRatio(numChannels, numSamples, buffer, 1.0f);
+    std::cout << "Reverb: " << ratio << std::endl;
+
+    processor.releaseResources();
+
+
+//
+}
+
+
+
+
+
+
+
+
+
 
 
 
