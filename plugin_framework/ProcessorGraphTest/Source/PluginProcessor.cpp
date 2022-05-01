@@ -112,9 +112,6 @@ void ProcessorGraphTestAudioProcessor::prepareToPlay (double sampleRate, int sam
         node->getProcessor()->prepareToPlay(sampleRate, samplesPerBlock);
         node->getProcessor()->enableAllBuses();
     }
-
-    juce::XmlElement::TextFormat text;
-    DBG(apvts.state.toXmlString(text));
 }
 
 void ProcessorGraphTestAudioProcessor::releaseResources()
@@ -168,7 +165,6 @@ void ProcessorGraphTestAudioProcessor::processBlock (juce::AudioBuffer<float>& b
             channelData[sample] = juce::jlimit(-1.0f, 1.0f,channelData[sample]);
         }
     }
-
 }
 
 //==============================================================================
@@ -321,8 +317,4 @@ juce::AudioProcessorValueTreeState::ParameterLayout ProcessorGraphTestAudioProce
 
     return { params.begin() , params.end() };
 }
-
-
-
-
 
