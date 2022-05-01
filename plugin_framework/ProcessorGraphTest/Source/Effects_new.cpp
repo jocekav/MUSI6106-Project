@@ -704,6 +704,10 @@ void CDelayProcessor::reset()
 
 //================================================================================================================
 
+//CAmpIf::CAmpIf(juce::AudioProcessorValueTreeState* apvts, int instanceNumber)
+//{
+//}
+
 CAmpIf::CAmpIf()
 {
     // this->update();
@@ -716,7 +720,7 @@ void CAmpIf::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioP
     std::string choice = "Amp_" + num;
 
     params.push_back(std::make_unique<juce::AudioParameterBool>(byp, "Bypass", false));
-    params.push_back(std::make_unique<juce::AudioParameterChoice>(choice, "Amp Model", juce::StringArray{ "TanhWaveshaping", "AnalogAmp", "SGAmp" }, 0));
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(choice, "Amp Model", juce::StringArray{ "BypassAmp", "TanhWaveshaping", "AnalogAmp" }, 0));
 }
 
 void CAmpIf::update()
@@ -777,8 +781,7 @@ void CAmpIf::reset()
 
 //================================================================================================================
 
-//CBypassAmp::CBypassAmp() {}
-//
+
 void CBypassAmp::prepareToPlay(double sampleRate, int samplesPerBlock) 
 {
 }
@@ -1044,7 +1047,3 @@ void CabSimProcessor::reset()
 {
     convolutionCabSim.reset();
 }
-
-
-
-
