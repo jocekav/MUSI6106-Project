@@ -48,6 +48,15 @@ struct LookAndFeel : juce::LookAndFeel_V4
                           float     maxSliderPos,
                           const juce::Slider::SliderStyle,
                           juce::Slider &) override;
+    void drawComboBox(juce::Graphics&,
+                      int     width,
+                      int     height,
+                      bool     isButtonDown,
+                      int ,
+                      int,
+                      int,
+                      int,
+                      juce::ComboBox &) override;
 };
 
 struct CustomRotarySlider : juce::Slider
@@ -101,6 +110,32 @@ private:
     juce::String suffix;
 };
 
+struct CustomComboBox : juce::ComboBox
+{
+    CustomComboBox(juce::RangedAudioParameter& rap, const juce::String& unitSuffix) : juce::ComboBox(),
+    param(&rap),
+    suffix(unitSuffix)
+    {
+        setLookAndFeel(&lnf);
+    }
+    
+    ~CustomComboBox()
+    {
+        setLookAndFeel(nullptr);
+    }
+    
+    void paint(juce::Graphics& g) override;
+    juce::Rectangle<int> getSliderBounds() const;
+    int getTextHeight() const { return 14; }
+    juce::String getDisplayString() const;
+private:
+    LookAndFeel lnf;
+    
+    juce::RangedAudioParameter* param;
+    juce::String suffix;
+};
+
+
 
 class ProcessorGraphTestAudioProcessorEditor  : public juce::AudioProcessorEditor
 {
@@ -150,7 +185,6 @@ private:
         
         APVTS::SliderAttachment inputGainSliderAttachment,
         outputGainSliderAttachment;
-
         
         // Noise Gate Components
         CustomRotarySlider gateThresholdSlider,
@@ -200,9 +234,11 @@ private:
 //        ampPostHpfSliderLabel;
 //
 //        juce::ComboBox ampTypeComboBox;
-//        APVTS::ComboBoxAttachment ampTypeComboBoxAttachment;
-//
+        CustomComboBox ampTypeComboBox;
+        APVTS::ComboBoxAttachment ampTypeComboBoxAttachment;
+
 //        CustomToggle ampBypassToggle;
+//    APVTS::ButtonAttachment ampBypassAttachment;
         
         // Reverb Components
         CustomRotarySlider rvbBlendSlider,

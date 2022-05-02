@@ -738,7 +738,8 @@ void CAmpIf::update()
     }
     else if (previousAmp != actualAmp)
     {
-        delete[] CAmp;
+        reset();
+//        delete[] CAmp;
         switch (actualAmp) {
         case BypassAmpIndex :
             CAmp = static_cast<ProcessorBase*> (new CBypassAmp());
@@ -1019,7 +1020,7 @@ CabSimProcessor::CabSimProcessor(juce::AudioProcessorValueTreeState* apvts, int 
 
     auto& convolution = convolutionCabSim;
 
-    convolution.loadImpulseResponse(dir.getChildFile("Resources").getChildFile("guitar_amp.wav"),
+    convolution.loadImpulseResponse(dir.getChildFile("Resources").getChildFile("Resources/guitar_amp.wav"),
         juce::dsp::Convolution::Stereo::yes,
         juce::dsp::Convolution::Trim::no,
         1024);
