@@ -923,26 +923,27 @@ std::array<float, 8> CPreampProcessorChain::tonestackCalcParam(double sampleRate
 //================================================================================================================
 void CSmartGuitarAmp::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>>& params, int i = 0)
 {
-    //std::string num = std::to_string(i);
-    //std::string SGAmpBypass = "SGAmpBypass_" + num;
-    //std::string SGAmpGain = "SGAmpGain_" + num;
+    std::string num = std::to_string(i);
+    std::string choice = "SGA_" + num;
 
-    //params.push_back(std::make_unique<juce::AudioParameterBool>(SGAmpBypass, "SGAmpBypass", false));
-    //params.push_back(std::make_unique<juce::AudioParameterFloat>(SGAmpGain, "SGAmpGain", -30.f, 30.f, 0.f));
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(choice, "SGA Model", juce::StringArray{ "Clean", "Crunch", "High Gain", "Full Drive" }, 0));
 }
 
-void CSmartGuitarAmp::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>>& params)
-{
-    //std::string SGAmpBypass = "SGAmpBypass";
-    //std::string SGAmpGain = "SGAmpGain";
-
-    //params.push_back(std::make_unique<juce::AudioParameterBool>(SGAmpBypass, "SGAmpBypass", false));
-    //params.push_back(std::make_unique<juce::AudioParameterFloat>(SGAmpGain, "SGAmpGain", -30.f, 30.f, 0.f));
-}
+//void CSmartGuitarAmp::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>>& params)
+//{
+//    //std::string SGAmpBypass = "SGAmpBypass";
+//    //std::string SGAmpGain = "SGAmpGain";
+//
+//    //params.push_back(std::make_unique<juce::AudioParameterBool>(SGAmpBypass, "SGAmpBypass", false));
+//    //params.push_back(std::make_unique<juce::AudioParameterFloat>(SGAmpGain, "SGAmpGain", -30.f, 30.f, 0.f));
+//}
 
 CSmartGuitarAmp::CSmartGuitarAmp(juce::AudioProcessorValueTreeState* apvts, int instanceNumber) :
     waveNet(1, 1, 1, 1, "linear", { 1 })
 {
+    m_pAPVTS = apvts;
+    suffix = "_" + std::to_string(instanceNumber);
+    this->update();
 }
 
 CSmartGuitarAmp::CSmartGuitarAmp() :
@@ -952,10 +953,44 @@ CSmartGuitarAmp::CSmartGuitarAmp() :
 
 void CSmartGuitarAmp::update()
 {
+    previousModel = actualModel;
+
+    actualModel = static_cast<SGAmodel> (m_pAPVTS->getRawParameterValue("SGA" + suffix)->load());
+
+    if (!isInit)
+    {
+        //CAmp = static_cast<ProcessorBase*> (new CBypassAmp());
+        isInit = true;
+    }
+    else if (previousModel != actualModel)
+    {
+        reset();
+
+        switch (actualModel) {
+        case CleanIndex:
+            //CAmp = static_cast<ProcessorBase*> (new CBypassAmp());
+        case CrunchIndex:
+            //CAmp = static_cast<ProcessorBase*> (new CTanhWaveshaping());
+            break;
+        case HighGainIndex:
+            //CAmp = static_cast<ProcessorBase*> (new CPreampProcessorChain());
+            break;
+        case FullDriveIndex:
+            //CAmp = static_cast<ProcessorBase*> (new CPreampProcessorChain());
+            break;
+        }
+        prepareToPlay(auxSampleRate, auxSamplesPerBlock);
+    }
+
 }
+
 
 void CSmartGuitarAmp::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
+    this->update();
+    auxSampleRate = sampleRate;
+    auxSamplesPerBlock = samplesPerBlock;
+
     waveNet.prepareToPlay(samplesPerBlock);
     juce::File default_tone("C:/Users/thiag/Documents/Git-repos/MUSI6106-Project/plugin_framework/ProcessorGraphTest/Models/bias2_high_gain.json");
     this->suspendProcessing(true);

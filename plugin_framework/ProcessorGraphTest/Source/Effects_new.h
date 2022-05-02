@@ -328,11 +328,24 @@ public:
     void update();
     juce::AudioProcessorValueTreeState* m_pAPVTS;
 private:
+
+    enum SGAmodel
+    {
+        CleanIndex,
+        CrunchIndex,
+        HighGainIndex,
+        FullDriveIndex,
+
+        NumModels
+    };
+    SGAmodel actualModel, previousModel;
+
     bool isBypassed = false;
-    juce::LinearSmoothedValue<float> inputgain, threshold, ratio, attack, release, makeupgain;
     bool isActive;
+    bool isInit = false;
 
     double auxSampleRate;
+    int auxSamplesPerBlock;
 
     float ampMaster = 1.0;
     WaveNet waveNet; // Amp Clean Channel / Lead Channel
