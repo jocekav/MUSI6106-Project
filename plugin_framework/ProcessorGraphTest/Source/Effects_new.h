@@ -183,7 +183,6 @@ public:
     void reset();
     void update();
     juce::AudioProcessorValueTreeState* m_pAPVTS;
-    //juce::StringArray processorChoices{ "Bypass", "TanhWaveshaping", "AnalogAmp", "SGAmp" };
 private:
 
     enum ampNode
@@ -225,7 +224,7 @@ class CBypassAmp : public CAmpIf
 {
 public:
     const juce::String getName() const override { return "BypassAmp" + suffix; }
-    CBypassAmp() {};
+    CBypassAmp();
     void prepareToPlay(double sampleRate, int samplesPerBlock) override;
     void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
     void reset() override;
@@ -268,11 +267,11 @@ private:
 //================================================================================================================
 //  Analog Tube Preamp Emulation Processor Nodes
 //================================================================================================================
-class CPreampProcessorChain : public CAmpIf
+class CAmpAnalogUsBlues : public CAmpIf
 {
 public:
     const juce::String getName() const override { return "AnalogAmp" + suffix; }
-    CPreampProcessorChain();
+    CAmpAnalogUsBlues();
     void prepareToPlay(double sampleRate, int samplesPerBlock) override;
     void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
     void reset() override;
@@ -325,9 +324,9 @@ private:
 class CSmartGuitarAmp : public ProcessorBase
 {
 public:
+    const juce::String getName() const override { return "SGAmp" + suffix; }
     static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>>& params, int i);
     static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>>& params);
-    const juce::String getName() const override { return "SGAmp" + suffix; }
     CSmartGuitarAmp(juce::AudioProcessorValueTreeState* apvts, int instanceNumber);
     CSmartGuitarAmp();
 
