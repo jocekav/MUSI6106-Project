@@ -68,7 +68,7 @@ void CEqualizerProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
     this->reset();
     this->update();
     juce::dsp::ProcessSpec spec { sampleRate, static_cast<juce::uint32> (samplesPerBlock), 2 };
-    gainCorrection.prepare(spec);
+    //gainCorrection.prepare(spec);
     isActive=true;
 }
 
@@ -100,7 +100,7 @@ void CEqualizerProcessor::processBlock(juce::AudioSampleBuffer& buffer, juce::Mi
     }
     juce::dsp::AudioBlock<float> block(buffer);
     juce::dsp::ProcessContextReplacing<float> context(block);
-    gainCorrection.process(context);
+    //gainCorrection.process(context);
 
 }
 
@@ -154,7 +154,7 @@ void CEqualizerProcessor::update()
         midFilter[channel].setCoefficients(juce::IIRCoefficients::makePeakFilter(sr, midFreq.getNextValue(), midQ.getNextValue(), juce::Decibels::decibelsToGain(midGainInDB)));
         highMid[channel].setCoefficients(juce::IIRCoefficients::makePeakFilter(sr, highMidFreq.getNextValue(), highMidQ.getNextValue(), juce::Decibels::decibelsToGain(highMidGainInDB)));
     }
-    gainCorrection.setGainDecibels(1.99483f);
+    //gainCorrection.setGainDecibels(1.0f);
 }
 
 
@@ -369,7 +369,7 @@ void CReverbProcessor::update()
     reverbParams.roomSize = roomsize.getNextValue();
 
     Reverb.setParameters(reverbParams);
-    gainCorrection.setGainDecibels(1.39541f);
+    //gainCorrection.setGainDecibels(1.0f);
 }
 
 void CReverbProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
@@ -377,7 +377,7 @@ void CReverbProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
     Reverb.reset();
     this->update();
     juce::dsp::ProcessSpec spec { sampleRate, static_cast<juce::uint32> (samplesPerBlock), 2 };
-    gainCorrection.prepare(spec);
+    //gainCorrection.prepare(spec);
     isActive=true;
 
 }
@@ -400,13 +400,13 @@ void CReverbProcessor::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiB
         Reverb.processStereo (buffer.getWritePointer (0), buffer.getWritePointer (1), buffer.getNumSamples());
     juce::dsp::AudioBlock<float> block(buffer);
     juce::dsp::ProcessContextReplacing<float> context(block);
-    gainCorrection.process(context);
+    //gainCorrection.process(context);
 }
 
 void CReverbProcessor::reset()
 {
     Reverb.reset();
-    gainCorrection.reset();
+    //gainCorrection.reset();
 }
 
 //================================================================================================================
@@ -461,14 +461,14 @@ void CPhaserProcessor::update()
     Phaser.setFeedback(feedback.getNextValue());
     Phaser.setMix(blend.getNextValue());
 
-    gainCorrection.setGainDecibels(2.12904f);
+    //gainCorrection.setGainDecibels(2.12904f);
 }
 
 void CPhaserProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     juce::dsp::ProcessSpec spec { sampleRate, static_cast<juce::uint32> (samplesPerBlock), 2 };
     Phaser.prepare(spec);
-    gainCorrection.prepare(spec);
+    //gainCorrection.prepare(spec);
 
     isActive=true;
 }
@@ -484,13 +484,13 @@ void CPhaserProcessor::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiB
     juce::dsp::ProcessContextReplacing<float> context(block);
 
     Phaser.process(context);
-    gainCorrection.process(context);
+    //gainCorrection.process(context);
 }
 
 void CPhaserProcessor::reset()
 {
     Phaser.reset();
-    gainCorrection.reset();
+    //gainCorrection.reset();
 }
 
 //================================================================================================================
