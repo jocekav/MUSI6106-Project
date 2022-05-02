@@ -173,9 +173,7 @@ private:
 class CAmpIf : public ProcessorBase
 {
 public:
-    CAmpIf(juce::AudioProcessorValueTreeState* apvts, int instanceNumber) : CAmp{ 0 } 
-    {
-    }
+    CAmpIf(juce::AudioProcessorValueTreeState* apvts, int instanceNumber);
     CAmpIf();
     static void addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>>& params, int i);
     const juce::String getName() const override { return "Bypass" + suffix; }

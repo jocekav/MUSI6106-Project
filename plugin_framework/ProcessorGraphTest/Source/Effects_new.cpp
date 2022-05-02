@@ -704,29 +704,31 @@ void CDelayProcessor::reset()
 
 //================================================================================================================
 
-//CAmpIf::CAmpIf(juce::AudioProcessorValueTreeState* apvts, int instanceNumber)
-//{
-//}
-
-CAmpIf::CAmpIf()
+CAmpIf::CAmpIf(juce::AudioProcessorValueTreeState* apvts, int instanceNumber) : actualAmp{ BypassAmpIndex }, previousAmp{ BypassAmpIndex }
 {
-    // this->update();
+    m_pAPVTS = apvts;
+    suffix = "_" + std::to_string(instanceNumber);
+    this->update();
+}
+
+CAmpIf::CAmpIf() : actualAmp{ BypassAmpIndex }, previousAmp{ BypassAmpIndex }
+{    
 }
 
 void CAmpIf::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>>& params, int i = 0)
 {
     std::string num = std::to_string(i);
-    std::string byp = "AmpBypass_" + num;
+    //std::string byp = "AmpBypass_" + num;
     std::string choice = "Amp_" + num;
 
-    params.push_back(std::make_unique<juce::AudioParameterBool>(byp, "Bypass", false));
+    //params.push_back(std::make_unique<juce::AudioParameterBool>(byp, "Bypass", false));
     params.push_back(std::make_unique<juce::AudioParameterChoice>(choice, "Amp Model", juce::StringArray{ "BypassAmp", "TanhWaveshaping", "AnalogAmp" }, 0));
 }
 
 void CAmpIf::update()
 {
     previousAmp = actualAmp;
-    isBypassed = m_pAPVTS->getRawParameterValue("AmpBypass" + suffix)->load();
+    //isBypassed = static_cast<bool>(m_pAPVTS->getRawParameterValue("AmpBypass" + suffix)->load());
     actualAmp = static_cast<ampNode> (m_pAPVTS->getRawParameterValue("Amp" + suffix)->load());
 
     if (!ampInit)
@@ -757,6 +759,7 @@ void CAmpIf::update()
 
 void CAmpIf::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
+    this->update();
     auxSampleRate = sampleRate;
     auxSamplesPerBlock = samplesPerBlock;
 
