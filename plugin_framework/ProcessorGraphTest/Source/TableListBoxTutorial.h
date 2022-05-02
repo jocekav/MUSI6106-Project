@@ -52,27 +52,31 @@ class TableTutorialComponent    : public juce::Component,
 public:
     TableTutorialComponent()
     {
-            loadData (juce::File("C:/Users/smjef/Github/MUSI6106-Project/plugin_framework/ProcessorGraphTest/Resources/TableData.xml"));                                             // [1]
+        auto dir = juce::File::getCurrentWorkingDirectory();
+        int numTries = 0;
+        while (!dir.getChildFile("Resources").exists() && numTries++ < 15)
+            dir = dir.getParentDirectory();
 
-            addAndMakeVisible (table);                                                  // [1]
+  
+        loadData (dir.getChildFile("Resources").getChildFile("TableData.xml"));                                             // [1]
 
-            table.setColour (juce::ListBox::outlineColourId, juce::Colours::grey);      // [2]
-            table.setOutlineThickness (1);
+        addAndMakeVisible (table);                                                  // [1]
 
-            if (columnList != nullptr)
+        table.setColour (juce::ListBox::outlineColourId, juce::Colours::grey);      // [2]
+        table.setOutlineThickness (1);
+
+        if (columnList != nullptr)
+        {
+            for (auto* columnXml : columnList->getChildIterator())
             {
-                for (auto* columnXml : columnList->getChildIterator())
-                {
-                    table.getHeader().addColumn (columnXml->getStringAttribute ("name"), // [2]
+                table.getHeader().addColumn (columnXml->getStringAttribute ("name"), // [2]
                                                  columnXml->getIntAttribute ("columnId"),
                                                  columnXml->getIntAttribute ("width"),
-                                                 50,
+                                                 100,
                                                  400,
                                                  juce::TableHeaderComponent::defaultFlags);
                 }
             }
-
-            table.getHeader().setSortColumnId (1, true);                                // [3]
 
             table.setMultipleSelectionEnabled (true);                                   // [4]
 
@@ -114,16 +118,7 @@ public:
         g.fillRect (width - 1, 0, 1, height);                                                                               // [7]
     }
 
-    void sortOrderChanged (int newSortColumnId, bool isForwards) override
-    {
-        if (newSortColumnId != 0)
-        {
-            TutorialDataSorter sorter (getAttributeNameForColumnId (newSortColumnId), isForwards);
-            dataList->sortChildElements (sorter);
 
-            table.updateContent();
-        }
-    }
 
     Component* refreshComponentForCell (int rowNumber, int columnId, bool /*isRowSelected*/,
                                         Component* existingComponentToUpdate) override
@@ -264,33 +259,8 @@ private:
         int row, columnId;
     };
 
-    //==============================================================================
-    class TutorialDataSorter
-    {
-    public:
-        TutorialDataSorter (const juce::String& attributeToSortBy, bool forwards)
-            : attributeToSort (attributeToSortBy),
-              direction (forwards ? 1 : -1)
-        {}
+   
 
-        int compareElements (juce::XmlElement* first, juce::XmlElement* second) const
-        {
-            auto result = first->getStringAttribute (attributeToSort)
-                                .compareNatural (second->getStringAttribute (attributeToSort)); // [1]
-
-            if (result == 0)
-                result = first->getStringAttribute ("ID")
-                               .compareNatural (second->getStringAttribute ("ID"));             // [2]
-
-            return direction * result;                                                          // [3]
-        }
-
-    private:
-        juce::String attributeToSort;
-        int direction;
-    };
-
-    //==============================================================================
     void loadData (juce::File tableFile)
     {
         if (tableFile == juce::File() || ! tableFile.exists())
