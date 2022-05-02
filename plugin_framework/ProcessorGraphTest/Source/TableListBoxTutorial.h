@@ -52,9 +52,7 @@ class TableTutorialComponent    : public juce::Component,
 public:
     TableTutorialComponent()
     {
-        const auto callback = [this] (const juce::FileChooser& chooser)
-        {
-            loadData (chooser.getResult());                                             // [1]
+            loadData (juce::File("C:/Users/smjef/Github/MUSI6106-Project/plugin_framework/ProcessorGraphTest/Resources/TableData.xml"));                                             // [1]
 
             addAndMakeVisible (table);                                                  // [1]
 
@@ -79,11 +77,9 @@ public:
             table.setMultipleSelectionEnabled (true);                                   // [4]
 
             resized();
-        };
+        
 
-        fileChooser.launchAsync (  juce::FileBrowserComponent::openMode
-                                 | juce::FileBrowserComponent::canSelectFiles,
-                                 callback);
+     
     }
 
     int getNumRows() override
@@ -132,7 +128,7 @@ public:
     Component* refreshComponentForCell (int rowNumber, int columnId, bool /*isRowSelected*/,
                                         Component* existingComponentToUpdate) override
     {
-        if (columnId == 9)  // [8]
+        if (columnId == 2)  // [8]
         {
             auto* selectionBox = static_cast<SelectionColumnCustomComponent*> (existingComponentToUpdate);
 
@@ -143,24 +139,13 @@ public:
             return selectionBox;
         }
 
-        if (columnId == 8)  // [9]
-        {
-            auto* textLabel = static_cast<EditableTextCustomComponent*> (existingComponentToUpdate);
-
-            if (textLabel == nullptr)
-                textLabel = new EditableTextCustomComponent (*this);
-
-            textLabel->setRowAndColumn (rowNumber, columnId);
-            return textLabel;
-        }
-
         jassert (existingComponentToUpdate == nullptr);
         return nullptr;     // [10]
     }
 
     int getColumnAutoSizeWidth (int columnId) override
     {
-        if (columnId == 9)
+        if (columnId == 2)
             return 50;
 
         int widest = 32;
@@ -331,8 +316,7 @@ private:
     }
 
     juce::FileChooser fileChooser { "Browse for TableData.xml",
-                                    juce::File::getSpecialLocation (juce::File::invokedExecutableFile) };
-
+                                    juce::File::getSpecialLocation(juce::File::invokedExecutableFile) };
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TableTutorialComponent)
 };
 
