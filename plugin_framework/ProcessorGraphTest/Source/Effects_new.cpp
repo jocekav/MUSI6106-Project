@@ -747,9 +747,6 @@ void CAmpIf::update()
         case AnalogAmpIndex:
             CAmp = static_cast<ProcessorBase*> (new CPreampProcessorChain());
             break;
-        case SGAIndex:
-            CAmp = static_cast<ProcessorBase*> (new CSmartGuitarAmp());
-            break;
         }
         CAmp->prepareToPlay(auxSampleRate, auxSamplesPerBlock);
     }
@@ -803,7 +800,6 @@ CTanhWaveshaping::CTanhWaveshaping()
     waveshaper.functionToUse = [](float x) { return std::tanh(x); };
 
     auto& preGain = TanhProcessorChain.template get<preGainIndex>();
-    preGain.setGainDecibels(10.0f);
     auto& postGain = TanhProcessorChain.template get<postGainIndex>();
     postGain.setGainDecibels(0.0f);
 }
@@ -1016,7 +1012,7 @@ CabSimProcessor::CabSimProcessor(juce::AudioProcessorValueTreeState* apvts, int 
 
     auto& convolution = convolutionCabSim;
 
-    convolution.loadImpulseResponse(dir.getChildFile("Resources").getChildFile("guitar_amp.wav"),
+    convolution.loadImpulseResponse(dir.getChildFile("Resources").getChildFile("Resources/guitar_amp.wav"),
         juce::dsp::Convolution::Stereo::yes,
         juce::dsp::Convolution::Trim::no,
         1024);

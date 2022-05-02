@@ -115,9 +115,9 @@ void LookAndFeel::drawToggleButton (juce::Graphics &g,
     bool toggleState = toggle.getToggleState();
     
     
-    if (auto* customSlider = dynamic_cast<CustomToggle*>(&toggle))
+    if (auto* customToggle = dynamic_cast<CustomToggle*>(&toggle))
     {
-        auto color = toggleState ? juce::Colour(196u, 196u, 196u) : juce::Colour(109u, 103u, 95u);
+        auto color = toggleState ? juce::Colour(196u, 196u, 196u) : juce::Colour(66u, 245u, 72u);
         g.setColour(color);
         g.fillRect(bounds);
     }
@@ -149,9 +149,49 @@ void LookAndFeel::drawToggleButton (juce::Graphics &g,
 
 }
 
+void LookAndFeel::drawComboBox(juce::Graphics& g,
+                  int     width,
+                  int     height,
+                  bool    isButtonDown,
+                  int     ,
+                  int     ,
+                  int     ,
+                  int     ,
+                  juce::ComboBox &box)
+{
+    using namespace juce;
+    
+    auto cornerSize = 0.0f;
+    Rectangle<int> boxBounds (0, 0, width, height);
+
+    g.setColour (juce::Colour(134u, 130u, 124u));
+    g.fillRoundedRectangle (boxBounds.toFloat(), cornerSize);
+
+    g.setColour (Colours::white);
+    g.drawRoundedRectangle (boxBounds.toFloat().reduced (0.5f, 0.5f), cornerSize, 1.0f);
+
+    Rectangle<int> arrowZone (width - 30, 0, 20, height);
+    Path path;
+    path.startNewSubPath ((float) arrowZone.getX() + 3.0f, (float) arrowZone.getCentreY() - 2.0f);
+    path.lineTo ((float) arrowZone.getCentreX(), (float) arrowZone.getCentreY() + 3.0f);
+    path.lineTo ((float) arrowZone.getRight() - 3.0f, (float) arrowZone.getCentreY() - 2.0f);
+
+    g.setColour (box.findColour (ComboBox::arrowColourId).withAlpha ((box.isEnabled() ? 0.9f : 0.2f)));
+    g.strokePath (path, PathStrokeType (2.0f));
+}
+
 void CustomToggle::paint(juce::Graphics &g)
 {
     getLookAndFeel().drawToggleButton(g, *this, false, false);
+}
+
+void CustomComboBox::paint(juce::Graphics &g)
+{
+    getLookAndFeel().drawComboBox(g,
+                                  getLocalBounds().getWidth(),
+                                  getLocalBounds().getHeight(),
+                                  false, 1, 1, 1, 1,
+                                  *this);
 }
 
 void CustomRotarySlider::paint(juce::Graphics &g)
@@ -300,6 +340,9 @@ eqBypassAttachment(audioProcessor.apvts, "EqualizerBypass_0", eqBypassToggle),
 
 //Amp Attachments
 //ampBypassToggle(*audioProcessor.apvts.getParameter("ampBypass"), ""),
+//ampBypassAttachment(audioProcessor.apvts, "AmpBypass", ampBypassToggle),
+ampTypeComboBox(*audioProcessor.apvts.getParameter("Amp_0"), ""),
+ampTypeComboBoxAttachment(audioProcessor.apvts, "Amp_0", ampTypeComboBox),
 
 //Delay Attachments
 delayTimeSlider(*audioProcessor.apvts.getParameter("DelayTime_0"), "%"),
@@ -432,7 +475,7 @@ void ProcessorGraphTestAudioProcessorEditor::resized()
     drawEQ();
     drawPhaser();
     drawDelay();
-//    drawAmp();
+    drawAmp();
         
     compressorButton.setState(juce::Button::ButtonState::buttonDown);
 }
@@ -723,6 +766,28 @@ void ProcessorGraphTestAudioProcessorEditor::drawDelay()
     
 }
 
+void ProcessorGraphTestAudioProcessorEditor::drawAmp()
+{
+    auto bounds = getLocalBounds();
+    auto responseArea = bounds.removeFromBottom(bounds.getHeight() * 0.5);
+
+    auto labelArea = bounds.removeFromTop(bounds.getHeight() * .33);
+    effectTitleLabel.setBounds(labelArea.getX() + 10, labelArea.getY() + 10, labelArea.getWidth() - 20, labelArea.getHeight() - 20);
+    effectTitleLabel.setFont(juce::Font(32.f, juce::Font::bold));
+    effectTitleLabel.setText("OUR AMP", juce::dontSendNotification);
+    effectTitleLabel.setColour (juce::Label::textColourId, juce::Colours::white);
+    effectTitleLabel.setJustificationType (juce::Justification::left);
+    
+//    ampTypeComboBox.setBounds(bounds.getX() - 20, bounds.getY() + (bounds.getHeight() / 4), bounds.getWidth(), bounds.getHeight() / 4);
+    ampTypeComboBox.setBounds(bounds.getX() + 50, bounds.getY() + (bounds.getHeight() / 4), bounds.getWidth() - 100, bounds.getHeight() / 4);
+    juce::StringArray strArray ( {"TanhWaveshaping", "AnalogAmp", "SGAmp" });
+    for (int i = 0; i < strArray.size(); i++) {
+        ampTypeComboBox.addItem(strArray[i], i+1);
+    }
+    
+    
+}
+
 void ProcessorGraphTestAudioProcessorEditor::updateToggleState(juce::Button* button)
 {
     bool showGate = false;
@@ -898,7 +963,7 @@ std::vector<juce::Component*> ProcessorGraphTestAudioProcessorEditor::getAmpComp
 //        &ampEmphasisGainSliderLabel,
 //        &ampPostLpfSliderLabel,
 //        &ampPostHpfSliderLabel,
-//        &ampTypeComboBox
+        &ampTypeComboBox
     };
 }
 
