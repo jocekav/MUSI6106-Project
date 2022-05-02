@@ -22,6 +22,7 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <juce_gui_extra/juce_gui_extra.h>
 #include "PluginProcessor.h"
+#include "TableListBoxTutorial.h"
 
 //==============================================================================
 /**
@@ -80,7 +81,6 @@ struct CustomRotarySlider : juce::Slider
     juce::String getDisplayString() const;
 private:
     LookAndFeel lnf;
-    
     juce::RangedAudioParameter* param;
     juce::String suffix;
 };
@@ -136,7 +136,6 @@ private:
 };
 
 
-
 class ProcessorGraphTestAudioProcessorEditor  : public juce::AudioProcessorEditor,
 public juce::Button::Listener
 {
@@ -157,6 +156,9 @@ public:
     void drawPhaser();
     void drawDelay();
     
+    void loadData();
+    
+    
     enum RadioButtonIDs
     {
         EffectShown = 1001
@@ -169,6 +171,8 @@ private:
     
     // Effect chain buttons
         juce::TextButton presetPopUpButton;
+        TableTutorialComponent presetTable;
+        bool showTable = false;
         
         juce::ToggleButton gateButton,
         ampButton,
@@ -361,8 +365,6 @@ private:
     
     CustomToggle delayBypassToggle;
     APVTS::ButtonAttachment delayBypassAttachment;
-    
-//    CustomComboBox presetComboBox;
     
         
     juce::Label effectTitleLabel;

@@ -3,8 +3,8 @@
 //
 #include "BaseProcessor.h"
 #include "juce_TriodeWaveShaper.h"
-#include "./sga/WaveNet.h"
-#include "./sga/WaveNetLoader.h"
+#include "./SGA/WaveNet.h"
+#include "./SGA/WaveNetLoader.h"
 
 #ifndef PROCESSORGRAPHTEST_EFFECTS_NEW_H
 #define PROCESSORGRAPHTEST_EFFECTS_NEW_H
