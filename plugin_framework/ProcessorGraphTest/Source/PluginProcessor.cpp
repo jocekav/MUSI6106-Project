@@ -179,8 +179,8 @@ bool ProcessorGraphTestAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* ProcessorGraphTestAudioProcessor::createEditor()
 {
-    return new ProcessorGraphTestAudioProcessorEditor (*this);
-//    return new juce::GenericAudioProcessorEditor (*this);
+    //return new ProcessorGraphTestAudioProcessorEditor (*this);
+    return new juce::GenericAudioProcessorEditor (*this);
 }
 
 //==============================================================================
@@ -278,8 +278,11 @@ void ProcessorGraphTestAudioProcessor::initialiseAudioNodes(juce::ReferenceCount
     AmpInterfaceNode = mainProcessor->addNode(std::make_unique<CAmpIf>(&apvts, 0));
     audioNodeList.add(AmpInterfaceNode);
 
-    CabSimNode = mainProcessor->addNode(std::make_unique<CabSimProcessor>(&apvts, 0));
-    audioNodeList.add(CabSimNode);
+    //CabSimNode = mainProcessor->addNode(std::make_unique<CabSimProcessor>(&apvts, 0));
+    //audioNodeList.add(CabSimNode);
+
+    SGANode = mainProcessor->addNode(std::make_unique<CSmartGuitarAmp>(&apvts, 0));
+    audioNodeList.add(SGANode);
 
     outputGainNode = mainProcessor->addNode(std::make_unique<CGainProcessor>(&apvts,1));
     audioNodeList.add(outputGainNode);

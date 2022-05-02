@@ -91,6 +91,7 @@ public:
 
     Node::Ptr AmpInterfaceNode;
     Node::Ptr CabSimNode;
+    Node::Ptr SGANode;
 
 
 

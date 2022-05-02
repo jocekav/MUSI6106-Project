@@ -1085,7 +1085,7 @@ void CSmartGuitarAmp::prepareToPlay(double sampleRate, int samplesPerBlock)
     auxSampleRate = sampleRate;
     auxSamplesPerBlock = samplesPerBlock;   
     waveNet.prepareToPlay(samplesPerBlock);
-    juce::File default_tone("C:/Users/thiag/Documents/Git-repos/MUSI6106-Project/plugin_framework/ProcessorGraphTest/Models/bias2_high_gain.json");
+    juce::File default_tone("C:/Users/smjef/Github/MUSI6106-Project/plugin_framework/ProcessorGraphTest/Models/bias2_high_gain.json");
     this->suspendProcessing(true);
     WaveNetLoader loader(default_tone);
     float levelAdjust = loader.levelAdjust;
