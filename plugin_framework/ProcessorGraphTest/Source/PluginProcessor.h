@@ -82,15 +82,16 @@ public:
 
     Node::Ptr inputGainNode;
     Node::Ptr noisegateNode;
-    //Node::Ptr eqNode;
+    Node::Ptr eqNode;
     Node::Ptr compressorNode;
-
+    Node::Ptr delayNode;
     Node::Ptr reverbNode;
     Node::Ptr phaserNode;
     Node::Ptr outputGainNode;
 
     Node::Ptr AmpInterfaceNode;
-//    Node::Ptr CabSimNode;
+    Node::Ptr CabSimNode;
+        ;
 
 
     juce::AudioProcessorValueTreeState apvts;

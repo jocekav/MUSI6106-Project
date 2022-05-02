@@ -1055,8 +1055,8 @@ CabSimProcessor::CabSimProcessor(juce::AudioProcessorValueTreeState* apvts, int 
 
     auto& convolution = convolutionCabSim;
 
-    convolution.loadImpulseResponse(dir.getChildFile("Resources").getChildFile("Resources/guitar_amp.wav"),
-        juce::dsp::Convolution::Stereo::yes,
+    convolution.loadImpulseResponse(dir.getChildFile("Resources").getChildFile("guitar_amp.wav"),
+        juce::dsp::Convolution::Stereo::no,
         juce::dsp::Convolution::Trim::no,
         1024);
 }
