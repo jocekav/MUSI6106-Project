@@ -91,7 +91,19 @@ public:
 
     Node::Ptr AmpInterfaceNode;
     Node::Ptr CabSimNode;
-        ;
+
+
+
+    juce::AudioParameterFloat *prmInput, *prmDrive, *prmMix, *prmOutput;
+    juce::AudioParameterChoice *m_distortionType;
+
+    juce::AudioParameterFloat *prmPreLP, *prmPreHP;
+    juce::AudioParameterFloat *prmPostLP, *prmPostHP;
+
+    juce::AudioParameterFloat *prmEPfreq;
+    juce::AudioParameterFloat *prmEPgain;
+
+        
 
 
     juce::AudioProcessorValueTreeState apvts;
@@ -108,6 +120,8 @@ private:
         SGAIndex
     };
 
+    juce::LinearSmoothedValue<float> driveVolume, dryVolume, wetVolume;
+    juce::AudioBuffer<float> mixBuffer;
 
     //juce::AudioParameterChoice* AmpSlot = (new juce::AudioParameterChoice("slot1", "Slot 1", processorChoices, 0));
 

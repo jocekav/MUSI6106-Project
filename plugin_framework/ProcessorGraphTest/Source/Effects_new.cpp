@@ -708,6 +708,11 @@ CAmpIf::CAmpIf(juce::AudioProcessorValueTreeState* apvts, int instanceNumber) : 
 {
     m_pAPVTS = apvts;
     suffix = "_" + std::to_string(instanceNumber);
+
+
+  //addParameter (prmDrive = new juce::AudioParameterFloat ("DRIVE", "Drive", {0.f, 40.f}, 20.f, "dB"));
+  //  addParameter (prmMix = new juce::AudioParameterFloat ("MIX", "Mix", {0.f, 100.f}, 100.f, "%"));
+
     this->update();
 }
 
@@ -725,6 +730,23 @@ void CAmpIf::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioP
 
 void CAmpIf::update()
 {
+   // driveVolume.setTargetValue (juce::Decibels::decibelsToGain (prmDrive->get()));
+   //auto mix = prmMix->get() * 0.01f;
+   //dryVolume.setTargetValue (1.f - mix);
+   //wetVolume.setTargetValue (mix);
+   // ------------------------------------------------------------------------------------------
+   //*preLowPassFilter.state = *juce::dsp::IIR::Coefficients<float>::makeFirstOrderLowPass (getSampleRate(), prmPreLP->get());
+   //*preHighPassFilter.state = *juce::dsp::IIR::Coefficients<float>::makeFirstOrderHighPass (getSampleRate(), prmPreHP->get());
+   //*postLowPassFilter.state = *juce::dsp::IIR::Coefficients<float>::makeFirstOrderLowPass (getSampleRate(), prmPostLP->get());
+   //*postHighPassFilter.state = *juce::dsp::IIR::Coefficients<float>::makeFirstOrderHighPass (getSampleRate(), prmPostHP->get());
+   //*preEmphasisFilter.state = *juce::dsp::IIR::Coefficients<float>::makeLowShelf (getSampleRate(), prmEPfreq->get(),1.f / sqrt (2.f), juce::Decibels::decibelsToGain (prmEPgain->get()));
+   //*postEmphasisFilter.state = *juce::dsp::IIR::Coefficients<float>::makeLowShelf (getSampleRate(), prmEPfreq->get(),1.f / sqrt (2.f), juce::Decibels::decibelsToGain (-prmEPgain->get()));
+   //*tubeLowPassFilter.state = *juce::dsp::IIR::Coefficients<float>::makeFirstOrderLowPass(getSampleRate(), 15000);
+   //*tubeHighPassFilter.state = *juce::dsp::IIR::Coefficients<float>::makeFirstOrderHighPass(getSampleRate(), 45);
+
+
+
+
     previousAmp = actualAmp;
 
     actualAmp = static_cast<ampNode> (m_pAPVTS->getRawParameterValue("Amp" + suffix)->load());
@@ -762,6 +784,19 @@ void CAmpIf::prepareToPlay(double sampleRate, int samplesPerBlock)
     this->update();
     auxSampleRate = sampleRate;
     auxSamplesPerBlock = samplesPerBlock;
+    auto numChannels = static_cast<juce::uint32> (fmin (getMainBusNumInputChannels(), getMainBusNumOutputChannels()));
+    juce::dsp::ProcessSpec spec { sampleRate, static_cast<juce::uint32> (samplesPerBlock), numChannels};
+
+
+
+    preLowPassFilter.prepare (spec);
+    preHighPassFilter.prepare (spec);
+    postLowPassFilter.prepare (spec);
+    postHighPassFilter.prepare (spec);
+
+    preEmphasisFilter.prepare (spec);
+    postEmphasisFilter.prepare (spec);
+    mixBuffer.setSize (static_cast<int>(numChannels), samplesPerBlock);
 
     CAmp->prepareToPlay(sampleRate, samplesPerBlock);
 }
@@ -773,12 +808,61 @@ void CAmpIf::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer& mid
         return;
     if (isBypassed)
         return;
+
+
+
+
+ // Pre-Filtering
+    // ------------------------------------------------------------------------------------------
+    //preLowPassFilter.process (context);
+    //preHighPassFilter.process (context);
+    //preEmphasisFilter.process (context);
+
+
+    // Drive Volume
+    // ------------------------------------------------------------------------------------------
+    //driveVolume.applyGain (buffer, numSamples);
+
+    // ADD DISTORTION
+    // ------------------------------------------------------------------------------------------
+    //m_pCDistortion->process(buffer);
+
+    // Post-Filtering
+    // ------------------------------------------------------------------------------------------
+    //postLowPassFilter.process (context);
+    //postHighPassFilter.process (context);
+    //postEmphasisFilter.process (context);
+
+
+    // Mix processing
+    // ------------------------------------------------------------------------------------------
+    //dryVolume.applyGain (mixBuffer, numSamples);
+    //wetVolume.applyGain (buffer, numSamples);
+
+    
     CAmp->processBlock(buffer, midiBuffer);
+
+
+    
+
 
 }
 
 void CAmpIf::reset()
 {
+    //mixBuffer.applyGain (0.f);
+
+    //driveVolume.reset (getSampleRate(), 0.05);
+    //dryVolume.reset (getSampleRate(), 0.05);
+    //wetVolume.reset (getSampleRate(), 0.05);
+
+    //preLowPassFilter.reset();
+    //preHighPassFilter.reset();
+    //postLowPassFilter.reset();
+    //postHighPassFilter.reset();
+
+    //preEmphasisFilter.reset();
+    //postEmphasisFilter.reset();
     CAmp->reset();
 }
 
@@ -935,16 +1019,19 @@ void CSmartGuitarAmp::addToParameterLayout(std::vector<std::unique_ptr<juce::Ran
     std::string choice = "SGA_" + num;
 
     params.push_back(std::make_unique<juce::AudioParameterChoice>(choice, "SGA Model", juce::StringArray{ "Clean", "Crunch", "High Gain", "Full Drive" }, 0));
+
+    //params.push_back(std::make_unique<juce::AudioParameterBool>(SGAmpBypass, "SGAmpBypass", false));
+    //params.push_back(std::make_unique<juce::AudioParameterFloat>(SGAmpGain, "SGAmpGain", -30.f, 30.f, 0.f));
 }
 
-//void CSmartGuitarAmp::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>>& params)
-//{
-//    //std::string SGAmpBypass = "SGAmpBypass";
-//    //std::string SGAmpGain = "SGAmpGain";
-//
-//    //params.push_back(std::make_unique<juce::AudioParameterBool>(SGAmpBypass, "SGAmpBypass", false));
-//    //params.push_back(std::make_unique<juce::AudioParameterFloat>(SGAmpGain, "SGAmpGain", -30.f, 30.f, 0.f));
-//}
+void CSmartGuitarAmp::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>>& params)
+{
+    //std::string SGAmpBypass = "SGAmpBypass";
+    //std::string SGAmpGain = "SGAmpGain";
+
+    //params.push_back(std::make_unique<juce::AudioParameterBool>(SGAmpBypass, "SGAmpBypass", false));
+    //params.push_back(std::make_unique<juce::AudioParameterFloat>(SGAmpGain, "SGAmpGain", -30.f, 30.f, 0.f));
+}
 
 CSmartGuitarAmp::CSmartGuitarAmp(juce::AudioProcessorValueTreeState* apvts, int instanceNumber) :
     waveNet(1, 1, 1, 1, "linear", { 1 })
@@ -992,13 +1079,11 @@ void CSmartGuitarAmp::update()
 
 }
 
-
 void CSmartGuitarAmp::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     this->update();
     auxSampleRate = sampleRate;
-    auxSamplesPerBlock = samplesPerBlock;
-
+    auxSamplesPerBlock = samplesPerBlock;   
     waveNet.prepareToPlay(samplesPerBlock);
     juce::File default_tone("C:/Users/thiag/Documents/Git-repos/MUSI6106-Project/plugin_framework/ProcessorGraphTest/Models/bias2_high_gain.json");
     this->suspendProcessing(true);
