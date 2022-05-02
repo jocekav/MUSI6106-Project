@@ -277,8 +277,8 @@ void ProcessorGraphTestAudioProcessor::initialiseAudioNodes(juce::ReferenceCount
     AmpInterfaceNode = mainProcessor->addNode(std::make_unique<CAmpIf>(&apvts, 0));
     audioNodeList.add(AmpInterfaceNode);
 
-    CabSimNode = mainProcessor->addNode(std::make_unique<CabSimProcessor>(&apvts, 0));
-    audioNodeList.add(CabSimNode);
+    //CabSimNode = mainProcessor->addNode(std::make_unique<CabSimProcessor>(&apvts, 0));
+    //audioNodeList.add(CabSimNode);
 
     outputGainNode = mainProcessor->addNode(std::make_unique<CGainProcessor>(&apvts,1));
     audioNodeList.add(outputGainNode);
