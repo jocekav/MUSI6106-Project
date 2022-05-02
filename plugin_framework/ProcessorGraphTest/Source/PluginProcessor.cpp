@@ -115,6 +115,7 @@ void ProcessorGraphTestAudioProcessor::prepareToPlay (double sampleRate, int sam
 
     juce::XmlElement::TextFormat text;
     DBG(apvts.state.toXmlString(text));
+    
 }
 
 void ProcessorGraphTestAudioProcessor::releaseResources()
@@ -178,8 +179,8 @@ bool ProcessorGraphTestAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* ProcessorGraphTestAudioProcessor::createEditor()
 {
-//    return new ProcessorGraphTestAudioProcessorEditor (*this);
-    return new juce::GenericAudioProcessorEditor (*this);
+    return new ProcessorGraphTestAudioProcessorEditor (*this);
+//    return new juce::GenericAudioProcessorEditor (*this);
 }
 
 //==============================================================================

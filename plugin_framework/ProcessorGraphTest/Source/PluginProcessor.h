@@ -91,7 +91,6 @@ public:
 
     Node::Ptr AmpInterfaceNode;
 //    Node::Ptr CabSimNode;
-        ;
 
 
     juce::AudioProcessorValueTreeState apvts;

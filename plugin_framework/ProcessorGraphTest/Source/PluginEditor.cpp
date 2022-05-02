@@ -395,6 +395,10 @@ delayButton("DELAY")
      
      verbButton.setState(juce::Button::ButtonState::buttonDown);
     
+    addAndMakeVisible (presetPopUpButton);
+    presetPopUpButton.setButtonText ("Select A Preset");
+    presetPopUpButton.addListener(this);
+    
     setSize (700, 500);
 }
 
@@ -432,6 +436,7 @@ void ProcessorGraphTestAudioProcessorEditor::resized()
     
     auto bounds = getLocalBounds();
     auto chainBounds = bounds.removeFromBottom(bounds.getHeight() * 0.5);
+    
     chainBounds.setBounds(chainBounds.getX() + 40, chainBounds.getY() + chainBounds.getHeight() / 3 - 10, chainBounds.getWidth() - 60, chainBounds.getHeight() / 4);
     auto gateArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 7);
     auto compArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 6);
@@ -469,6 +474,10 @@ void ProcessorGraphTestAudioProcessorEditor::resized()
     
     outputGainSlider.setBounds(outputArea);
     
+    bounds = getLocalBounds();
+    auto presetButtonArea = bounds.removeFromBottom(bounds.getHeight() * 0.1);
+    presetPopUpButton.setBounds(presetButtonArea.getX() + (presetButtonArea.getWidth() * 0.5) - (presetButtonArea.getWidth() * 0.25) / 2, presetButtonArea.getY() - 20, presetButtonArea.getWidth() * 0.25, presetButtonArea.getHeight());
+    
     drawNoiseGate();
     drawReverb();
     drawCompressor();
@@ -478,6 +487,21 @@ void ProcessorGraphTestAudioProcessorEditor::resized()
     drawAmp();
         
     compressorButton.setState(juce::Button::ButtonState::buttonDown);
+}
+
+void ProcessorGraphTestAudioProcessorEditor::buttonClicked (juce::Button* button)
+{
+    if (button == &presetPopUpButton)
+    {
+        juce::PopupMenu menu;
+
+        menu.addItem(1, "Item1");
+        menu.addItem(2, "Item2");
+        menu.showMenuAsync(juce::PopupMenu::Options(), [this](int action)
+        {
+
+        });
+    }
 }
 
 void ProcessorGraphTestAudioProcessorEditor::drawNoiseGate()
