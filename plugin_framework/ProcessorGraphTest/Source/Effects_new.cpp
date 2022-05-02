@@ -718,17 +718,15 @@ CAmpIf::CAmpIf() : actualAmp{ BypassAmpIndex }, previousAmp{ BypassAmpIndex }
 void CAmpIf::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>>& params, int i = 0)
 {
     std::string num = std::to_string(i);
-    //std::string byp = "AmpBypass_" + num;
     std::string choice = "Amp_" + num;
 
-    //params.push_back(std::make_unique<juce::AudioParameterBool>(byp, "Bypass", false));
-    params.push_back(std::make_unique<juce::AudioParameterChoice>(choice, "Amp Model", juce::StringArray{ "BypassAmp", "TanhWaveshaping", "AnalogAmp" }, 0));
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(choice, "Amp Model", juce::StringArray{ "BypassAmp", "TanhWaveshaping", "AnalogAmp", "SGA" }, 0));
 }
 
 void CAmpIf::update()
 {
     previousAmp = actualAmp;
-    //isBypassed = static_cast<bool>(m_pAPVTS->getRawParameterValue("AmpBypass" + suffix)->load());
+
     actualAmp = static_cast<ampNode> (m_pAPVTS->getRawParameterValue("Amp" + suffix)->load());
 
     if (!ampInit)
@@ -738,7 +736,8 @@ void CAmpIf::update()
     }
     else if (previousAmp != actualAmp)
     {
-        delete[] CAmp;
+        reset();
+        //delete[] CAmp;
         switch (actualAmp) {
         case BypassAmpIndex :
             CAmp = static_cast<ProcessorBase*> (new CBypassAmp());
@@ -748,9 +747,9 @@ void CAmpIf::update()
         case AnalogAmpIndex:
             CAmp = static_cast<ProcessorBase*> (new CPreampProcessorChain());
             break;
-        //case SGAIndex:
-        //    CAmp = static_cast<ProcessorBase*> (new CSmartGuitarAmp());
-        //    break;
+        case SGAIndex:
+            CAmp = static_cast<ProcessorBase*> (new CSmartGuitarAmp());
+            break;
         }
         CAmp->prepareToPlay(auxSampleRate, auxSamplesPerBlock);
     }
@@ -804,7 +803,7 @@ CTanhWaveshaping::CTanhWaveshaping()
     waveshaper.functionToUse = [](float x) { return std::tanh(x); };
 
     auto& preGain = TanhProcessorChain.template get<preGainIndex>();
-    preGain.setGainDecibels(0.0f);
+    preGain.setGainDecibels(10.0f);
     auto& postGain = TanhProcessorChain.template get<postGainIndex>();
     postGain.setGainDecibels(0.0f);
 }
@@ -845,8 +844,8 @@ CPreampProcessorChain::CPreampProcessorChain()
 
 void CPreampProcessorChain::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-    std::array<float, 8> tonestackCoeff = tonestackCalcParam(sampleRate);
-    juce::dsp::IIR::Coefficients<float>::Ptr coeffs(new juce::dsp::IIR::Coefficients<float>(tonestackCoeff));
+    //std::array<float, 8> tonestackCoeff = tonestackCalcParam(sampleRate);
+    juce::dsp::IIR::Coefficients<float>::Ptr coeffs(new juce::dsp::IIR::Coefficients<float>(tonestackCalcParam(sampleRate)));
 
     auto channels = static_cast<juce::uint32> (fmin(getMainBusNumInputChannels(), getMainBusNumOutputChannels()));
     juce::dsp::ProcessSpec spec{ sampleRate, static_cast<juce::uint32> (samplesPerBlock), channels };
@@ -855,11 +854,11 @@ void CPreampProcessorChain::prepareToPlay(double sampleRate, int samplesPerBlock
     filterTonestack.state = *coeffs;
 
     auto& pregain = ampProcessorChain.template get<preGainIndex>();
-    pregain.setGainDecibels(10);
+    pregain.setGainDecibels(15);
     auto& drivegain = ampProcessorChain.template get<driveGainIndex>();
     drivegain.setGainDecibels(0);
     auto& postgain = ampProcessorChain.template get<postGainIndex>();
-    postgain.setGainDecibels(-7);
+    postgain.setGainDecibels(-10);
 
 
     ampProcessorChain.prepare(spec);
@@ -926,79 +925,77 @@ std::array<float, 8> CPreampProcessorChain::tonestackCalcParam(double sampleRate
 //================================================================================================================
 //  SmartGuitarAmp Processor Node
 //================================================================================================================
-//void CSmartGuitarAmp::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>>& params, int i = 0)
-//{
-//    std::string num = std::to_string(i);
-//    std::string SGAmpBypass = "SGAmpBypass_" + num;
-//    std::string SGAmpGain = "SGAmpGain_" + num;
-//
-//    params.push_back(std::make_unique<juce::AudioParameterBool>(SGAmpBypass, "SGAmpBypass", false));
-//    params.push_back(std::make_unique<juce::AudioParameterFloat>(SGAmpGain, "SGAmpGain", -30.f, 30.f, 0.f));
-//}
-//
-//void CSmartGuitarAmp::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>>& params)
-//{
-//    //std::string SGAmpBypass = "SGAmpBypass";
-//    //std::string SGAmpGain = "SGAmpGain";
-//
-//    //params.push_back(std::make_unique<juce::AudioParameterBool>(SGAmpBypass, "SGAmpBypass", false));
-//    //params.push_back(std::make_unique<juce::AudioParameterFloat>(SGAmpGain, "SGAmpGain", -30.f, 30.f, 0.f));
-//}
-//
-//CSmartGuitarAmp::CSmartGuitarAmp(juce::AudioProcessorValueTreeState* apvts, int instanceNumber) 
-//    //:
-//    //waveNet(1, 1, 1, 1, "linear", { 1 })
-//{
-//}
-//
-//CSmartGuitarAmp::CSmartGuitarAmp() 
-//    //:
-//    //waveNet(1, 1, 1, 1, "linear", { 1 })
-//{
-//}
-//
-//void CSmartGuitarAmp::update()
-//{
-//}
-//
-//void CSmartGuitarAmp::prepareToPlay(double sampleRate, int samplesPerBlock)
-//{
-//    //waveNet.prepareToPlay(samplesPerBlock);
-//    //juce::File default_tone("C:/Users/thiag/Documents/Git-repos/MUSI6106-Project/plugin_framework/ProcessorGraphTest/Models/bias2_high_gain.json");
-//    //this->suspendProcessing(true);
-//    //WaveNetLoader loader(default_tone);
-//    //float levelAdjust = loader.levelAdjust;
-//    //int numChannels = loader.numChannels;
-//    //int inputChannels = loader.inputChannels;
-//    //int outputChannels = loader.outputChannels;
-//    //int filterWidth = loader.filterWidth;
-//    //std::vector<int> dilations = loader.dilations;
-//    //std::string activation = loader.activation;
-//    //waveNet.setParams(inputChannels, outputChannels, numChannels, filterWidth, activation, dilations, levelAdjust);
-//    //loader.loadVariables(waveNet);
-//
-//    isActive = true;
-//    this->suspendProcessing(false);
-//}
-//
-//void CSmartGuitarAmp::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer&)
-//{
-//    if (!isActive)
-//        return;
-//    if (isBypassed)
-//        return;
-//
-//    buffer.applyGain(10.0);
-//    //waveNet.process(buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), buffer.getNumSamples());
-//
-//    for (int c = 1; c < buffer.getNumChannels(); ++c)
-//        buffer.copyFrom(c, 0, buffer, 0, 0, buffer.getNumSamples());
-//}
-//
-//void CSmartGuitarAmp::reset()
-//{
-//    //waveNet.prepareToPlay(1024);
-//}
+void CSmartGuitarAmp::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>>& params, int i = 0)
+{
+    //std::string num = std::to_string(i);
+    //std::string SGAmpBypass = "SGAmpBypass_" + num;
+    //std::string SGAmpGain = "SGAmpGain_" + num;
+
+    //params.push_back(std::make_unique<juce::AudioParameterBool>(SGAmpBypass, "SGAmpBypass", false));
+    //params.push_back(std::make_unique<juce::AudioParameterFloat>(SGAmpGain, "SGAmpGain", -30.f, 30.f, 0.f));
+}
+
+void CSmartGuitarAmp::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>>& params)
+{
+    //std::string SGAmpBypass = "SGAmpBypass";
+    //std::string SGAmpGain = "SGAmpGain";
+
+    //params.push_back(std::make_unique<juce::AudioParameterBool>(SGAmpBypass, "SGAmpBypass", false));
+    //params.push_back(std::make_unique<juce::AudioParameterFloat>(SGAmpGain, "SGAmpGain", -30.f, 30.f, 0.f));
+}
+
+CSmartGuitarAmp::CSmartGuitarAmp(juce::AudioProcessorValueTreeState* apvts, int instanceNumber) :
+    waveNet(1, 1, 1, 1, "linear", { 1 })
+{
+}
+
+CSmartGuitarAmp::CSmartGuitarAmp() :
+    waveNet(1, 1, 1, 1, "linear", { 1 })
+{
+}
+
+void CSmartGuitarAmp::update()
+{
+}
+
+void CSmartGuitarAmp::prepareToPlay(double sampleRate, int samplesPerBlock)
+{
+    waveNet.prepareToPlay(samplesPerBlock);
+    juce::File default_tone("C:/Users/thiag/Documents/Git-repos/MUSI6106-Project/plugin_framework/ProcessorGraphTest/Models/bias2_high_gain.json");
+    this->suspendProcessing(true);
+    WaveNetLoader loader(default_tone);
+    float levelAdjust = loader.levelAdjust;
+    int numChannels = loader.numChannels;
+    int inputChannels = loader.inputChannels;
+    int outputChannels = loader.outputChannels;
+    int filterWidth = loader.filterWidth;
+    std::vector<int> dilations = loader.dilations;
+    std::string activation = loader.activation;
+    waveNet.setParams(inputChannels, outputChannels, numChannels, filterWidth, activation, dilations, levelAdjust);
+    loader.loadVariables(waveNet);
+
+    isActive = true;
+    this->suspendProcessing(false);
+}
+
+void CSmartGuitarAmp::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer&)
+{
+    if (!isActive)
+        return;
+    if (isBypassed)
+        return;
+
+    buffer.applyGain(10.0);
+    waveNet.process(buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), buffer.getNumSamples());
+
+    for (int c = 1; c < buffer.getNumChannels(); ++c)
+        buffer.copyFrom(c, 0, buffer, 0, 0, buffer.getNumSamples());
+}
+
+void CSmartGuitarAmp::reset()
+{
+    waveNet.prepareToPlay(1024);
+}
 
 
 //================================================================================================================

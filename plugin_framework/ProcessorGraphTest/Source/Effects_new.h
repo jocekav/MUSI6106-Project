@@ -3,8 +3,8 @@
 //
 #include "BaseProcessor.h"
 #include "juce_TriodeWaveShaper.h"
-//#include "./sga/WaveNet.h"
-//#include "./sga/WaveNetLoader.h"
+#include "./sga/WaveNet.h"
+#include "./sga/WaveNetLoader.h"
 
 #ifndef PROCESSORGRAPHTEST_EFFECTS_NEW_H
 #define PROCESSORGRAPHTEST_EFFECTS_NEW_H
@@ -335,7 +335,7 @@ private:
     double auxSampleRate;
 
     float ampMaster = 1.0;
-    //WaveNet waveNet; // Amp Clean Channel / Lead Channel
+    WaveNet waveNet; // Amp Clean Channel / Lead Channel
 
     std::string suffix;
 };
