@@ -72,12 +72,7 @@ target_sources(GuitarAmpPlugin
         Source/PluginProcessor.cpp
         Source/Effects_new.cpp
         Source/Amplifiers.cpp
-        Source/SGA/Activations.cpp
-#	Source/SGA/Convolution.cpp
-#	Source/SGA/ConvolutionLayer.cpp
-#	Source/SGA/ConvolutionStack.cpp
-#	Source/SGA/WaveNet.cpp
-#	Source/SGA/WaveNetLoader.cpp
+	Source/PresetHandler.cpp
         )
 
 # `target_compile_definitions` adds some preprocessor definitions to our target. In a Projucer
@@ -115,7 +110,6 @@ target_link_libraries(GuitarAmpPlugin
         juce::juce_gui_extra
         juce::juce_audio_utils
         juce::juce_dsp
-#        Eigen3::Eigen
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
@@ -126,6 +120,7 @@ target_link_libraries(GuitarAmpPlugin
 #==========================================================================================
 #add_subdirectory(3rd-party/catch2)
 include_directories(3rd-party/catch2)
+include_directories(3rd-party/rapidxml)
 juce_add_console_app(TEST
         PRODUCT_NAME "Test Target")     # The name of the final executable, which can differ from the target name
 
