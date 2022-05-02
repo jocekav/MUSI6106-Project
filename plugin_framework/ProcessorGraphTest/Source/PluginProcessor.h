@@ -90,10 +90,11 @@ public:
     Node::Ptr outputGainNode;
 
     Node::Ptr AmpInterfaceNode;
+    Node::Ptr CabSimNode;
 
 
 
-        juce::AudioParameterFloat *prmInput, *prmDrive, *prmMix, *prmOutput;
+    juce::AudioParameterFloat *prmInput, *prmDrive, *prmMix, *prmOutput;
     juce::AudioParameterChoice *m_distortionType;
 
     juce::AudioParameterFloat *prmPreLP, *prmPreHP;
@@ -101,7 +102,7 @@ public:
 
     juce::AudioParameterFloat *prmEPfreq;
     juce::AudioParameterFloat *prmEPgain;
-//    Node::Ptr CabSimNode;
+
         
 
 
