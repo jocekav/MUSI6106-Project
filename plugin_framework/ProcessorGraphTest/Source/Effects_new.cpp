@@ -711,7 +711,7 @@ CAmpIf::CAmpIf(juce::AudioProcessorValueTreeState* apvts, int instanceNumber) : 
     this->update();
 }
 
-CAmpIf::CAmpIf() : actualAmp{ BypassAmpIndex }, previousAmp{ BypassAmpIndex }
+CAmpIf::CAmpIf() //: actualAmp{ BypassAmpIndex }, previousAmp{ BypassAmpIndex }
 {    
 }
 
@@ -741,11 +741,15 @@ void CAmpIf::update()
         switch (actualAmp) {
         case BypassAmpIndex :
             CAmp = static_cast<ProcessorBase*> (new CBypassAmp());
+            break;
         case WaveshaperIndex:
             CAmp = static_cast<ProcessorBase*> (new CTanhWaveshaping());
             break;
         case AnalogAmpIndex:
-            CAmp = static_cast<ProcessorBase*> (new CPreampProcessorChain());
+            CAmp = static_cast<ProcessorBase*> (new CAmpAnalogUsBlues());
+            break;
+        case SGAIndex:
+            CAmp = static_cast<ProcessorBase*> (new CSmartGuitarAmp());
             break;
         }
         CAmp->prepareToPlay(auxSampleRate, auxSamplesPerBlock);
@@ -780,6 +784,9 @@ void CAmpIf::reset()
 
 //================================================================================================================
 
+CBypassAmp::CBypassAmp()
+{
+}
 
 void CBypassAmp::prepareToPlay(double sampleRate, int samplesPerBlock) 
 {
@@ -800,6 +807,7 @@ CTanhWaveshaping::CTanhWaveshaping()
     waveshaper.functionToUse = [](float x) { return std::tanh(x); };
 
     auto& preGain = TanhProcessorChain.template get<preGainIndex>();
+    preGain.setGainDecibels(5.0f);
     auto& postGain = TanhProcessorChain.template get<postGainIndex>();
     postGain.setGainDecibels(0.0f);
 }
@@ -834,11 +842,11 @@ void CTanhWaveshaping::reset()
 }
 
 //================================================================================================================
-CPreampProcessorChain::CPreampProcessorChain()
+CAmpAnalogUsBlues::CAmpAnalogUsBlues()
 {
 }
 
-void CPreampProcessorChain::prepareToPlay(double sampleRate, int samplesPerBlock)
+void CAmpAnalogUsBlues::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     //std::array<float, 8> tonestackCoeff = tonestackCalcParam(sampleRate);
     juce::dsp::IIR::Coefficients<float>::Ptr coeffs(new juce::dsp::IIR::Coefficients<float>(tonestackCalcParam(sampleRate)));
@@ -850,17 +858,17 @@ void CPreampProcessorChain::prepareToPlay(double sampleRate, int samplesPerBlock
     filterTonestack.state = *coeffs;
 
     auto& pregain = ampProcessorChain.template get<preGainIndex>();
-    pregain.setGainDecibels(15);
+    pregain.setGainDecibels(5);
     auto& drivegain = ampProcessorChain.template get<driveGainIndex>();
     drivegain.setGainDecibels(0);
     auto& postgain = ampProcessorChain.template get<postGainIndex>();
-    postgain.setGainDecibels(-10);
+    postgain.setGainDecibels(-3);
 
 
     ampProcessorChain.prepare(spec);
 }
 
-void CPreampProcessorChain::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer&)
+void CAmpAnalogUsBlues::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer&)
 {
     const auto totalNumInputChannels = getTotalNumInputChannels();
     const auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -877,13 +885,13 @@ void CPreampProcessorChain::processBlock(juce::AudioSampleBuffer& buffer, juce::
     ampProcessorChain.process(context);
 }
 
-void CPreampProcessorChain::reset()
+void CAmpAnalogUsBlues::reset()
 {
     ampProcessorChain.reset();
 }
 
 // Tone Stack param calculator
-std::array<float, 8> CPreampProcessorChain::tonestackCalcParam(double sampleRate)
+std::array<float, 8> CAmpAnalogUsBlues::tonestackCalcParam(double sampleRate)
 {
     std::array<float, 8> filterCoeff{};
     double c = 2 * sampleRate;
@@ -953,34 +961,34 @@ CSmartGuitarAmp::CSmartGuitarAmp() :
 
 void CSmartGuitarAmp::update()
 {
-    previousModel = actualModel;
+    //previousModel = actualModel;
 
-    actualModel = static_cast<SGAmodel> (m_pAPVTS->getRawParameterValue("SGA" + suffix)->load());
+    ////actualModel = static_cast<SGAmodel> (m_pAPVTS->getRawParameterValue("SGA" + suffix)->load());
 
-    if (!isInit)
-    {
-        //CAmp = static_cast<ProcessorBase*> (new CBypassAmp());
-        isInit = true;
-    }
-    else if (previousModel != actualModel)
-    {
-        reset();
+    //if (!isInit)
+    //{
+    //    //CAmp = static_cast<ProcessorBase*> (new CBypassAmp());
+    //    isInit = true;
+    //}
+    //else if (previousModel != actualModel)
+    //{
+    //    reset();
 
-        switch (actualModel) {
-        case CleanIndex:
-            //CAmp = static_cast<ProcessorBase*> (new CBypassAmp());
-        case CrunchIndex:
-            //CAmp = static_cast<ProcessorBase*> (new CTanhWaveshaping());
-            break;
-        case HighGainIndex:
-            //CAmp = static_cast<ProcessorBase*> (new CPreampProcessorChain());
-            break;
-        case FullDriveIndex:
-            //CAmp = static_cast<ProcessorBase*> (new CPreampProcessorChain());
-            break;
-        }
-        prepareToPlay(auxSampleRate, auxSamplesPerBlock);
-    }
+    //    switch (actualModel) {
+    //    case CleanIndex:
+    //        //CAmp = static_cast<ProcessorBase*> (new CBypassAmp());
+    //    case CrunchIndex:
+    //        //CAmp = static_cast<ProcessorBase*> (new CTanhWaveshaping());
+    //        break;
+    //    case HighGainIndex:
+    //        //CAmp = static_cast<ProcessorBase*> (new CPreampProcessorChain());
+    //        break;
+    //    case FullDriveIndex:
+    //        //CAmp = static_cast<ProcessorBase*> (new CPreampProcessorChain());
+    //        break;
+    //    }
+    //    prepareToPlay(auxSampleRate, auxSamplesPerBlock);
+    //}
 
 }
 
@@ -1016,7 +1024,7 @@ void CSmartGuitarAmp::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBu
     if (isBypassed)
         return;
 
-    buffer.applyGain(10.0);
+    buffer.applyGain(5.0);
     waveNet.process(buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), buffer.getNumSamples());
 
     for (int c = 1; c < buffer.getNumChannels(); ++c)
