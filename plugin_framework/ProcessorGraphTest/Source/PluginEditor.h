@@ -137,7 +137,8 @@ private:
 
 
 
-class ProcessorGraphTestAudioProcessorEditor  : public juce::AudioProcessorEditor
+class ProcessorGraphTestAudioProcessorEditor  : public juce::AudioProcessorEditor,
+public juce::Button::Listener
 {
 public:
     ProcessorGraphTestAudioProcessorEditor (ProcessorGraphTestAudioProcessor&);
@@ -146,7 +147,7 @@ public:
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
-//    void buttonClicked (juce::Button* button);
+    void buttonClicked (juce::Button* button);
     void updateToggleState(juce::Button* button);
     void drawNoiseGate();
     void drawAmp();
@@ -167,7 +168,7 @@ private:
     ProcessorGraphTestAudioProcessor& audioProcessor;
     
     // Effect chain buttons
-        juce::TextButton switchEffectButton;
+        juce::TextButton presetPopUpButton;
         
         juce::ToggleButton gateButton,
         ampButton,
@@ -203,7 +204,7 @@ private:
         gateReleaseSliderLabel;
         
         CustomToggle gateBypassToggle;
-    APVTS::ButtonAttachment gateBypassAttachment;
+        APVTS::ButtonAttachment gateBypassAttachment;
         
         // Amp Components
 //        CustomRotarySlider ampDriveSlider,
@@ -360,7 +361,9 @@ private:
     
     CustomToggle delayBypassToggle;
     APVTS::ButtonAttachment delayBypassAttachment;
-        
+    
+//    CustomComboBox presetComboBox;
+    
         
     juce::Label effectTitleLabel;
     

@@ -115,6 +115,7 @@ void ProcessorGraphTestAudioProcessor::prepareToPlay (double sampleRate, int sam
 
     juce::XmlElement::TextFormat text;
     DBG(apvts.state.toXmlString(text));
+    
 }
 
 void ProcessorGraphTestAudioProcessor::releaseResources()
