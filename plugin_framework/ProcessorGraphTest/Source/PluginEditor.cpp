@@ -376,6 +376,37 @@ delayButton("DELAY")
          addAndMakeVisible(comp);
          comp -> setLookAndFeel(&lnf);
      }
+    
+    for (auto* comp : getAmpComps())
+    {
+        addChildComponent(comp);
+    }
+    
+    for (auto* comp : getNoiseGateComps())
+    {
+        addChildComponent(comp);
+    }
+    
+    for (auto* comp : getEqComps())
+    {
+        addChildComponent(comp);
+    }
+    
+    for (auto* comp : getPhaserComps())
+    {
+        addChildComponent(comp);
+    }
+    
+    for (auto* comp : getDelayComps())
+    {
+        addChildComponent(comp);
+    }
+    
+    for (auto* comp : getCompressorComps())
+    {
+        addChildComponent(comp);
+    }
+    
      
      gateButton.setRadioGroupId(EffectShown);
      ampButton.setRadioGroupId(EffectShown);
@@ -398,6 +429,8 @@ delayButton("DELAY")
     addAndMakeVisible (presetPopUpButton);
     presetPopUpButton.setButtonText ("Select A Preset");
     presetPopUpButton.addListener(this);
+    
+    addChildComponent(presetTable);
     
     setSize (700, 500);
 }
@@ -478,6 +511,9 @@ void ProcessorGraphTestAudioProcessorEditor::resized()
     auto presetButtonArea = bounds.removeFromBottom(bounds.getHeight() * 0.1);
     presetPopUpButton.setBounds(presetButtonArea.getX() + (presetButtonArea.getWidth() * 0.5) - (presetButtonArea.getWidth() * 0.25) / 2, presetButtonArea.getY() - 20, presetButtonArea.getWidth() * 0.25, presetButtonArea.getHeight());
     
+    bounds = getLocalBounds();
+    presetTable.setBounds(bounds.getX() + bounds.getWidth() * 0.25, bounds.getY() + bounds.getHeight() * 0.25, bounds.getWidth() * 0.5, bounds.getHeight() * 0.5);
+    
     drawNoiseGate();
     drawReverb();
     drawCompressor();
@@ -493,14 +529,8 @@ void ProcessorGraphTestAudioProcessorEditor::buttonClicked (juce::Button* button
 {
     if (button == &presetPopUpButton)
     {
-        juce::PopupMenu menu;
-
-        menu.addItem(1, "Item1");
-        menu.addItem(2, "Item2");
-        menu.showMenuAsync(juce::PopupMenu::Options(), [this](int action)
-        {
-
-        });
+        showTable = !showTable;
+        presetTable.setVisible(showTable);
     }
 }
 
@@ -825,68 +855,42 @@ void ProcessorGraphTestAudioProcessorEditor::updateToggleState(juce::Button* but
     if (button == &gateButton)
     {
         showGate = true;
-        for (auto* comp : getNoiseGateComps())
-        {
-            addAndMakeVisible(comp);
-        }
+
         effectTitleLabel.setText("OUR NOISE GATE", juce::dontSendNotification);
     }
     if (button == &ampButton)
     {
         showAmp = true;
-        for (auto* comp : getAmpComps())
-        {
-            addAndMakeVisible(comp);
-        }
+        
         effectTitleLabel.setText("OUR AMP", juce::dontSendNotification);
     }
     if (button == &verbButton)
     {
         showVerb = true;
-        for (auto* comp : getReverbComps())
-        {
-            addAndMakeVisible(comp);
-        }
         
         effectTitleLabel.setText("OUR REVERB", juce::dontSendNotification);
     }
     if (button == &compressorButton)
     {
         showComp = true;
-        for (auto* comp : getCompressorComps())
-        {
-            addAndMakeVisible(comp);
-        }
-        
+
         effectTitleLabel.setText("OUR COMPRESSOR", juce::dontSendNotification);
     }
     if (button == &eqButton)
     {
         showEq = true;
-        for (auto* comp : getEqComps())
-        {
-            addAndMakeVisible(comp);
-        }
         
         effectTitleLabel.setText("OUR EQ", juce::dontSendNotification);
     }
     if (button == &phaserButton)
     {
         showPhaser = true;
-        for (auto* comp : getPhaserComps())
-        {
-            addAndMakeVisible(comp);
-        }
         
         effectTitleLabel.setText("OUR PHASER", juce::dontSendNotification);
     }
     if (button == &delayButton)
     {
         showDelay = true;
-        for (auto* comp : getDelayComps())
-        {
-            addAndMakeVisible(comp);
-        }
         
         effectTitleLabel.setText("OUR DELAY", juce::dontSendNotification);
     }
