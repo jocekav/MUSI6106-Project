@@ -90,7 +90,7 @@ public:
     Node::Ptr outputGainNode;
 
     Node::Ptr AmpInterfaceNode;
-//    Node::Ptr CabSimNode;
+    Node::Ptr CabSimNode;
         ;
 
 
