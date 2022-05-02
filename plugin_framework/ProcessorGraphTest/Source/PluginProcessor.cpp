@@ -178,8 +178,8 @@ bool ProcessorGraphTestAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* ProcessorGraphTestAudioProcessor::createEditor()
 {
-    return new ProcessorGraphTestAudioProcessorEditor (*this);
-//    return new juce::GenericAudioProcessorEditor (*this);
+//    return new ProcessorGraphTestAudioProcessorEditor (*this);
+    return new juce::GenericAudioProcessorEditor (*this);
 }
 
 //==============================================================================
