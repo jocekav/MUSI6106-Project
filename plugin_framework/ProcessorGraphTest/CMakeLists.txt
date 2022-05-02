@@ -78,6 +78,7 @@ target_sources(GuitarAmpPlugin
         Source/PluginProcessor.cpp
         Source/Effects_new.cpp
         Source/Amplifiers.cpp
+	Source/PresetHandler.cpp
         Source/SGA/Activations.cpp
 	Source/SGA/Convolution.cpp
 	Source/SGA/ConvolutionLayer.cpp
@@ -132,6 +133,7 @@ target_link_libraries(GuitarAmpPlugin
 #==========================================================================================
 #add_subdirectory(3rd-party/catch2)
 include_directories(3rd-party/catch2)
+include_directories(3rd-party/rapidxml)
 juce_add_console_app(TEST
         PRODUCT_NAME "Test Target")     # The name of the final executable, which can differ from the target name
 

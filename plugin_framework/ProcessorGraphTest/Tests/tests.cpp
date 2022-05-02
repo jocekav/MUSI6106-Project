@@ -4,16 +4,8 @@
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "catch.hpp"
 #include "../Source/PluginProcessor.h"
-//unsigned int Factorial( unsigned int number ) {
-//    return number <= 1 ? number : Factorial(number-1)*number;
-//}
-//
-//TEST_CASE( "Factorials are computed", "[factorial]" ) {
-//    REQUIRE( Factorial(1) == 1 );
-//    REQUIRE( Factorial(2) == 2 );
-//    REQUIRE( Factorial(3) == 6 );
-//    REQUIRE( Factorial(10) == 3628800 );
-//}
+#include <string>
+using std::string;
 
 void setBuffer(int numChannels, int numSamples, juce::AudioBuffer<float>&buffer, float sampleToSet) {
     for (auto i = 0; i < numChannels; i++)
@@ -148,8 +140,8 @@ TEST_CASE("processor: does not accept midi", "[midi]")
 // check that it never goes above 1
 
 
-//next tests: put input through and check output for various configurations!
-TEST_CASE("bypass all effects", "[processor]")
+//put input through and check output for various configurations!
+TEST_CASE("bypass each effect", "[processor]")
 {
     constexpr auto numChannels = 2;
     constexpr auto numSamples = 64;
@@ -214,10 +206,9 @@ TEST_CASE("bypass all effects", "[processor]")
 }
 
 
-// REMAINING TESTS:
 //check only one effect at a time
 //get the ratio of output to input, then convert to db.it should be 0dB difference.
-TEST_CASE("bypass each effect", "[processor]")
+TEST_CASE("bypass each effect and get ratio in dB", "[processor]")
 {
     constexpr auto numChannels = 2;
     constexpr auto numSamples = 64;
@@ -249,9 +240,9 @@ TEST_CASE("bypass each effect", "[processor]")
 
     setBuffer(numChannels, numSamples, buffer, 0.5f);
     processor.processBlock(buffer, midi);
-
+    std::cout << "checking buffer 1" << std::endl;
     float ratio = checkBufferRatio(numChannels, numSamples, buffer, 0.5f);
-    std::cout << "phasor: " << ratio << std::endl;
+    std::cout << "phasor 1: " << ratio << std::endl;
     processor.releaseResources();
     bypassPhaser = true;
 
@@ -308,13 +299,10 @@ TEST_CASE("bypass each effect", "[processor]")
 }
 
 
-
 //bypass one at a time
 //
 //make sure max and min values dont make the outputs exceed 1 - for all effects on at once
-//
-
-TEST_CASE("Check Max Parameters", "[processor]")
+TEST_CASE("Check All Max Parameters", "[processor]")
 {
     constexpr auto numChannels = 2;
     constexpr auto numSamples = 64;
@@ -329,13 +317,16 @@ TEST_CASE("Check Max Parameters", "[processor]")
     juce::Value bypassReverb = processor.apvts.getParameterAsValue("ReverbBypass_0");
     juce::Value gain0 = processor.apvts.getParameterAsValue("GainValue_0");
     juce::Value gain1 = processor.apvts.getParameterAsValue("GainValue_1");
-    gain0 = juce::Decibels::gainToDecibels(1);
-    gain1 = juce::Decibels::gainToDecibels(1);
-    bypassPhaser = true;
-    bypassCompressor = true;
-    bypassEqualizer = true;
-    bypassNoiseGate = true;
-    bypassReverb = true;
+    juce::Value bypassDelay = processor.apvts.getParameterAsValue("DelayBypass_0");
+
+    gain0 = juce::Decibels::gainToDecibels(30);
+    gain1 = juce::Decibels::gainToDecibels(30);
+    bypassPhaser = false;
+    bypassCompressor = false;
+    bypassEqualizer = false;
+    bypassNoiseGate = false;
+    bypassReverb = false;
+    bypassDelay = false;
 
     //juce::XmlElement::TextFormat text;
     //std::cout << processor.apvts.state.toXmlString(text) << std::endl;
@@ -344,89 +335,76 @@ TEST_CASE("Check Max Parameters", "[processor]")
     setBuffer(numChannels, numSamples, buffer, 1.0f);
     processor.processBlock(buffer, midi);
     float ratio = checkBufferRatio(numChannels, numSamples, buffer, 1.0f);
-    std::cout << "Ratio: " << ratio << std::endl;
+    std::cout << "Overall Ratio: " << ratio << std::endl;
     processor.releaseResources();
-
-
-
-    ////////////////////
-   // PHASOR ON
-   ////////////////////
-    bypassPhaser = false;
-    std::cout << "about to preparetoplay" << std::endl;
-    processor.prepareToPlay(44100.0, numSamples);
-
-    setBuffer(numChannels, numSamples, buffer, 1.0f);
-    processor.processBlock(buffer, midi);
-
-    ratio = checkBufferRatio(numChannels, numSamples, buffer, 1.0f);
-    std::cout << "phasor: " << ratio << std::endl;
-    processor.releaseResources();
-    bypassPhaser = true;
-
-
-    ////////////////////
-    // COMPRESSOR ON
-    ////////////////////
-    bypassCompressor = false;
-
-    setBuffer(numChannels, numSamples, buffer, 1.0f);
-    processor.processBlock(buffer, midi);
-
-    ratio = checkBufferRatio(numChannels, numSamples, buffer, 1.0f);
-    std::cout << "Compressor: " << ratio << std::endl;
-    processor.releaseResources();
-    bypassCompressor = true;
-
-    ////////////////////
-    // EQ ON
-    ////////////////////
-    bypassEqualizer = false;
-    setBuffer(numChannels, numSamples, buffer, 1.0f);
-    processor.processBlock(buffer, midi);
-    ratio = checkBufferRatio(numChannels, numSamples, buffer, 1.0f);
-    std::cout << "Equalizer: " << ratio << std::endl;
-    processor.releaseResources();
-    bypassEqualizer = true;
-
-    ////////////////////
-    // NOISE GATE ON
-    ////////////////////
-    bypassNoiseGate = false;
-    setBuffer(numChannels, numSamples, buffer, 1.0f);
-    processor.processBlock(buffer, midi);
-    ratio = checkBufferRatio(numChannels, numSamples, buffer, 1.0f);
-    std::cout << "Gate: " << ratio << std::endl;
-    processor.releaseResources();
-    bypassNoiseGate = true;
-
-    ////////////////////
-    // REVERB ON
-    ////////////////////
-    bypassReverb = false;
-    setBuffer(numChannels, numSamples, buffer, 1.0f);
-    processor.processBlock(buffer, midi);
-    ratio = checkBufferRatio(numChannels, numSamples, buffer, 1.0f);
-    std::cout << "Reverb: " << ratio << std::endl;
-
-    processor.releaseResources();
-
-
-//
 }
 
 
+// NEXT TEST: CHECKING MIN AND MAX VALUES FOR ALL PARAMS!
+TEST_CASE("Check Min and Max Parameters", "[processor]")
+{
+    std::cout << "checking min and max for each param... " << std::endl;
+    constexpr auto numChannels = 2;
+    constexpr auto numSamples = 64;
+    auto midi = juce::MidiBuffer{};
+    auto buffer = juce::AudioBuffer<float>{ numChannels, numSamples };
+    ProcessorGraphTestAudioProcessor processor;
+
+    juce::Value bypassPhaser = processor.apvts.getParameterAsValue("PhaserBypass_0");
+    juce::Value bypassCompressor = processor.apvts.getParameterAsValue("CompressorBypass_0");
+    juce::Value bypassEqualizer = processor.apvts.getParameterAsValue("EqualizerBypass_0");
+    juce::Value bypassNoiseGate = processor.apvts.getParameterAsValue("NoiseGateBypass_0");
+    juce::Value bypassReverb = processor.apvts.getParameterAsValue("ReverbBypass_0");
+    juce::Value gain0 = processor.apvts.getParameterAsValue("GainValue_0");
+    juce::Value gain1 = processor.apvts.getParameterAsValue("GainValue_1");
+
+    gain0 = juce::Decibels::gainToDecibels(1);
+    gain1 = juce::Decibels::gainToDecibels(1);
+    bypassPhaser = false;
+    bypassCompressor = false;
+    bypassEqualizer = false;
+    bypassNoiseGate = false;
+    bypassReverb = false;
+
+
+    const char* paramNames[] = { "CompressorAttack_0","CompressorBypass_0","CompressorInputGain_0","CompressorMakeupGain_0","CompressorRatio_0","CompressorRelease_0","CompressorThreshold_0","DelayBlend_0","DelayBypass_0","DelayTime_0","EqualizerBypass_0","EqualizerHMF_0","EqualizerHMGain_0","EqualizerHMQ_0","EqualizerHPFQ_0","EqualizerHPF_0","EqualizerLMF_0","EqualizerLMGain_0","EqualizerLMQ_0","EqualizerLPFQ_0","EqualizerLPF_0","EqualizerMF_0","EqualizerMGain_0","EqualizerMQ_0","GainValue_0","GainValue_1","NoiseGateAttack_0","NoiseGateBypass_0","NoiseGateRatio_0","NoiseGateRelease_0","NoiseGateThreshold_0","PhaserBlend_0","PhaserBypass_0","PhaserDepth_0","PhaserFc_0","PhaserFeedback_0","PhaserRate_0","ReverbBlend_0","ReverbBypass_0","ReverbDamping_0","ReverbRoomSize_0" };
+    int sizeOfParamNames = sizeof(paramNames) / sizeof(paramNames[0]);
+
+    for (int i = 0; i < sizeOfParamNames; i++) {
+        //std::cout << paramNames[i] << std::endl;
+
+        juce::NormalisableRange<float> curRange = processor.apvts.getParameterRange(paramNames[i]);
+        juce::Value curVal = processor.apvts.getParameterAsValue(paramNames[i]);
+
+        //std::cout << "range begin: " << std::to_string(curRange.getRange().getStart()) << std::endl;
+        //std::cout << "range end: " << std::to_string(curRange.getRange().getEnd()) << std::endl;
+    
+        // check here if we set the values to min or max will the output exceed 1 AND will the thing not crash
+
+        // SETTING VALUE TO MIN
+        curVal = curRange.getRange().getStart();
+        // CHECKING THAT THE OUTPUT IS 1 OR LESS THAN 1
+        processor.prepareToPlay(44100.0, numSamples);
+
+        setBuffer(numChannels, numSamples, buffer, 1.0f);
+        processor.processBlock(buffer, midi);
+        float ratio = checkBufferRatio(numChannels, numSamples, buffer, 1.0f);
+        //std::cout << "Ratio: " << ratio << std::endl;
+        processor.releaseResources();
 
 
 
+        // SETTING VALUE TO MAX
+        curVal = curRange.getRange().getEnd();
+        // CHECKING THAT THE OUTPUT IS 1 OR LESS THAN 1
+        processor.prepareToPlay(44100.0, numSamples);
+        setBuffer(numChannels, numSamples, buffer, 1.0f);
+        processor.processBlock(buffer, midi);
+        ratio = checkBufferRatio(numChannels, numSamples, buffer, 1.0f);
+        //std::cout << "Ratio: " << ratio << std::endl;
+        processor.releaseResources();
+    }
 
-
-
-
-
-
-
-
-
+}
 
 
