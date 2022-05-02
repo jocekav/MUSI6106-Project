@@ -119,6 +119,7 @@ public:
     void drawCompressor();
     void drawEQ();
     void drawPhaser();
+    void drawDelay();
     
     enum RadioButtonIDs
     {
@@ -138,7 +139,8 @@ private:
         verbButton,
         compressorButton,
         eqButton,
-        phaserButton;
+        phaserButton,
+        delayButton;
         
         using APVTS = juce::AudioProcessorValueTreeState;
         
@@ -309,25 +311,40 @@ private:
         
         CustomToggle phaserBypassToggle;
     APVTS::ButtonAttachment phaserBypassAttachment;
+    
+    // Delay Components
+    CustomRotarySlider delayTimeSlider,
+    delayBlendSlider;
+    
+    APVTS::SliderAttachment delayTimeSliderAttachment,
+    delayBlendSliderAttachment;
+    
+    juce::Label delayTimeSliderLabel,
+    delayBlendSliderLabel;
+    
+    CustomToggle delayBypassToggle;
+    APVTS::ButtonAttachment delayBypassAttachment;
         
         
-        juce::Label effectTitleLabel;
+    juce::Label effectTitleLabel;
+    
+    std::vector<juce::Component*> getNoiseGateComps();
+    
+    std::vector<juce::Component*> getAmpComps();
+    
+    std::vector<juce::Component*> getReverbComps();
+    
+    std::vector<juce::Component*> getCompressorComps();
+    
+    std::vector<juce::Component*> getEqComps();
+    
+    std::vector<juce::Component*> getPhaserComps();
+
+    std::vector<juce::Component*> getDelayComps();
+    
+    std::vector<juce::Component*> getChainComps();
         
-        std::vector<juce::Component*> getNoiseGateComps();
-        
-        std::vector<juce::Component*> getAmpComps();
-        
-        std::vector<juce::Component*> getReverbComps();
-        
-        std::vector<juce::Component*> getCompressorComps();
-        
-        std::vector<juce::Component*> getEqComps();
-        
-        std::vector<juce::Component*> getPhaserComps();
-        
-        std::vector<juce::Component*> getChainComps();
-        
-        LookAndFeel lnf;
+    LookAndFeel lnf;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProcessorGraphTestAudioProcessorEditor)
 };

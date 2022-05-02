@@ -301,12 +301,22 @@ eqBypassAttachment(audioProcessor.apvts, "EqualizerBypass_0", eqBypassToggle),
 //Amp Attachments
 //ampBypassToggle(*audioProcessor.apvts.getParameter("ampBypass"), ""),
 
+//Delay Attachments
+delayTimeSlider(*audioProcessor.apvts.getParameter("DelayTime_0"), "%"),
+delayBlendSlider(*audioProcessor.apvts.getParameter("DelayBlend_0"), "%"),
+delayBypassToggle(*audioProcessor.apvts.getParameter("DelayBypass_0"), ""),
+
+delayTimeSliderAttachment(audioProcessor.apvts, "DelayTime_0", delayTimeSlider),
+delayBlendSliderAttachment(audioProcessor.apvts, "DelayBlend_0", delayBlendSlider),
+delayBypassAttachment(audioProcessor.apvts, "DelayBypass_0", delayBypassToggle),
+
 gateButton("GATE"),
 ampButton("AMP"),
 verbButton("REVERB"),
 compressorButton("COMP"),
 eqButton("EQ"),
-phaserButton("PHASER")
+phaserButton("PHASER"),
+delayButton("DELAY")
 
 {
     // Make sure that before the constructor has finished, you've set the
@@ -330,6 +340,7 @@ phaserButton("PHASER")
      compressorButton.setRadioGroupId(EffectShown);
      eqButton.setRadioGroupId(EffectShown);
      phaserButton.setRadioGroupId(EffectShown);
+     delayButton.setRadioGroupId(EffectShown);
      
      gateButton.onClick = [this] { updateToggleState (&gateButton); };
      ampButton.onClick = [this] { updateToggleState (&ampButton); };
@@ -337,6 +348,7 @@ phaserButton("PHASER")
      compressorButton.onClick = [this] { updateToggleState (&compressorButton); };
      eqButton.onClick = [this] { updateToggleState (&eqButton); };
      phaserButton.onClick = [this] { updateToggleState (&phaserButton); };
+     delayButton.onClick = [this] { updateToggleState (&delayButton); };
      
      verbButton.setState(juce::Button::ButtonState::buttonDown);
     
@@ -377,12 +389,13 @@ void ProcessorGraphTestAudioProcessorEditor::resized()
     
     auto bounds = getLocalBounds();
     auto chainBounds = bounds.removeFromBottom(bounds.getHeight() * 0.5);
-    chainBounds.setBounds(chainBounds.getX() + 40, chainBounds.getY() + chainBounds.getHeight() / 3 - 10, chainBounds.getWidth() - 60, chainBounds.getHeight() / 3);
-    auto gateArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 6);
-    auto compArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 5);
-    auto eqArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 4);
-    auto ampArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 3);
-    auto phaserArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 2);
+    chainBounds.setBounds(chainBounds.getX() + 40, chainBounds.getY() + chainBounds.getHeight() / 3 - 10, chainBounds.getWidth() - 60, chainBounds.getHeight() / 4);
+    auto gateArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 7);
+    auto compArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 6);
+    auto eqArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 5);
+    auto ampArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 4);
+    auto phaserArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 3);
+    auto delayArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 2);
     auto verbArea = chainBounds.removeFromLeft(chainBounds.getWidth());
     
     eqButton.setBounds(eqArea);
@@ -390,13 +403,15 @@ void ProcessorGraphTestAudioProcessorEditor::resized()
     gateButton.setBounds(gateArea);
     compressorButton.setBounds(compArea);
     phaserButton.setBounds(phaserArea);
+    delayButton.setBounds(delayArea);
     verbButton.setBounds(verbArea);
     
     gateBypassToggle.setBounds(gateArea.getX() + gateArea.getWidth() / 4, gateArea.getY() - 30, gateArea.getWidth() / 4, gateArea.getHeight() / 4);
 //    ampBypassToggle.setBounds(ampArea.getX() + ampArea.getWidth() / 4, ampArea.getY() - 30, ampArea.getWidth() / 4, ampArea.getHeight() / 4);
-//    eqBypassToggle.setBounds(eqArea.getX() + eqArea.getWidth() / 4, eqArea.getY() - 30, eqArea.getWidth() / 4, eqArea.getHeight() / 4);
+    eqBypassToggle.setBounds(eqArea.getX() + eqArea.getWidth() / 4, eqArea.getY() - 30, eqArea.getWidth() / 4, eqArea.getHeight() / 4);
     compBypassToggle.setBounds(compArea.getX() + compArea.getWidth() / 4, compArea.getY() - 30, compArea.getWidth() / 4, compArea.getHeight() / 4);
     verbBypassToggle.setBounds(verbArea.getX() + verbArea.getWidth() / 4, verbArea.getY() - 30, verbArea.getWidth() / 4, verbArea.getHeight() / 4);
+    delayBypassToggle.setBounds(delayArea.getX() + delayArea.getWidth() / 4, delayArea.getY() - 30, delayArea.getWidth() / 4, delayArea.getHeight() / 4);
     phaserBypassToggle.setBounds(phaserArea.getX() + phaserArea.getWidth() / 4, phaserArea.getY() - 30, phaserArea.getWidth() / 4, phaserArea.getHeight() / 4);
 
     bounds = getLocalBounds();
@@ -416,6 +431,7 @@ void ProcessorGraphTestAudioProcessorEditor::resized()
     drawCompressor();
     drawEQ();
     drawPhaser();
+    drawDelay();
 //    drawAmp();
         
     compressorButton.setState(juce::Button::ButtonState::buttonDown);
@@ -576,9 +592,9 @@ void ProcessorGraphTestAudioProcessorEditor::drawEQ()
     eqLowPassFreqSliderLabel.setJustificationType (juce::Justification::centred);
     
     eqLowPassQSlider.setBounds(eqLowQArea.getX() - 20, eqLowQArea.getY() - 10, eqLowQArea.getWidth(), eqLowQArea.getHeight());
-    eqLowPassFreqSliderLabel.setBounds(eqLowQArea.getX() - 20, eqLowQArea.getY() + eqLowQArea.getHeight() - 25, eqLowQArea.getWidth(), 10);
-    eqLowPassFreqSliderLabel.setText("Low Q", juce::dontSendNotification);
-    eqLowPassFreqSliderLabel.setJustificationType (juce::Justification::centred);
+    eqLowPassQSliderLabel.setBounds(eqLowQArea.getX() - 20, eqLowQArea.getY() + eqLowQArea.getHeight() - 25, eqLowQArea.getWidth(), 10);
+    eqLowPassQSliderLabel.setText("Low Q", juce::dontSendNotification);
+    eqLowPassQSliderLabel.setJustificationType (juce::Justification::centred);
     
     eqLowMidFreqSlider.setBounds(eqLowMidFreqArea.getX() - 20, eqLowMidFreqArea.getY() - 10, eqLowMidFreqArea.getWidth(), eqLowMidFreqArea.getHeight());
     eqLowMidFreqSliderLabel.setBounds(eqLowMidFreqArea.getX() - 20, eqLowMidFreqArea.getY() + eqLowMidFreqArea.getHeight() - 25, eqLowMidFreqArea.getWidth(), 10);
@@ -680,6 +696,33 @@ void ProcessorGraphTestAudioProcessorEditor::drawPhaser()
     phaserBlendSliderLabel.setJustificationType (juce::Justification::centred);
 }
 
+void ProcessorGraphTestAudioProcessorEditor::drawDelay()
+{
+    auto bounds = getLocalBounds();
+   auto responseArea = bounds.removeFromBottom(bounds.getHeight() * 0.5);
+   
+   auto labelArea = bounds.removeFromTop(bounds.getHeight() * .33);
+   effectTitleLabel.setBounds(labelArea.getX() + 10, labelArea.getY() + 10, labelArea.getWidth() - 20, labelArea.getHeight() - 20);
+   effectTitleLabel.setFont(juce::Font(32.f, juce::Font::bold));
+   effectTitleLabel.setText("OUR DELAY", juce::dontSendNotification);
+   effectTitleLabel.setColour (juce::Label::textColourId, juce::Colours::white);
+   effectTitleLabel.setJustificationType (juce::Justification::left);
+       
+   auto delayTimeArea = bounds.removeFromLeft(bounds.getWidth() * 0.5);
+   auto delayBlendArea = bounds.removeFromLeft(bounds.getWidth());
+   
+   delayTimeSlider.setBounds(delayTimeArea.getX() + 20, delayTimeArea.getY() + 20, delayTimeArea.getWidth() - 40, delayTimeArea.getHeight() - 40);
+   delayTimeSliderLabel.setBounds(delayTimeArea.getX() + 20, delayTimeArea.getY() + delayTimeArea.getHeight() - 40, delayTimeArea.getWidth() - 40, 20);
+    delayTimeSliderLabel.setText("Time", juce::dontSendNotification);
+    delayTimeSliderLabel.setJustificationType (juce::Justification::centred);
+   
+   delayBlendSlider.setBounds(delayBlendArea.getX() + 20, delayBlendArea.getY() + 20, delayBlendArea.getWidth() - 40, delayBlendArea.getHeight() - 40);
+    delayBlendSliderLabel.setBounds(delayBlendArea.getX() + 20, delayBlendArea.getY() + delayBlendArea.getHeight() - 40, delayBlendArea.getWidth() - 40, 20);
+    delayBlendSliderLabel.setText("Blend", juce::dontSendNotification);
+    delayBlendSliderLabel.setJustificationType (juce::Justification::centred);
+    
+}
+
 void ProcessorGraphTestAudioProcessorEditor::updateToggleState(juce::Button* button)
 {
     bool showGate = false;
@@ -688,6 +731,7 @@ void ProcessorGraphTestAudioProcessorEditor::updateToggleState(juce::Button* but
     bool showComp = false;
     bool showEq = false;
     bool showPhaser = false;
+    bool showDelay = false;
     
     if (button == &gateButton)
     {
@@ -747,6 +791,16 @@ void ProcessorGraphTestAudioProcessorEditor::updateToggleState(juce::Button* but
         
         effectTitleLabel.setText("OUR PHASER", juce::dontSendNotification);
     }
+    if (button == &delayButton)
+    {
+        showDelay = true;
+        for (auto* comp : getDelayComps())
+        {
+            addAndMakeVisible(comp);
+        }
+        
+        effectTitleLabel.setText("OUR DELAY", juce::dontSendNotification);
+    }
     
     
     for (auto* comp : getNoiseGateComps())
@@ -773,6 +827,10 @@ void ProcessorGraphTestAudioProcessorEditor::updateToggleState(juce::Button* but
     {
         comp->setVisible(showPhaser);
     }
+    for (auto* comp : getDelayComps())
+    {
+        comp->setVisible(showDelay);
+    }
     
     effectTitleLabel.setVisible(true);
     
@@ -788,6 +846,7 @@ std::vector<juce::Component*> ProcessorGraphTestAudioProcessorEditor::getChainCo
         &compressorButton,
         &eqButton,
         &phaserButton,
+        &delayButton,
         &inputGainSlider,
         &outputGainSlider,
         &gateBypassToggle,
@@ -795,6 +854,7 @@ std::vector<juce::Component*> ProcessorGraphTestAudioProcessorEditor::getChainCo
         &verbBypassToggle,
         &eqBypassToggle,
         &phaserBypassToggle,
+        &delayBypassToggle
 //        &ampBypassToggle
     };
 }
@@ -923,6 +983,17 @@ std::vector<juce::Component*> ProcessorGraphTestAudioProcessorEditor::getPhaserC
             &phaserFeedbackSliderLabel,
             &phaserBlendSliderLabel
         };
+}
+
+std::vector<juce::Component*> ProcessorGraphTestAudioProcessorEditor::getDelayComps()
+{
+    return
+    {
+        &delayTimeSlider,
+        &delayBlendSlider,
+        &delayTimeSliderLabel,
+        &delayBlendSliderLabel
+    };
 }
 
 
