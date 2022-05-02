@@ -202,6 +202,15 @@ private:
     double auxSampleRate;
     int auxSamplesPerBlock;
 
+ juce::AudioBuffer<float> mixBuffer;
+//
+   using Filter = juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>>;
+   Filter preLowPassFilter, preHighPassFilter, postLowPassFilter, postHighPassFilter;
+   Filter preEmphasisFilter, postEmphasisFilter;
+   Filter tubeLowPassFilter, tubeHighPassFilter;
+
+
+
     bool isBypassed = false;
     bool isActive;
     bool ampInit = false;

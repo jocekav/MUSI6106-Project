@@ -130,7 +130,16 @@ target_sources(TEST
         Source/PluginProcessor.cpp
         Source/Effects_new.cpp
         Source/Amplifiers.cpp
-        Tests/tests.cpp)
+        Tests/tests.cpp
+	Source/PresetHandler.cpp
+        Source/SGA/Activations.cpp
+	Source/SGA/Convolution.cpp
+	Source/SGA/ConvolutionLayer.cpp
+	Source/SGA/ConvolutionStack.cpp
+	Source/SGA/WaveNet.cpp
+	Source/SGA/WaveNetLoader.cpp
+
+)
 
 target_compile_definitions(TEST
         PRIVATE
@@ -145,6 +154,7 @@ target_link_libraries(TEST
         juce::juce_gui_extra
         juce::juce_audio_utils
         juce::juce_dsp
+	Eigen3::Eigen
         PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_warning_flags)
