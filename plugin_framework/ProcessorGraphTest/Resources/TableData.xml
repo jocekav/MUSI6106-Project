@@ -1,0 +1,34 @@
+<TABLE_DATA>
+    <HEADERS>
+        <COLUMN columnId="1" name="Preset" width="100"/>
+        <COLUMN columnId="2" name="Select" width="50"/>
+    </HEADERS>
+    <DATA>
+        <ITEM Preset="Aggressive" Select="0"/>
+        <ITEM Preset="Airy" Select="0"/>
+        <ITEM Preset="Attack" Select="0"/>
+        <ITEM Preset="Bloom" Select="0"/>
+        <ITEM Preset="Boom" Select="0"/>
+        <ITEM Preset="Bright" Select="0"/>
+        <ITEM Preset="Chunky" Select="0"/>
+        <ITEM Preset="Compressed" Select="0"/>
+        <ITEM Preset="Creamy" Select="0"/>
+        <ITEM Preset="Djent" Select="0"/>
+        <ITEM Preset="Fat" Select="0"/>
+        <ITEM Preset="Fizz" Select="0"/>
+        <ITEM Preset="Floppy" Select="0"/>
+        <ITEM Preset="Flutey" Select="0"/>
+        <ITEM Preset="Growl" Select="0"/>
+        <ITEM Preset="Hot" Select="0"/>
+        <ITEM Preset="Icepick" Select="0"/>
+        <ITEM Preset="Juicy" Select="0"/>
+        <ITEM Preset="Muddy" Select="0"/>
+        <ITEM Preset="Mushy" Select="0"/>
+        <ITEM Preset="Quack" Select="0"/>
+        <ITEM Preset="Sizzle" Select="0"/>
+        <ITEM Preset="Twang" Select="0"/>
+        <ITEM Preset="Vintage" Select="0"/>
+        <ITEM Preset="Warm" Select="0"/>
+        <ITEM Preset="Woof" Select="0"/>
+    </DATA>
+</TABLE_DATA>
