@@ -39,7 +39,7 @@ void PresetHandler::parseXML(float *paramValues, string fileName)
     while (!dir2.getChildFile("Resources").exists() && numTries++ < 15)
         dir2 = dir2.getParentDirectory();
 
-    juce::File file = dir2.getChildFile("Resources").getChildFile(fileName);
+    juce::File file = dir2.getChildFile("Resources").getChildFile("XMLpresets").getChildFile(fileName);
 
     std::string filePath = file.getFullPathName().toStdString();
 
@@ -62,16 +62,17 @@ void PresetHandler::parseXML(float *paramValues, string fileName)
         }
     else
     {
-        if( mainElement->hasTagName( "PARAM" ) )
+        if( mainElement->hasTagName( "Parameters" ) )
         {
             int count = 0;
             forEachXmlChildElement(*mainElement, child)
             {
-                if( child->hasTagName( "value" ) )
+                if( child->hasTagName( "PARAM" ) )
                 {
                     float value = (child->getAllSubText()).getFloatValue();
                     paramValues[count] = value;
                 }
+                count++;
             }
         }
     }
