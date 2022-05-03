@@ -621,6 +621,10 @@ void CDelayProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 void CDelayProcessor::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer &)
 {
     this->update();
+    if (!isActive)
+        return;
+    if (isBypassed)
+        return;
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
