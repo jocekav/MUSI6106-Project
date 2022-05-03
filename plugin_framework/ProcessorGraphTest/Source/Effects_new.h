@@ -220,7 +220,7 @@ private:
 //================================================================================================================
 //  Dummy Amp for bypass
 //================================================================================================================
-class CBypassAmp : public CAmpIf
+class CBypassAmp : public ProcessorBase
 {
 public:
     const juce::String getName() const override { return "BypassAmp" + suffix; }
@@ -228,9 +228,12 @@ public:
     void prepareToPlay(double sampleRate, int samplesPerBlock) override;
     void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
     void reset() override;
+    void update();
+    juce::AudioProcessorValueTreeState* m_pAPVTS;
 
 private:
 
+    bool isBypassed = false;
     bool isActive;
     std::string suffix;
 };
@@ -238,17 +241,30 @@ private:
 //================================================================================================================
 //  Static tanh waveshaping
 //================================================================================================================
-class CTanhWaveshaping : public CAmpIf
+class CTanhWaveshaping : public ProcessorBase
 {
 public:
     const juce::String getName() const override { return "TanhWaveshaping" + suffix; }
-    CTanhWaveshaping();
+    CTanhWaveshaping(); 
+    CTanhWaveshaping(juce::AudioProcessorValueTreeState* apvts, int instanceNumber);
     void prepareToPlay(double sampleRate, int samplesPerBlock) override;
     void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
-    void reset() override;
-
+    void update();
+    void reset();
+    juce::AudioProcessorValueTreeState* m_pAPVTS;
 
 private:
+    enum ampNode
+    {
+        BypassAmpIndex,
+        WaveshaperIndex,
+        AnalogAmpIndex,
+        SGAIndex,
+
+        NumAmps
+    };
+    ampNode actualAmp;
+
     enum
     {
         preGainIndex,
@@ -260,6 +276,7 @@ private:
     juce::dsp::ProcessorChain<juce::dsp::Gain<float>, juce::dsp::WaveShaper<float>, 
         juce::dsp::Gain<float>> TanhProcessorChain;
 
+    bool isBypassed = false;
     bool isActive;
     std::string suffix;
 };
@@ -267,16 +284,29 @@ private:
 //================================================================================================================
 //  Analog Tube Preamp Emulation Processor Nodes
 //================================================================================================================
-class CAmpAnalogUsBlues : public CAmpIf
+class CAmpAnalogUsBlues : public ProcessorBase
 {
 public:
     const juce::String getName() const override { return "AnalogAmp" + suffix; }
     CAmpAnalogUsBlues();
+    CAmpAnalogUsBlues(juce::AudioProcessorValueTreeState* apvts, int instanceNumber);
     void prepareToPlay(double sampleRate, int samplesPerBlock) override;
     void processBlock(juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
-    void reset() override;
+    void update();
+    void reset();
+    juce::AudioProcessorValueTreeState* m_pAPVTS;
 
 private:
+    enum ampNode
+    {
+        BypassAmpIndex,
+        WaveshaperIndex,
+        AnalogAmpIndex,
+        SGAIndex,
+
+        NumAmps
+    };
+    ampNode actualAmp;
 
     // Tonestack Params based on the TMB Fender Bassman tone stack
     const double C1 = 0.25e-9;
@@ -311,6 +341,7 @@ private:
         juce::dsp::ProcessorDuplicator<Filter, FilterCoefs>, juce::dsp::Gain<float>,
         juce::dsp::SingleTubeProcessor<float>, juce::dsp::Gain<float>> ampProcessorChain;
 
+    bool isBypassed = false;
     bool isActive;
     std::string suffix;
 };
@@ -335,7 +366,19 @@ public:
     void reset() override;
     void update();
     juce::AudioProcessorValueTreeState* m_pAPVTS;
+
+
 private:
+    enum ampNode
+    {
+        BypassAmpIndex,
+        WaveshaperIndex,
+        AnalogAmpIndex,
+        SGAIndex,
+
+        NumAmps
+    };
+    ampNode actualAmp;
 
     enum SGAmodel
     {

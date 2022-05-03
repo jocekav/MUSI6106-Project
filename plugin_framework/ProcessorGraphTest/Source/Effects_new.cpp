@@ -896,6 +896,21 @@ CTanhWaveshaping::CTanhWaveshaping()
     postGain.setGainDecibels(0.0f);
 }
 
+CTanhWaveshaping::CTanhWaveshaping(juce::AudioProcessorValueTreeState* apvts, int instanceNumber)
+{
+    m_pAPVTS = apvts;
+    suffix = "_" + std::to_string(instanceNumber);
+    this->update();
+
+    auto& waveshaper = TanhProcessorChain.template get<waveshaperIndex>();
+    waveshaper.functionToUse = [](float x) { return std::tanh(x); };
+
+    auto& preGain = TanhProcessorChain.template get<preGainIndex>();
+    preGain.setGainDecibels(5.0f);
+    auto& postGain = TanhProcessorChain.template get<postGainIndex>();
+    postGain.setGainDecibels(0.0f);
+}
+
 void CTanhWaveshaping::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     auto channels = static_cast<juce::uint32> (fmin(getMainBusNumInputChannels(), getMainBusNumOutputChannels()));
@@ -905,6 +920,12 @@ void CTanhWaveshaping::prepareToPlay(double sampleRate, int samplesPerBlock)
 
 void CTanhWaveshaping::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer&)
 {
+    this->update();
+    if (!isActive)
+        return;
+    if (isBypassed)
+        return;
+
     const auto totalNumInputChannels = getTotalNumInputChannels();
     const auto totalNumOutputChannels = getTotalNumOutputChannels();
 
@@ -920,6 +941,15 @@ void CTanhWaveshaping::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiB
     TanhProcessorChain.process(context);
 }
 
+void CTanhWaveshaping::update()
+{
+    actualAmp = static_cast<ampNode> (m_pAPVTS->getRawParameterValue("Amp" + suffix)->load());
+    
+    if (actualAmp != WaveshaperIndex) isBypassed = true;
+    else isBypassed = false;
+
+}
+
 void CTanhWaveshaping::reset()
 {
     TanhProcessorChain.reset();
@@ -928,6 +958,13 @@ void CTanhWaveshaping::reset()
 //================================================================================================================
 CAmpAnalogUsBlues::CAmpAnalogUsBlues()
 {
+}
+
+CAmpAnalogUsBlues::CAmpAnalogUsBlues(juce::AudioProcessorValueTreeState* apvts, int instanceNumber)
+{
+    m_pAPVTS = apvts;
+    suffix = "_" + std::to_string(instanceNumber);
+    this->update();
 }
 
 void CAmpAnalogUsBlues::prepareToPlay(double sampleRate, int samplesPerBlock)
@@ -954,6 +991,11 @@ void CAmpAnalogUsBlues::prepareToPlay(double sampleRate, int samplesPerBlock)
 
 void CAmpAnalogUsBlues::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer&)
 {
+    this->update();
+    if (!isActive)
+        return;
+    if (isBypassed)
+        return;
     const auto totalNumInputChannels = getTotalNumInputChannels();
     const auto totalNumOutputChannels = getTotalNumOutputChannels();
 
@@ -967,6 +1009,14 @@ void CAmpAnalogUsBlues::processBlock(juce::AudioSampleBuffer& buffer, juce::Midi
     juce::dsp::ProcessContextReplacing<float> context(block);
 
     ampProcessorChain.process(context);
+}
+
+void CAmpAnalogUsBlues::update()
+{
+    actualAmp = static_cast<ampNode> (m_pAPVTS->getRawParameterValue("Amp" + suffix)->load());
+
+    if (actualAmp != AnalogAmpIndex) isBypassed = true;
+    else isBypassed = false;
 }
 
 void CAmpAnalogUsBlues::reset()
@@ -1015,6 +1065,7 @@ std::array<float, 8> CAmpAnalogUsBlues::tonestackCalcParam(double sampleRate)
 //================================================================================================================
 void CSmartGuitarAmp::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioParameter>>& params, int i = 0)
 {
+
     std::string num = std::to_string(i);
     std::string choice = "SGA_" + num;
 
@@ -1048,6 +1099,10 @@ CSmartGuitarAmp::CSmartGuitarAmp() :
 
 void CSmartGuitarAmp::update()
 {
+    actualAmp = static_cast<ampNode> (m_pAPVTS->getRawParameterValue("Amp" + suffix)->load());
+
+    if (actualAmp != SGAIndex) isBypassed = true;
+    else isBypassed = false;
     //previousModel = actualModel;
 
     ////actualModel = static_cast<SGAmodel> (m_pAPVTS->getRawParameterValue("SGA" + suffix)->load());
@@ -1082,21 +1137,25 @@ void CSmartGuitarAmp::update()
 void CSmartGuitarAmp::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     this->update();
+    if (!isActive)
+        return;
+    if (isBypassed)
+        return;
     auxSampleRate = sampleRate;
     auxSamplesPerBlock = samplesPerBlock;   
     waveNet.prepareToPlay(samplesPerBlock);
-//    juce::File default_tone("C:/Users/smjef/Github/MUSI6106-Project/plugin_framework/ProcessorGraphTest/Models/bias2_high_gain.json");
-//    this->suspendProcessing(true);
-//    WaveNetLoader loader(default_tone);
-//    float levelAdjust = loader.levelAdjust;
-//    int numChannels = loader.numChannels;
-//    int inputChannels = loader.inputChannels;
-//    int outputChannels = loader.outputChannels;
-//    int filterWidth = loader.filterWidth;
-//    std::vector<int> dilations = loader.dilations;
-//    std::string activation = loader.activation;
-//    waveNet.setParams(inputChannels, outputChannels, numChannels, filterWidth, activation, dilations, levelAdjust);
-//    loader.loadVariables(waveNet);
+    juce::File default_tone("C:/Users/thiag/Documents/Git-repos/MUSI6106-Project/plugin_framework/ProcessorGraphTes/Models/bias2_high_gain.json");
+    this->suspendProcessing(true);
+    WaveNetLoader loader(default_tone);
+    float levelAdjust = loader.levelAdjust;
+    int numChannels = loader.numChannels;
+    int inputChannels = loader.inputChannels;
+    int outputChannels = loader.outputChannels;
+    int filterWidth = loader.filterWidth;
+    std::vector<int> dilations = loader.dilations;
+    std::string activation = loader.activation;
+    waveNet.setParams(inputChannels, outputChannels, numChannels, filterWidth, activation, dilations, levelAdjust);
+    loader.loadVariables(waveNet);
 
     isActive = true;
     this->suspendProcessing(false);

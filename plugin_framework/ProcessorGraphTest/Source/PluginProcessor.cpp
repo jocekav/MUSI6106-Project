@@ -275,14 +275,19 @@ void ProcessorGraphTestAudioProcessor::initialiseAudioNodes(juce::ReferenceCount
     phaserNode = mainProcessor->addNode(std::make_unique<CPhaserProcessor>(&apvts,0));
     audioNodeList.add(phaserNode);
 
-    AmpInterfaceNode = mainProcessor->addNode(std::make_unique<CAmpIf>(&apvts, 0));
-    audioNodeList.add(AmpInterfaceNode);
+    AnalogAmpNode = mainProcessor->addNode(std::make_unique<CAmpAnalogUsBlues>(&apvts, 0));
+    audioNodeList.add(AnalogAmpNode);
 
-    //CabSimNode = mainProcessor->addNode(std::make_unique<CabSimProcessor>(&apvts, 0));
-    //audioNodeList.add(CabSimNode);
+    TanhWaveshapingNode = mainProcessor->addNode(std::make_unique<CTanhWaveshaping>(&apvts, 0));
+    audioNodeList.add(TanhWaveshapingNode);
 
-//    SGANode = mainProcessor->addNode(std::make_unique<CSmartGuitarAmp>(&apvts, 0));
-//    audioNodeList.add(SGANode);
+    SGANode = mainProcessor->addNode(std::make_unique<CSmartGuitarAmp>(&apvts, 0));
+    audioNodeList.add(SGANode);
+
+    CabSimNode = mainProcessor->addNode(std::make_unique<CabSimProcessor>(&apvts, 0));
+    audioNodeList.add(CabSimNode);
+
+
 
     outputGainNode = mainProcessor->addNode(std::make_unique<CGainProcessor>(&apvts,1));
     audioNodeList.add(outputGainNode);

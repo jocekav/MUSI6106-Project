@@ -93,6 +93,8 @@ public:
     Node::Ptr AmpInterfaceNode;
     Node::Ptr CabSimNode;
     Node::Ptr SGANode;
+    Node::Ptr AnalogAmpNode;
+    Node::Ptr TanhWaveshapingNode;
 
 
 
