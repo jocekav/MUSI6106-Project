@@ -102,12 +102,11 @@ void PresetHandler::averageMultiArray(float **paramValues, float *avgValues, int
 {
     float currValue;
     float prevValue;
-    int count = 0;
     for (int i = 0; i < numParams; i++)
     {
-        prevValue = paramValues[count][i];
-        avgValues[i] = paramValues[count][i];
-        for (int j = 0; j < numChoices - 1; j++){
+        prevValue = paramValues[0][i];
+        avgValues[i] = paramValues[0][i];
+        for (int j = 1; j < numChoices - 1; j++){
             // check bypassed
             currValue = paramValues[j][i];
             if ((currValue == 0.0 && prevValue == 1.0) || (prevValue == 0.0 && currValue == 1.0))
@@ -120,25 +119,26 @@ void PresetHandler::averageMultiArray(float **paramValues, float *avgValues, int
                 avgValues[i] += currValue;
             }
             prevValue = currValue;
-            count++;
         }
         // get average through division
         avgValues[i] /= numChoices;
     }
 }
 
-void PresetHandler::convertToFileNames(string* presetNameArray, int numPresetsToSet)
+std::string PresetHandler::convertToFileNames(int presetInd)
 {
-    for (int i = 0; i < numPresetsToSet; i++)
-    {
-        string currName = presetNameArray[i];
-        transform(currName.begin(), currName.end(), currName.begin(), ::tolower);
-        currName.append(".xml");
-        presetNameArray[i] = currName;
-    }
+//    for (int i = 0; i < numPresetsToSet; i++)
+//    {
+//        string currName = presetNameArray[i];
+//        transform(currName.begin(), currName.end(), currName.begin(), ::tolower);
+//        currName.append(".xml");
+//        presetNameArray[i] = currName;
+//    }
+    const char* fileNames[] = { "aggresive.xml", "airy.xml", "attack.xml", "bloom.xml", "boom.xml","bright.xml","chunky.xml","compressed.xml","creamy.xml","djent.xml","fat.xml", "fizz.xml","floppy.xml", "flutey.xml","growl.xml","hot.xml","icepick.xml","juicy.xml","muddy.xml","mushy.xml", "quack.xml","sizzle.xml", "twang.xml", "vintage.xml", "warm.xml", "woof.xml"};
+    return fileNames[presetInd];
 }
 
-void PresetHandler::setParamsFromPopUp(string* presetNameArray, int numPresetsToSet)
+void PresetHandler::setParamsFromPopUp(int* presetIndArray, int numPresetsToSet)
 {
     // how many choices selected
     // create a multi-dimensional array with 41xlength(choice_Names)
@@ -149,13 +149,13 @@ void PresetHandler::setParamsFromPopUp(string* presetNameArray, int numPresetsTo
         ppf_paramValues[i] = new float[unsigned(NUM_PARAMS)]();
     }
     
-    convertToFileNames(presetNameArray, numPresetsToSet);
+//    convertToFileNames(presetNameArray, numPresetsToSet);
     string fileName;
     
     // in iteratition, instantiate file names and parseXML
     for (int i = 0; i < numPresetsToSet; i++)
     {
-        fileName = presetNameArray[i];
+        fileName = convertToFileNames(presetIndArray[i]);
         parseXML(ppf_paramValues[i], fileName);
     }
     
@@ -167,7 +167,7 @@ void PresetHandler::setParamsFromPopUp(string* presetNameArray, int numPresetsTo
 //    setParamsFromXML(avgValues, m_pAPVTS, NUM_PARAMS);
     
     // delete everything
-    for (int i = 0; i < NUM_PARAMS; i++)
+    for (int i = 0; i < numPresetsToSet; i++)
     {
         delete ppf_paramValues[i];
     }
