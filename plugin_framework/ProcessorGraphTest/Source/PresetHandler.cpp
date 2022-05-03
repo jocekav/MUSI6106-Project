@@ -33,6 +33,16 @@ void PresetHandler::parseXML(float *paramValues, string fileName)
     {
         paramValues[i] = aggresive[i];
     }
+
+    auto dir2 = juce::File::getSpecialLocation(juce::File::currentApplicationFile);
+    int numTries = 0;
+    while (!dir2.getChildFile("Resources").exists() && numTries++ < 15)
+        dir2 = dir2.getParentDirectory();
+
+    juce::File file = dir2.getChildFile("Resources").getChildFile("TableData.xml");
+
+    std::string filePath = file.getFullPathName().toStdString();
+
 //    float new paramValues[41];
     // Read the sample.xml file
 //    xml_document<> doc;
@@ -129,7 +139,7 @@ void PresetHandler::setParamsFromXML(float *paramValues, juce::AudioProcessorVal
         "ReverbBypass_0",
         "ReverbDamping_0",
         "ReverbRoomSize_0"};
-const char* paramNames[] = { "Amp_0", "DelayBlend_0", "DelayBypass_0", "DelayTime_0", "CompressorAttack_0","CompressorBypass_0","CompressorInputGain_0","CompressorMakeupGain_0","CompressorRatio_0","CompressorRelease_0","CompressorThreshold_0", "GainValue_0","GainValue_1"};
+//const char* paramNames[] = { "Amp_0", "DelayBlend_0", "DelayBypass_0", "DelayTime_0", "CompressorAttack_0","CompressorBypass_0","CompressorInputGain_0","CompressorMakeupGain_0","CompressorRatio_0","CompressorRelease_0","CompressorThreshold_0", "GainValue_0","GainValue_1"};
     
     for (int i = 0; i < num_params; i++) {
     
