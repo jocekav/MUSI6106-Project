@@ -409,7 +409,7 @@ delayButton("DELAY")
 
     for (auto* comp : getReverbComps())
      {
-         addAndMakeVisible(comp);
+         addChildComponent(comp);
      }
      effectTitleLabel.setText("REVERB", juce::dontSendNotification);
      
@@ -421,7 +421,7 @@ delayButton("DELAY")
     
     for (auto* comp : getAmpComps())
     {
-        addChildComponent(comp);
+        addAndMakeVisible(comp);
     }
     
     for (auto* comp : getNoiseGateComps())
@@ -466,7 +466,7 @@ delayButton("DELAY")
      phaserButton.onClick = [this] { updateToggleState (&phaserButton); };
      delayButton.onClick = [this] { updateToggleState (&delayButton); };
      
-     verbButton.setState(juce::Button::ButtonState::buttonDown);
+     ampButton.setState(juce::Button::ButtonState::buttonDown);
     
     addAndMakeVisible (presetPopUpButton);
     presetPopUpButton.setButtonText ("Select A Preset");
@@ -513,12 +513,12 @@ void ProcessorGraphTestAudioProcessorEditor::resized()
     auto chainBounds = bounds.removeFromBottom(bounds.getHeight() * 0.5);
     
     chainBounds.setBounds(chainBounds.getX() + 40, chainBounds.getY() + chainBounds.getHeight() / 3 + 5, chainBounds.getWidth() - 60, chainBounds.getHeight() / 4);
-    auto gateArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 7);
-    auto compArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 6);
-    auto eqArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 5);
-    auto ampArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 4);
-    auto phaserArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 3);
-    auto delayArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 2);
+    auto gateArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 6);
+    auto compArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 5);
+    auto eqArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 4);
+    auto ampArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 3);
+    auto phaserArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 2);
+//    auto delayArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 2);
     auto verbArea = chainBounds.removeFromLeft(chainBounds.getWidth());
     
     eqButton.setBounds(eqArea);
@@ -526,7 +526,7 @@ void ProcessorGraphTestAudioProcessorEditor::resized()
     gateButton.setBounds(gateArea);
     compressorButton.setBounds(compArea);
     phaserButton.setBounds(phaserArea);
-    delayButton.setBounds(delayArea);
+//    delayButton.setBounds(delayArea);
     verbButton.setBounds(verbArea);
     
     gateBypassToggle.setBounds(gateArea.getX() + gateArea.getWidth() / 4, gateArea.getY() - 30, gateArea.getWidth() / 4, gateArea.getHeight() * .3);
@@ -534,7 +534,7 @@ void ProcessorGraphTestAudioProcessorEditor::resized()
     eqBypassToggle.setBounds(eqArea.getX() + eqArea.getWidth() / 4, eqArea.getY() - 30, eqArea.getWidth() / 4, eqArea.getHeight() * .3);
     compBypassToggle.setBounds(compArea.getX() + compArea.getWidth() / 4, compArea.getY() - 30, compArea.getWidth() / 4, compArea.getHeight() * .3);
     verbBypassToggle.setBounds(verbArea.getX() + verbArea.getWidth() / 4, verbArea.getY() - 30, verbArea.getWidth() / 4, verbArea.getHeight() * .3);
-    delayBypassToggle.setBounds(delayArea.getX() + delayArea.getWidth() / 4, delayArea.getY() - 30, delayArea.getWidth() / 4, delayArea.getHeight() * .3);
+//    delayBypassToggle.setBounds(delayArea.getX() + delayArea.getWidth() / 4, delayArea.getY() - 30, delayArea.getWidth() / 4, delayArea.getHeight() * .3);
     phaserBypassToggle.setBounds(phaserArea.getX() + phaserArea.getWidth() / 4, phaserArea.getY() - 30, phaserArea.getWidth() / 4, phaserArea.getHeight() * .3);
 
     bounds = getLocalBounds();
@@ -672,7 +672,7 @@ void ProcessorGraphTestAudioProcessorEditor::drawReverb()
        effectTitleLabel.setJustificationType (juce::Justification::left);
        
        auto rvbBlendArea = bounds.removeFromLeft(bounds.getWidth() * 0.33);
-       auto rvbRoomSizeArea = bounds.removeFromLeft(bounds.getWidth() * 0.66);
+       auto rvbRoomSizeArea = bounds.removeFromLeft(bounds.getWidth() * 0.5);
        auto rvbDampingArea = bounds.removeFromLeft(bounds.getWidth());
        
        rvbBlendSlider.setBounds(rvbBlendArea.getX() + 20, rvbBlendArea.getY() + 20, rvbBlendArea.getWidth() - 40, rvbBlendArea.getHeight() - 40);
@@ -1031,7 +1031,7 @@ std::vector<juce::Component*> ProcessorGraphTestAudioProcessorEditor::getChainCo
         &compressorButton,
         &eqButton,
         &phaserButton,
-        &delayButton,
+//        &delayButton,
         &inputGainSlider,
         &outputGainSlider,
         &gateBypassToggle,
@@ -1039,7 +1039,7 @@ std::vector<juce::Component*> ProcessorGraphTestAudioProcessorEditor::getChainCo
         &verbBypassToggle,
         &eqBypassToggle,
         &phaserBypassToggle,
-        &delayBypassToggle
+//        &delayBypassToggle
 //        &ampBypassToggle
     };
 }
