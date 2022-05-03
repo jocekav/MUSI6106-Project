@@ -111,6 +111,31 @@ private:
     juce::String suffix;
 };
 
+struct CustomTextButton : juce::TextButton
+{
+    CustomTextButton(juce::RangedAudioParameter& rap, const juce::String& unitSuffix) : juce::TextButton(),
+    param(&rap),
+    suffix(unitSuffix)
+    {
+        setLookAndFeel(&lnf);
+    }
+    
+    ~CustomTextButton()
+    {
+        setLookAndFeel(nullptr);
+    }
+    
+    void paint(juce::Graphics& g) override;
+    juce::Rectangle<int> getSliderBounds() const;
+    int getTextHeight() const { return 14; }
+    juce::String getDisplayString() const;
+private:
+    LookAndFeel lnf;
+    
+    juce::RangedAudioParameter* param;
+    juce::String suffix;
+};
+
 struct CustomComboBox : juce::ComboBox
 {
     CustomComboBox(juce::RangedAudioParameter& rap, const juce::String& unitSuffix) : juce::ComboBox(),
@@ -175,6 +200,7 @@ private:
     
     // Effect chain buttons
         juce::TextButton presetPopUpButton;
+//        CustomTextButton presetPopUpButton;
         TableTutorialComponent presetTable;
         bool showTable = false;
         
@@ -243,6 +269,7 @@ private:
 //        ampPostHpfSliderLabel;
 //
 //        juce::ComboBox ampTypeComboBox;
+        juce::Label ampTypeComboBoxLabel;
         CustomComboBox ampTypeComboBox;
         APVTS::ComboBoxAttachment ampTypeComboBoxAttachment;
 

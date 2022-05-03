@@ -118,15 +118,52 @@ void LookAndFeel::drawToggleButton (juce::Graphics &g,
     
     if (auto* customToggle = dynamic_cast<CustomToggle*>(&toggle))
     {
+        
+        Path powerButton;
+                
+        auto bounds = toggle.getLocalBounds();
+        
+        auto size = jmin(bounds.getWidth(), bounds.getHeight()) - 6;
+        auto r = bounds.withSizeKeepingCentre(size, size).toFloat();
+        
+        float ang = 30.f; //30.f;
+        
+        size -= 6;
+        
+        powerButton.addCentredArc(r.getCentreX(),
+                                  r.getCentreY(),
+                                  size * 0.5,
+                                  size * 0.5,
+                                  0.f,
+                                  degreesToRadians(ang),
+                                  degreesToRadians(360.f - ang),
+                                  true);
+        
+        powerButton.startNewSubPath(r.getCentreX(), r.getY());
+        powerButton.lineTo(r.getCentre());
+                
+        PathStrokeType pst(2.f, PathStrokeType::JointStyle::curved);
+        
         auto color = toggleState ? juce::Colour(196u, 196u, 196u) : juce::Colour(66u, 245u, 72u);
+        auto text = toggleState ? "OFF" : "ON";
+        
+        bounds = toggle.getLocalBounds();
         g.setColour(color);
         g.fillRect(bounds);
+        
+        toggle.setButtonText(text);
+
+        g.setColour(juce::Colours::white);
+        g.strokePath(powerButton, pst);
+        
     }
     else
     {
         auto color = toggleState ? juce::Colour(196u, 196u, 196u) : juce::Colour(109u, 103u, 95u);
         g.setColour(color);
         g.fillRect(bounds);
+        
+        auto fullArea = bounds;
         
         auto signArea = bounds.removeFromRight((bounds.getWidth() / 4));
         signArea.removeFromBottom(bounds.getHeight() - bounds.getHeight() / 3.5);
@@ -145,7 +182,8 @@ void LookAndFeel::drawToggleButton (juce::Graphics &g,
         }
         
         auto text = toggle.getButtonText();
-        g.drawFittedText(text, bounds, juce::Justification::centred, 1);
+        g.setFont(juce::Font(20.f, juce::Font::bold));
+        g.drawText(text, fullArea, juce::Justification::horizontallyCentred, false);
     }
 
 }
@@ -179,6 +217,7 @@ void LookAndFeel::drawComboBox(juce::Graphics& g,
 
     g.setColour (box.findColour (ComboBox::arrowColourId).withAlpha ((box.isEnabled() ? 0.9f : 0.2f)));
     g.strokePath (path, PathStrokeType (2.0f));
+    box.setTextWhenNothingSelected("Choose Amp Type");
 }
 
 void CustomToggle::paint(juce::Graphics &g)
@@ -372,7 +411,7 @@ delayButton("DELAY")
      {
          addAndMakeVisible(comp);
      }
-     effectTitleLabel.setText("OUR REVERB", juce::dontSendNotification);
+     effectTitleLabel.setText("REVERB", juce::dontSendNotification);
      
      for (auto* comp : getChainComps())
      {
@@ -435,7 +474,7 @@ delayButton("DELAY")
     
     addChildComponent(presetTable);
     
-    setSize (700, 500);
+    setSize (900, 600);
 }
 
 ProcessorGraphTestAudioProcessorEditor::~ProcessorGraphTestAudioProcessorEditor()
@@ -473,7 +512,7 @@ void ProcessorGraphTestAudioProcessorEditor::resized()
     auto bounds = getLocalBounds();
     auto chainBounds = bounds.removeFromBottom(bounds.getHeight() * 0.5);
     
-    chainBounds.setBounds(chainBounds.getX() + 40, chainBounds.getY() + chainBounds.getHeight() / 3 - 10, chainBounds.getWidth() - 60, chainBounds.getHeight() / 4);
+    chainBounds.setBounds(chainBounds.getX() + 40, chainBounds.getY() + chainBounds.getHeight() / 3 + 5, chainBounds.getWidth() - 60, chainBounds.getHeight() / 4);
     auto gateArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 7);
     auto compArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 6);
     auto eqArea = chainBounds.removeFromLeft(chainBounds.getWidth() / 5);
@@ -490,13 +529,13 @@ void ProcessorGraphTestAudioProcessorEditor::resized()
     delayButton.setBounds(delayArea);
     verbButton.setBounds(verbArea);
     
-    gateBypassToggle.setBounds(gateArea.getX() + gateArea.getWidth() / 4, gateArea.getY() - 30, gateArea.getWidth() / 4, gateArea.getHeight() / 4);
+    gateBypassToggle.setBounds(gateArea.getX() + gateArea.getWidth() / 4, gateArea.getY() - 30, gateArea.getWidth() / 4, gateArea.getHeight() * .3);
 //    ampBypassToggle.setBounds(ampArea.getX() + ampArea.getWidth() / 4, ampArea.getY() - 30, ampArea.getWidth() / 4, ampArea.getHeight() / 4);
-    eqBypassToggle.setBounds(eqArea.getX() + eqArea.getWidth() / 4, eqArea.getY() - 30, eqArea.getWidth() / 4, eqArea.getHeight() / 4);
-    compBypassToggle.setBounds(compArea.getX() + compArea.getWidth() / 4, compArea.getY() - 30, compArea.getWidth() / 4, compArea.getHeight() / 4);
-    verbBypassToggle.setBounds(verbArea.getX() + verbArea.getWidth() / 4, verbArea.getY() - 30, verbArea.getWidth() / 4, verbArea.getHeight() / 4);
-    delayBypassToggle.setBounds(delayArea.getX() + delayArea.getWidth() / 4, delayArea.getY() - 30, delayArea.getWidth() / 4, delayArea.getHeight() / 4);
-    phaserBypassToggle.setBounds(phaserArea.getX() + phaserArea.getWidth() / 4, phaserArea.getY() - 30, phaserArea.getWidth() / 4, phaserArea.getHeight() / 4);
+    eqBypassToggle.setBounds(eqArea.getX() + eqArea.getWidth() / 4, eqArea.getY() - 30, eqArea.getWidth() / 4, eqArea.getHeight() * .3);
+    compBypassToggle.setBounds(compArea.getX() + compArea.getWidth() / 4, compArea.getY() - 30, compArea.getWidth() / 4, compArea.getHeight() * .3);
+    verbBypassToggle.setBounds(verbArea.getX() + verbArea.getWidth() / 4, verbArea.getY() - 30, verbArea.getWidth() / 4, verbArea.getHeight() * .3);
+    delayBypassToggle.setBounds(delayArea.getX() + delayArea.getWidth() / 4, delayArea.getY() - 30, delayArea.getWidth() / 4, delayArea.getHeight() * .3);
+    phaserBypassToggle.setBounds(phaserArea.getX() + phaserArea.getWidth() / 4, phaserArea.getY() - 30, phaserArea.getWidth() / 4, phaserArea.getHeight() * .3);
 
     bounds = getLocalBounds();
     auto inputArea = bounds.removeFromBottom(bounds.getHeight() * 0.5);
@@ -506,7 +545,7 @@ void ProcessorGraphTestAudioProcessorEditor::resized()
     
     bounds = getLocalBounds();
     auto outputArea = bounds.removeFromBottom(bounds.getHeight() * 0.5);
-    outputArea.setBounds(outputArea.getX() + outputArea.getWidth() - 130, outputArea.getY() + outputArea.getHeight() - 80, outputArea.getWidth() / 3.5, outputArea.getHeight() / 3.5);
+    outputArea.setBounds(outputArea.getX() + outputArea.getWidth() - outputArea.getWidth() / 3.5 + 70, outputArea.getY() + outputArea.getHeight() - 80, outputArea.getWidth() / 3.5, outputArea.getHeight() / 3.5);
     
     outputGainSlider.setBounds(outputArea);
     
@@ -590,7 +629,7 @@ void ProcessorGraphTestAudioProcessorEditor::drawNoiseGate()
         auto labelArea = bounds.removeFromTop(bounds.getHeight() * .33);
         effectTitleLabel.setBounds(labelArea.getX() + 10, labelArea.getY() + 10, labelArea.getWidth() - 20, labelArea.getHeight() - 20);
         effectTitleLabel.setFont(juce::Font(32.f, juce::Font::bold));
-        effectTitleLabel.setText("OUR NOISE GATE", juce::dontSendNotification);
+        effectTitleLabel.setText("NOISE GATE", juce::dontSendNotification);
         effectTitleLabel.setColour (juce::Label::textColourId, juce::Colours::white);
         effectTitleLabel.setJustificationType (juce::Justification::left);
         
@@ -628,12 +667,12 @@ void ProcessorGraphTestAudioProcessorEditor::drawReverb()
        auto labelArea = bounds.removeFromTop(bounds.getHeight() * .33);
        effectTitleLabel.setBounds(labelArea.getX() + 10, labelArea.getY() + 10, labelArea.getWidth() - 20, labelArea.getHeight() - 20);
        effectTitleLabel.setFont(juce::Font(32.f, juce::Font::bold));
-       effectTitleLabel.setText("OUR REVERB", juce::dontSendNotification);
+       effectTitleLabel.setText("REVERB", juce::dontSendNotification);
        effectTitleLabel.setColour (juce::Label::textColourId, juce::Colours::white);
        effectTitleLabel.setJustificationType (juce::Justification::left);
        
        auto rvbBlendArea = bounds.removeFromLeft(bounds.getWidth() * 0.33);
-       auto rvbRoomSizeArea = bounds.removeFromLeft(bounds.getWidth() * 0.63);
+       auto rvbRoomSizeArea = bounds.removeFromLeft(bounds.getWidth() * 0.66);
        auto rvbDampingArea = bounds.removeFromLeft(bounds.getWidth());
        
        rvbBlendSlider.setBounds(rvbBlendArea.getX() + 20, rvbBlendArea.getY() + 20, rvbBlendArea.getWidth() - 40, rvbBlendArea.getHeight() - 40);
@@ -660,7 +699,7 @@ void ProcessorGraphTestAudioProcessorEditor::drawCompressor()
      auto labelArea = bounds.removeFromTop(bounds.getHeight() * .33);
      effectTitleLabel.setBounds(labelArea.getX() + 10, labelArea.getY() + 10, labelArea.getWidth() - 20, labelArea.getHeight() - 20);
      effectTitleLabel.setFont(juce::Font(32.f, juce::Font::bold));
-     effectTitleLabel.setText("OUR COMPRESSOR", juce::dontSendNotification);
+     effectTitleLabel.setText("COMPRESSOR", juce::dontSendNotification);
      effectTitleLabel.setColour (juce::Label::textColourId, juce::Colours::white);
      effectTitleLabel.setJustificationType (juce::Justification::left);
      
@@ -701,10 +740,10 @@ void ProcessorGraphTestAudioProcessorEditor::drawEQ()
     auto bounds = getLocalBounds();
     auto responseArea = bounds.removeFromBottom(bounds.getHeight() * 0.5);
     
-    auto labelArea = bounds.removeFromTop(bounds.getHeight() * .33);
+    auto labelArea = bounds.removeFromTop(bounds.getHeight() * .28);
     effectTitleLabel.setBounds(labelArea.getX() + 10, labelArea.getY() + 10, labelArea.getWidth() - 20, labelArea.getHeight() - 20);
     effectTitleLabel.setFont(juce::Font(32.f, juce::Font::bold));
-    effectTitleLabel.setText("OUR EQ", juce::dontSendNotification);
+    effectTitleLabel.setText("EQ", juce::dontSendNotification);
     effectTitleLabel.setColour (juce::Label::textColourId, juce::Colours::white);
     effectTitleLabel.setJustificationType (juce::Justification::left);
     
@@ -717,7 +756,7 @@ void ProcessorGraphTestAudioProcessorEditor::drawEQ()
     auto eqLowMidQArea = eqLowMidArea.removeFromTop(eqLowMidArea.getHeight() * .5);
     auto eqLowMidGainArea = eqLowMidArea.removeFromTop(eqLowMidArea.getHeight());
     
-    auto eqMidArea = bounds.removeFromLeft(bounds.getWidth() * 0.33);
+    auto eqMidArea = bounds.removeFromLeft(bounds.getWidth() * 0.4);
     auto eqMidFreqArea = eqMidArea.removeFromTop(eqMidArea.getHeight() * 0.33);
     auto eqMidQArea = eqMidArea.removeFromTop(eqMidArea.getHeight() * .5);
     auto eqMidGainArea = eqMidArea.removeFromTop(eqMidArea.getHeight());
@@ -805,7 +844,7 @@ void ProcessorGraphTestAudioProcessorEditor::drawPhaser()
     auto labelArea = bounds.removeFromTop(bounds.getHeight() * .33);
     effectTitleLabel.setBounds(labelArea.getX() + 10, labelArea.getY() + 10, labelArea.getWidth() - 20, labelArea.getHeight() - 20);
     effectTitleLabel.setFont(juce::Font(32.f, juce::Font::bold));
-    effectTitleLabel.setText("OUR PHASER", juce::dontSendNotification);
+    effectTitleLabel.setText("PHASER", juce::dontSendNotification);
     effectTitleLabel.setColour (juce::Label::textColourId, juce::Colours::white);
     effectTitleLabel.setJustificationType (juce::Justification::left);
     
@@ -849,7 +888,7 @@ void ProcessorGraphTestAudioProcessorEditor::drawDelay()
    auto labelArea = bounds.removeFromTop(bounds.getHeight() * .33);
    effectTitleLabel.setBounds(labelArea.getX() + 10, labelArea.getY() + 10, labelArea.getWidth() - 20, labelArea.getHeight() - 20);
    effectTitleLabel.setFont(juce::Font(32.f, juce::Font::bold));
-   effectTitleLabel.setText("OUR DELAY", juce::dontSendNotification);
+   effectTitleLabel.setText("DELAY", juce::dontSendNotification);
    effectTitleLabel.setColour (juce::Label::textColourId, juce::Colours::white);
    effectTitleLabel.setJustificationType (juce::Justification::left);
        
@@ -876,12 +915,17 @@ void ProcessorGraphTestAudioProcessorEditor::drawAmp()
     auto labelArea = bounds.removeFromTop(bounds.getHeight() * .33);
     effectTitleLabel.setBounds(labelArea.getX() + 10, labelArea.getY() + 10, labelArea.getWidth() - 20, labelArea.getHeight() - 20);
     effectTitleLabel.setFont(juce::Font(32.f, juce::Font::bold));
-    effectTitleLabel.setText("OUR AMP", juce::dontSendNotification);
+    effectTitleLabel.setText("AMP", juce::dontSendNotification);
     effectTitleLabel.setColour (juce::Label::textColourId, juce::Colours::white);
     effectTitleLabel.setJustificationType (juce::Justification::left);
     
 //    ampTypeComboBox.setBounds(bounds.getX() - 20, bounds.getY() + (bounds.getHeight() / 4), bounds.getWidth(), bounds.getHeight() / 4);
     ampTypeComboBox.setBounds(bounds.getX() + 50, bounds.getY() + (bounds.getHeight() / 4), bounds.getWidth() - 100, bounds.getHeight() / 4);
+    ampTypeComboBoxLabel.setBounds(bounds.getX() + 50, bounds.getY() + (bounds.getHeight() / 4) - 50, bounds.getWidth() - 100, bounds.getHeight() / 4);
+    ampTypeComboBoxLabel.setFont(juce::Font(24.f, juce::Font::bold));
+    ampTypeComboBoxLabel.setText("Choose Amp Type", juce::dontSendNotification);
+    ampTypeComboBoxLabel.setJustificationType (juce::Justification::left);
+    ampTypeComboBox.setTextWhenNothingSelected("Choose Amp Type");
     juce::StringArray strArray ( {"TanhWaveshaping", "AnalogAmp", "SGAmp" });
     for (int i = 0; i < strArray.size(); i++) {
         ampTypeComboBox.addItem(strArray[i], i+1);
@@ -904,43 +948,43 @@ void ProcessorGraphTestAudioProcessorEditor::updateToggleState(juce::Button* but
     {
         showGate = true;
 
-        effectTitleLabel.setText("OUR NOISE GATE", juce::dontSendNotification);
+        effectTitleLabel.setText("NOISE GATE", juce::dontSendNotification);
     }
     if (button == &ampButton)
     {
         showAmp = true;
         
-        effectTitleLabel.setText("OUR AMP", juce::dontSendNotification);
+        effectTitleLabel.setText("AMP", juce::dontSendNotification);
     }
     if (button == &verbButton)
     {
         showVerb = true;
         
-        effectTitleLabel.setText("OUR REVERB", juce::dontSendNotification);
+        effectTitleLabel.setText("REVERB", juce::dontSendNotification);
     }
     if (button == &compressorButton)
     {
         showComp = true;
 
-        effectTitleLabel.setText("OUR COMPRESSOR", juce::dontSendNotification);
+        effectTitleLabel.setText("COMPRESSOR", juce::dontSendNotification);
     }
     if (button == &eqButton)
     {
         showEq = true;
         
-        effectTitleLabel.setText("OUR EQ", juce::dontSendNotification);
+        effectTitleLabel.setText("EQ", juce::dontSendNotification);
     }
     if (button == &phaserButton)
     {
         showPhaser = true;
         
-        effectTitleLabel.setText("OUR PHASER", juce::dontSendNotification);
+        effectTitleLabel.setText("PHASER", juce::dontSendNotification);
     }
     if (button == &delayButton)
     {
         showDelay = true;
         
-        effectTitleLabel.setText("OUR DELAY", juce::dontSendNotification);
+        effectTitleLabel.setText("DELAY", juce::dontSendNotification);
     }
     
     
@@ -1039,7 +1083,8 @@ std::vector<juce::Component*> ProcessorGraphTestAudioProcessorEditor::getAmpComp
 //        &ampEmphasisGainSliderLabel,
 //        &ampPostLpfSliderLabel,
 //        &ampPostHpfSliderLabel,
-        &ampTypeComboBox
+        &ampTypeComboBox,
+        &ampTypeComboBoxLabel
     };
 }
 

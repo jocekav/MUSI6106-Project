@@ -725,7 +725,7 @@ void CAmpIf::addToParameterLayout(std::vector<std::unique_ptr<juce::RangedAudioP
     std::string num = std::to_string(i);
     std::string choice = "Amp_" + num;
 
-    params.push_back(std::make_unique<juce::AudioParameterChoice>(choice, "Amp Model", juce::StringArray{ "BypassAmp", "TanhWaveshaping", "AnalogAmp", "SGA" }, 0));
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(choice, "Amp Model", juce::StringArray{ "TanhWaveshaping", "AnalogAmp", "SGA" }, 0));
 }
 
 void CAmpIf::update()

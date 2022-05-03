@@ -284,8 +284,8 @@ void ProcessorGraphTestAudioProcessor::initialiseAudioNodes(juce::ReferenceCount
     SGANode = mainProcessor->addNode(std::make_unique<CSmartGuitarAmp>(&apvts, 0));
     audioNodeList.add(SGANode);
 
-    CabSimNode = mainProcessor->addNode(std::make_unique<CabSimProcessor>(&apvts, 0));
-    audioNodeList.add(CabSimNode);
+//    CabSimNode = mainProcessor->addNode(std::make_unique<CabSimProcessor>(&apvts, 0));
+//    audioNodeList.add(CabSimNode);
 
 
 
