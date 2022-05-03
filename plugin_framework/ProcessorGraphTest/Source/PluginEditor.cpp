@@ -560,8 +560,11 @@ void ProcessorGraphTestAudioProcessorEditor::buttonClicked (juce::Button* button
 
             if (numPresetsToSet > 0)
             {
-                std::string *presetNameArray;
-                presetNameArray = new std::string [unsigned(numPresetsToSet)];
+//                std::string *presetNameArray;
+//                presetNameArray = new std::string [unsigned(numPresetsToSet)];
+//                std::vector<std::string> presetNameArray;
+                
+                int *fileInd = new int [unsigned(numPresetsToSet)];
 
                 numPresetsToSet = 0;
                 for (int i = 0; i < 26; i++)
@@ -569,15 +572,15 @@ void ProcessorGraphTestAudioProcessorEditor::buttonClicked (juce::Button* button
                     setPreset = presetTable.getSelection(i);
                     if (setPreset)
                     {
-                        currPreset = (presetTable.getText(1, i)).toStdString();
-                        presetNameArray[numPresetsToSet] = currPreset;
+//                        currPreset = (presetTable.getText(1, i)).toStdString();
+                        fileInd[numPresetsToSet] = i;
                         numPresetsToSet++;
                     }
                 }
 
-                presetHandler.setParamsFromPopUp(presetNameArray, numPresetsToSet);
+                presetHandler.setParamsFromPopUp(fileInd, numPresetsToSet);
 
-                delete[] presetNameArray;
+                delete[] fileInd;
 
             }
             

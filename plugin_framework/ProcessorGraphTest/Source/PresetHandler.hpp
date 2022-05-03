@@ -41,8 +41,8 @@ public:
     void parseXML(float *paramValues, std::string fileName);
     void setParamsFromXML(float *paramValues, juce::AudioProcessorValueTreeState* apvts, int num_params);
     void averageMultiArray(float **paramValues, float *avgValues, int numParams, int numChoices);
-    void setParamsFromPopUp(std::string* presetNameArray, int numPresetsToSet);
-    void convertToFileNames(std::string* presetNameArray, int numPresetsToSet);
+    void setParamsFromPopUp(int* presetIndArray, int numPresetsToSet);
+    std::string convertToFileNames(int presetInd);
     
     juce::AudioProcessorValueTreeState* m_pAPVTS;
     
