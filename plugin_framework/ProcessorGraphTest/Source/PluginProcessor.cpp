@@ -281,12 +281,14 @@ void ProcessorGraphTestAudioProcessor::initialiseAudioNodes(juce::ReferenceCount
     //CabSimNode = mainProcessor->addNode(std::make_unique<CabSimProcessor>(&apvts, 0));
     //audioNodeList.add(CabSimNode);
 
-    SGANode = mainProcessor->addNode(std::make_unique<CSmartGuitarAmp>(&apvts, 0));
-    audioNodeList.add(SGANode);
+//    SGANode = mainProcessor->addNode(std::make_unique<CSmartGuitarAmp>(&apvts, 0));
+//    audioNodeList.add(SGANode);
 
     outputGainNode = mainProcessor->addNode(std::make_unique<CGainProcessor>(&apvts,1));
     audioNodeList.add(outputGainNode);
-
+    
+//    presetHandler = PresetHandler(&apvts);
+    
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout ProcessorGraphTestAudioProcessor::createParameterLayout()

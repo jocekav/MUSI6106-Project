@@ -23,6 +23,7 @@
 #include <juce_gui_extra/juce_gui_extra.h>
 #include "PluginProcessor.h"
 #include "TableListBoxTutorial.h"
+#include "PresetHandler.hpp"
 
 //==============================================================================
 /**
@@ -163,11 +164,14 @@ public:
     {
         EffectShown = 1001
     };
+    
 
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     ProcessorGraphTestAudioProcessor& audioProcessor;
+    
+    PresetHandler presetHandler;
     
     // Effect chain buttons
         juce::TextButton presetPopUpButton;

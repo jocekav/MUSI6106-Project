@@ -22,6 +22,7 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <juce_gui_extra/juce_gui_extra.h>
 #include "Effects_new.h"
+//#include "PresetHandler.hpp"
 
 //==============================================================================
 /**
@@ -108,6 +109,9 @@ public:
 
 
     juce::AudioProcessorValueTreeState apvts;
+    
+//    PresetHandler presetHandler;
+    
 private:
     //==============================================================================
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();

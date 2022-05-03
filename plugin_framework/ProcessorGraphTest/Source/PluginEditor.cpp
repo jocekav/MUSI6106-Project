@@ -364,6 +364,8 @@ delayButton("DELAY")
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
+    
+    presetHandler = PresetHandler();
 
     for (auto* comp : getReverbComps())
      {
@@ -531,6 +533,54 @@ void ProcessorGraphTestAudioProcessorEditor::buttonClicked (juce::Button* button
     {
         showTable = !showTable;
         presetTable.setVisible(showTable);
+        
+        if (showTable)
+        {
+            button->setButtonText("Close Preset Menu");
+        }
+        else
+        {
+            button->setButtonText("Select A Preset");
+//            inputGainSlider.setValue(4.0);
+            
+            std::cout << presetTable.getSelection(0);
+            int setPreset;
+            std::string currPreset;
+            int numPresetsToSet = 0;
+
+            for (int i = 0; i < 26; i++)
+            {
+                setPreset = presetTable.getSelection(i);
+                if (setPreset)
+                {
+                    numPresetsToSet++;
+                }
+            }
+
+            if (numPresetsToSet > 0)
+            {
+                std::string *presetNameArray;
+                presetNameArray = new std::string [unsigned(numPresetsToSet)];
+
+                numPresetsToSet = 0;
+                for (int i = 0; i < 26; i++)
+                {
+                    setPreset = presetTable.getSelection(i);
+                    if (setPreset)
+                    {
+                        currPreset = (presetTable.getText(1, i)).toStdString();
+                        presetNameArray[numPresetsToSet] = currPreset;
+                        numPresetsToSet++;
+                    }
+                }
+
+                presetHandler.setParamsFromPopUp(presetNameArray, numPresetsToSet);
+
+                delete[] presetNameArray;
+
+            }
+            
+        }
     }
 }
 
