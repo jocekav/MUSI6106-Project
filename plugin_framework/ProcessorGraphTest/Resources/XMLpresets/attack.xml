@@ -28,7 +28,7 @@
     <PARAM id="EqualizerMF_0" value="800.0" />
     <PARAM id="EqualizerMGain_0" value="0.0" />
     <PARAM id="EqualizerMQ_0" value="1.0" />
-    <PARAM id="GainValue_0" value="30.0" />
+    <PARAM id="GainValue_0" value="10.0" />
     <PARAM id="GainValue_1" value="0.0" />
     <PARAM id="NoiseGateAttack_0" value="10.0" />
     <PARAM id="NoiseGateBypass_0" value="0.0" />
