@@ -86,8 +86,50 @@ void PresetHandler::parseXML(float *paramValues, string fileName)
 void PresetHandler::setParamsFromXML(float *paramValues, juce::AudioProcessorValueTreeState* apvts, int num_params)
 {
     float displayVal;
-//    const char* paramNames[] = { "Amp_0", "DelayBlend_0", "DelayBypass_0", "DelayTime_0", "CompressorAttack_0","CompressorBypass_0","CompressorInputGain_0","CompressorMakeupGain_0","CompressorRatio_0","CompressorRelease_0","CompressorThreshold_0", "GainValue_0","GainValue_1","NoiseGateAttack_0","NoiseGateBypass_0","NoiseGateRatio_0","NoiseGateRelease_0","NoiseGateThreshold_0","PhaserBlend_0","PhaserBypass_0","PhaserDepth_0","PhaserFc_0","PhaserFeedback_0","PhaserRate_0","ReverbBlend_0","ReverbBypass_0","ReverbDamping_0","ReverbRoomSize_0" "EqualizerBypass_0","EqualizerHMF_0","EqualizerHMGain_0","EqualizerHMQ_0","EqualizerHPFQ_0","EqualizerHPF_0","EqualizerLMF_0","EqualizerLMGain_0","EqualizerLMQ_0","EqualizerLPFQ_0","EqualizerLPF_0","EqualizerMF_0","EqualizerMGain_0","EqualizerMQ_0"};
-    const char* paramNames[] = { "Amp_0", "DelayBlend_0", "DelayBypass_0", "DelayTime_0", "CompressorAttack_0","CompressorBypass_0","CompressorInputGain_0","CompressorMakeupGain_0","CompressorRatio_0","CompressorRelease_0","CompressorThreshold_0", "GainValue_0","GainValue_1"};
+    const char* paramNames[] = { 
+        "Amp_0",
+        "DelayBlend_0",
+        "DelayBypass_0",
+        "DelayTime_0",
+        "CompressorAttack_0",
+        "CompressorBypass_0",
+        "CompressorInputGain_0",
+        "CompressorMakeupGain_0",
+        "CompressorRatio_0",
+        "CompressorRelease_0",
+        "CompressorThreshold_0",
+        "EqualizerBypass_0",
+        "EqualizerHMF_0",
+        "EqualizerHMGain_0",
+        "EqualizerHMQ_0",
+        "EqualizerHPFQ_0",
+        "EqualizerHPF_0",
+        "EqualizerLMF_0",
+        "EqualizerLMGain_0",
+        "EqualizerLMQ_0",
+        "EqualizerLPFQ_0",
+        "EqualizerLPF_0",
+        "EqualizerMF_0",
+        "EqualizerMGain_0",
+        "EqualizerMQ_0",
+        "GainValue_0",
+        "GainValue_1",
+        "NoiseGateAttack_0",
+        "NoiseGateBypass_0",
+        "NoiseGateRatio_0",
+        "NoiseGateRelease_0",
+        "NoiseGateThreshold_0",
+        "PhaserBlend_0",
+        "PhaserBypass_0",
+        "PhaserDepth_0",
+        "PhaserFc_0",
+        "PhaserFeedback_0",
+        "PhaserRate_0",
+        "ReverbBlend_0",
+        "ReverbBypass_0",
+        "ReverbDamping_0",
+        "ReverbRoomSize_0"};
+const char* paramNames[] = { "Amp_0", "DelayBlend_0", "DelayBypass_0", "DelayTime_0", "CompressorAttack_0","CompressorBypass_0","CompressorInputGain_0","CompressorMakeupGain_0","CompressorRatio_0","CompressorRelease_0","CompressorThreshold_0", "GainValue_0","GainValue_1"};
     
     for (int i = 0; i < num_params; i++) {
     
