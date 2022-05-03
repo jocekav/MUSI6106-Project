@@ -78,13 +78,13 @@ target_sources(GuitarAmpPlugin
         Source/PluginProcessor.cpp
         Source/Effects_new.cpp
         Source/Amplifiers.cpp
-	Source/PresetHandler.cpp
+		Source/PresetHandler.cpp
         Source/SGA/Activations.cpp
-	Source/SGA/Convolution.cpp
-	Source/SGA/ConvolutionLayer.cpp
-	Source/SGA/ConvolutionStack.cpp
-	Source/SGA/WaveNet.cpp
-	Source/SGA/WaveNetLoader.cpp
+		Source/SGA/Convolution.cpp
+		Source/SGA/ConvolutionLayer.cpp
+		Source/SGA/ConvolutionStack.cpp
+		Source/SGA/WaveNet.cpp
+		Source/SGA/WaveNetLoader.cpp
         )
 
 # `target_compile_definitions` adds some preprocessor definitions to our target. In a Projucer

@@ -18,6 +18,11 @@
 #include <juce_graphics/juce_graphics.h>
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <juce_gui_extra/juce_gui_extra.h>
+
+
+//#include "EqProcessor.h"
+
+#ifndef BaseProcessor_h
 namespace ProjectInfo
 {
     const char* const  projectName    = "ProcessorGraphTest";
@@ -25,11 +30,7 @@ namespace ProjectInfo
     const char* const  versionString  = "1.0.0";
     const int          versionNumber  = 0x10000;
 }
-//#include "EqProcessor.h"
-
-#ifndef BaseProcessor_h
 #define BaseProcessor_h
-
 class ProcessorBase  : public juce::AudioProcessor
 {
 public:
