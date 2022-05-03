@@ -1,7 +1,48 @@
-VC2!  <?xml version="1.0" encoding="UTF-8"?> <Parameters><PARAM id="Amp_0" value="0.0"/>
+VC2!<?xml version="1.0" encoding="UTF-8"?>
+<Parameters>
+    <PARAM id="Amp_0" value="0.0" />
 
-<PARAM id="DelayBlend_0" value="1.0"/>
+    <PARAM id="DelayBlend_0" value="1.0" />
 
-<PARAM id="DelayBypass_0" value="0.0"/>
+    <PARAM id="DelayBypass_0" value="0.0" />
 
-<PARAM id="DelayTime_0" value="1000.0"/><PARAM id="CompressorAttack_0" value="97.66999816894531"/><PARAM id="CompressorBypass_0" value="0.0"/><PARAM id="CompressorInputGain_0" value="0.0"/><PARAM id="CompressorMakeupGain_0" value="5.829998016357422"/><PARAM id="CompressorRatio_0" value="1.0"/><PARAM id="CompressorRelease_0" value="83.80999755859375"/><PARAM id="CompressorThreshold_0" value="-51.66999816894531"/><PARAM id="EqualizerBypass_0" value="0.0"/><PARAM id="EqualizerHMF_0" value="4000.0"/><PARAM id="EqualizerHMGain_0" value="-19.44444465637207"/><PARAM id="EqualizerHMQ_0" value="1.0"/><PARAM id="EqualizerHPFQ_0" value="1.0"/><PARAM id="EqualizerHPF_0" value="199.0"/><PARAM id="EqualizerLMF_0" value="200.0"/><PARAM id="EqualizerLMGain_0" value="0.5555534362792969"/><PARAM id="EqualizerLMQ_0" value="1.0"/><PARAM id="EqualizerLPFQ_0" value="1.0"/><PARAM id="EqualizerLPF_0" value="20000.0"/><PARAM id="EqualizerMF_0" value="800.0"/><PARAM id="EqualizerMGain_0" value="0.0"/><PARAM id="EqualizerMQ_0" value="1.0"/><PARAM id="GainValue_0" value="30.0"/><PARAM id="GainValue_1" value="0.0"/><PARAM id="NoiseGateAttack_0" value="10.0"/><PARAM id="NoiseGateBypass_0" value="1.0"/><PARAM id="NoiseGateRatio_0" value="8.309999465942383"/><PARAM id="NoiseGateRelease_0" value="222.6699981689453"/><PARAM id="NoiseGateThreshold_0" value="-57.91999816894531"/><PARAM id="PhaserBlend_0" value="0.25"/><PARAM id="PhaserBypass_0" value="1.0"/><PARAM id="PhaserDepth_0" value="0.25"/><PARAM id="PhaserFc_0" value="25.0"/><PARAM id="PhaserFeedback_0" value="0.0"/><PARAM id="PhaserRate_0" value="0.1000000014901161"/><PARAM id="ReverbBlend_0" value="0.25"/><PARAM id="ReverbBypass_0" value="0.0"/><PARAM id="ReverbDamping_0" value="0.25"/><PARAM id="ReverbRoomSize_0" value="0.09999999403953552"/></Parameters> 
+    <PARAM id="DelayTime_0" value="1000.0" />
+    <PARAM id="CompressorAttack_0" value="97.66999816894531" />
+    <PARAM id="CompressorBypass_0" value="0.0" />
+    <PARAM id="CompressorInputGain_0" value="0.0" />
+    <PARAM id="CompressorMakeupGain_0" value="5.829998016357422" />
+    <PARAM id="CompressorRatio_0" value="1.0" />
+    <PARAM id="CompressorRelease_0" value="83.80999755859375" />
+    <PARAM id="CompressorThreshold_0" value="-51.66999816894531" />
+    <PARAM id="EqualizerBypass_0" value="0.0" />
+    <PARAM id="EqualizerHMF_0" value="4000.0" />
+    <PARAM id="EqualizerHMGain_0" value="-19.44444465637207" />
+    <PARAM id="EqualizerHMQ_0" value="1.0" />
+    <PARAM id="EqualizerHPFQ_0" value="1.0" />
+    <PARAM id="EqualizerHPF_0" value="199.0" />
+    <PARAM id="EqualizerLMF_0" value="200.0" />
+    <PARAM id="EqualizerLMGain_0" value="0.5555534362792969" />
+    <PARAM id="EqualizerLMQ_0" value="1.0" />
+    <PARAM id="EqualizerLPFQ_0" value="1.0" />
+    <PARAM id="EqualizerLPF_0" value="20000.0" />
+    <PARAM id="EqualizerMF_0" value="800.0" />
+    <PARAM id="EqualizerMGain_0" value="0.0" />
+    <PARAM id="EqualizerMQ_0" value="1.0" />
+    <PARAM id="GainValue_0" value="30.0" />
+    <PARAM id="GainValue_1" value="0.0" />
+    <PARAM id="NoiseGateAttack_0" value="10.0" />
+    <PARAM id="NoiseGateBypass_0" value="1.0" />
+    <PARAM id="NoiseGateRatio_0" value="8.309999465942383" />
+    <PARAM id="NoiseGateRelease_0" value="222.6699981689453" />
+    <PARAM id="NoiseGateThreshold_0" value="-57.91999816894531" />
+    <PARAM id="PhaserBlend_0" value="0.25" />
+    <PARAM id="PhaserBypass_0" value="1.0" />
+    <PARAM id="PhaserDepth_0" value="0.25" />
+    <PARAM id="PhaserFc_0" value="25.0" />
+    <PARAM id="PhaserFeedback_0" value="0.0" />
+    <PARAM id="PhaserRate_0" value="0.1000000014901161" />
+    <PARAM id="ReverbBlend_0" value="0.25" />
+    <PARAM id="ReverbBypass_0" value="0.0" />
+    <PARAM id="ReverbDamping_0" value="0.25" />
+    <PARAM id="ReverbRoomSize_0" value="0.09999999403953552" />
+</Parameters> 

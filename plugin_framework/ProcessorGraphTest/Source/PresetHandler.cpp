@@ -33,15 +33,24 @@ void PresetHandler::parseXML(float *paramValues, string fileName)
 //    {
 //        paramValues[i] = aggresive[i];
 //    }
-    
+
+    auto dir2 = juce::File::getSpecialLocation(juce::File::currentApplicationFile);
+    int numTries = 0;
+    while (!dir2.getChildFile("Resources").exists() && numTries++ < 15)
+        dir2 = dir2.getParentDirectory();
+
+    juce::File file = dir2.getChildFile("Resources").getChildFile(fileName);
+
+    std::string filePath = file.getFullPathName().toStdString();
+
 //    float new paramValues[41];
     // Read the sample.xml file
 //    xml_document<> doc;
 //    xml_node<> * root_node;
 
-    fileName = "/Users/jocekav/Documents/GitHub/MUSI6106-Project/plugin_framework/ProcessorGraphTest/Resources/XMLPresets/" + fileName;
+    // fileName = "/Users/jocekav/Documents/GitHub/MUSI6106-Project/plugin_framework/ProcessorGraphTest/Resources/XMLPresets/" + fileName;
 
-    juce::File file = juce::File(fileName);
+    // juce::File file = juce::File(fileName);
 
     juce::XmlDocument doc(file);
 //    std::unique_ptr<juce::XmlElement> mainElement = doc.getDocumentElement();
@@ -88,9 +97,51 @@ void PresetHandler::parseXML(float *paramValues, string fileName)
 void PresetHandler::setParamsFromXML(float *paramValues, juce::AudioProcessorValueTreeState* apvts, int num_params)
 {
     float displayVal;
-    const char* paramNames[] = { "Amp_0", "DelayBlend_0", "DelayBypass_0", "DelayTime_0", "CompressorAttack_0","CompressorBypass_0","CompressorInputGain_0","CompressorMakeupGain_0","CompressorRatio_0","CompressorRelease_0","CompressorThreshold_0", "GainValue_0","GainValue_1","NoiseGateAttack_0","NoiseGateBypass_0","NoiseGateRatio_0","NoiseGateRelease_0","NoiseGateThreshold_0","PhaserBlend_0","PhaserBypass_0","PhaserDepth_0","PhaserFc_0","PhaserFeedback_0","PhaserRate_0","ReverbBlend_0","ReverbBypass_0","ReverbDamping_0","ReverbRoomSize_0" "EqualizerBypass_0","EqualizerHMF_0","EqualizerHMGain_0","EqualizerHMQ_0","EqualizerHPFQ_0","EqualizerHPF_0","EqualizerLMF_0","EqualizerLMGain_0","EqualizerLMQ_0","EqualizerLPFQ_0","EqualizerLPF_0","EqualizerMF_0","EqualizerMGain_0","EqualizerMQ_0"};
-//    const char* paramNames[] = { "Amp_0", "DelayBlend_0", "DelayBypass_0", "DelayTime_0", "CompressorAttack_0","CompressorBypass_0","CompressorInputGain_0","CompressorMakeupGain_0","CompressorRatio_0","CompressorRelease_0","CompressorThreshold_0", "GainValue_0","GainValue_1"};
-//
+    const char* paramNames[] = { 
+        "Amp_0",
+        "DelayBlend_0",
+        "DelayBypass_0",
+        "DelayTime_0",
+        "CompressorAttack_0",
+        "CompressorBypass_0",
+        "CompressorInputGain_0",
+        "CompressorMakeupGain_0",
+        "CompressorRatio_0",
+        "CompressorRelease_0",
+        "CompressorThreshold_0",
+        "EqualizerBypass_0",
+        "EqualizerHMF_0",
+        "EqualizerHMGain_0",
+        "EqualizerHMQ_0",
+        "EqualizerHPFQ_0",
+        "EqualizerHPF_0",
+        "EqualizerLMF_0",
+        "EqualizerLMGain_0",
+        "EqualizerLMQ_0",
+        "EqualizerLPFQ_0",
+        "EqualizerLPF_0",
+        "EqualizerMF_0",
+        "EqualizerMGain_0",
+        "EqualizerMQ_0",
+        "GainValue_0",
+        "GainValue_1",
+        "NoiseGateAttack_0",
+        "NoiseGateBypass_0",
+        "NoiseGateRatio_0",
+        "NoiseGateRelease_0",
+        "NoiseGateThreshold_0",
+        "PhaserBlend_0",
+        "PhaserBypass_0",
+        "PhaserDepth_0",
+        "PhaserFc_0",
+        "PhaserFeedback_0",
+        "PhaserRate_0",
+        "ReverbBlend_0",
+        "ReverbBypass_0",
+        "ReverbDamping_0",
+        "ReverbRoomSize_0"};
+//const char* paramNames[] = { "Amp_0", "DelayBlend_0", "DelayBypass_0", "DelayTime_0", "CompressorAttack_0","CompressorBypass_0","CompressorInputGain_0","CompressorMakeupGain_0","CompressorRatio_0","CompressorRelease_0","CompressorThreshold_0", "GainValue_0","GainValue_1"};
+    
     for (int i = 0; i < num_params; i++) {
     
         juce::Value curVal = apvts->getParameterAsValue(paramNames[i]);

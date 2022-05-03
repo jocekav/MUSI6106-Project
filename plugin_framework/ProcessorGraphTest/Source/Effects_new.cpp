@@ -1085,7 +1085,18 @@ void CSmartGuitarAmp::prepareToPlay(double sampleRate, int samplesPerBlock)
     auxSampleRate = sampleRate;
     auxSamplesPerBlock = samplesPerBlock;   
     waveNet.prepareToPlay(samplesPerBlock);
-//    juce::File default_tone("C:/Users/smjef/Github/MUSI6106-Project/plugin_framework/ProcessorGraphTest/Models/bias2_high_gain.json");
+
+    auto dir = juce::File::getSpecialLocation(juce::File::currentApplicationFile);
+
+
+
+    int numTries = 0;
+    while (!dir.getChildFile("Models").exists() && numTries++ < 15)
+        dir = dir.getParentDirectory();
+
+    juce::File default_tone(dir.getChildFile("Models").getChildFile("bias2_high_gain.json"));
+
+    //    juce::File default_tone("C:/Users/smjef/Github/MUSI6106-Project/plugin_framework/ProcessorGraphTest/Models/bias2_high_gain.json");
 //    this->suspendProcessing(true);
 //    WaveNetLoader loader(default_tone);
 //    float levelAdjust = loader.levelAdjust;
@@ -1131,12 +1142,11 @@ CabSimProcessor::CabSimProcessor(juce::AudioProcessorValueTreeState* apvts, int 
     m_pAPVTS = apvts;
     suffix = "_" + std::to_string(instanceNumber);
 
-    auto dir = juce::File::getCurrentWorkingDirectory();
-
+    auto dir = juce::File::getSpecialLocation(juce::File::currentApplicationFile);
     int numTries = 0;
-
     while (!dir.getChildFile("Resources").exists() && numTries++ < 15)
         dir = dir.getParentDirectory();
+
 
     auto& convolution = convolutionCabSim;
 

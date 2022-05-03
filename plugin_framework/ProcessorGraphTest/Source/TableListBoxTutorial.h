@@ -45,7 +45,6 @@
 
 #pragma once
 
-
 //==============================================================================
 class TableTutorialComponent    : public juce::Component,
                                   public juce::TableListBoxModel
