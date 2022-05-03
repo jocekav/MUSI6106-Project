@@ -1,4 +1,4 @@
-VC2!)<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Parameters>
     <PARAM id="Amp_0" value="0.0" />
     <PARAM id="DelayBlend_0" value="1.0" />
@@ -12,7 +12,7 @@ VC2!)<?xml version="1.0" encoding="UTF-8"?>
     <PARAM id="CompressorRelease_0" value="14.38999938964844" />
     <PARAM id="CompressorThreshold_0" value="-11.25" />
     <PARAM id="EqualizerBypass_0" value="0.0" />
-    <PARAM id="EqualizerHMF_0" value="4000.0">
+    <PARAM id="EqualizerHMF_0" value="4000.0"/>
     <PARAM id="EqualizerHMGain_0" value="-3.888889312744141" />
     <PARAM id="EqualizerHMQ_0" value="2.0" />
     <PARAM id="EqualizerHPFQ_0" value="1.0"/>
