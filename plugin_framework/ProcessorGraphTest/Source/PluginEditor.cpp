@@ -366,7 +366,7 @@ delayButton("DELAY")
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     
-    presetHandler = PresetHandler();
+//    presetHandler = PresetHandler();
 
     for (auto* comp : getReverbComps())
      {
@@ -578,7 +578,7 @@ void ProcessorGraphTestAudioProcessorEditor::buttonClicked (juce::Button* button
                     }
                 }
 
-                presetHandler.setParamsFromPopUp(fileInd, numPresetsToSet);
+                audioProcessor.presetHandler.setParamsFromPopUp(fileInd, numPresetsToSet);
 
                 delete[] fileInd;
 

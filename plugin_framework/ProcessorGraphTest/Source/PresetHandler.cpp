@@ -13,12 +13,12 @@ using namespace rapidxml;
 PresetHandler::PresetHandler(juce::AudioProcessorValueTreeState *apvts)
 {
     m_pAPVTS = apvts;
-    NUM_PARAMS = 13;
+    NUM_PARAMS = 41;
 }
 
 PresetHandler::PresetHandler()
 {
-    NUM_PARAMS = 13;
+    NUM_PARAMS = 41;
 }
 
 PresetHandler::~PresetHandler( void )
@@ -28,42 +28,44 @@ PresetHandler::~PresetHandler( void )
 
 void PresetHandler::parseXML(float *paramValues, string fileName)
 {
-    float aggresive[13] = {0.0, 1.0, 0.0, 1000.0, 21.31999969482422, 0.0, 19.16999816894531, 0.4200000762939453, 21.03999900817871, 14.38999938964844, -11.25, 10.59000015258789, 30.0};
-    for (int i = 0; i < 13; i++)
-    {
-        paramValues[i] = aggresive[i];
-    }
+//    float aggresive[13] = {0.0, 1.0, 0.0, 1000.0, 21.31999969482422, 0.0, 19.16999816894531, 0.4200000762939453, 21.03999900817871, 14.38999938964844, -11.25, 10.59000015258789, 30.0};
+//    for (int i = 0; i < 13; i++)
+//    {
+//        paramValues[i] = aggresive[i];
+//    }
+    
 //    float new paramValues[41];
     // Read the sample.xml file
 //    xml_document<> doc;
 //    xml_node<> * root_node;
-//
-//    fileName = "/Users/jocekav/Documents/GitHub/MUSI6106-Project/plugin_framework/ProcessorGraphTest/Resources/XMLPresets/" + fileName;
-//
-//    juce::File file = juce::File(fileName);
-//
-//    juce::XmlDocument doc(file);
+
+    fileName = "/Users/jocekav/Documents/GitHub/MUSI6106-Project/plugin_framework/ProcessorGraphTest/Resources/XMLPresets/" + fileName;
+
+    juce::File file = juce::File(fileName);
+
+    juce::XmlDocument doc(file);
 //    std::unique_ptr<juce::XmlElement> mainElement = doc.getDocumentElement();
-//
-//    if (mainElement == 0)
-//        {
-//            std::cout <<(doc.getLastParseError());
-//        }
-//    else
-//    {
-//        if( mainElement->hasTagName( "PARAM" ) )
-//        {
-//            int count = 0;
-//            forEachXmlChildElement(*mainElement, child)
-//            {
-//                if( child->hasTagName( "value" ) )
-//                {
-//                    float value = (child->getAllSubText()).getFloatValue();
-//                    paramValues[count] = value;
-//                }
-//            }
-//        }
-//    }
+    auto mainElement = doc.getDocumentElement();
+
+    if (mainElement == 0)
+        {
+            std::cout <<(doc.getLastParseError());
+        }
+    else
+    {
+        if( mainElement->hasTagName( "PARAM" ) )
+        {
+            int count = 0;
+            forEachXmlChildElement(*mainElement, child)
+            {
+                if( child->hasTagName( "value" ) )
+                {
+                    float value = (child->getAllSubText()).getFloatValue();
+                    paramValues[count] = value;
+                }
+            }
+        }
+    }
     
 //    ifstream xmlFile;
 //    xmlFile.open(fileName);
@@ -86,9 +88,9 @@ void PresetHandler::parseXML(float *paramValues, string fileName)
 void PresetHandler::setParamsFromXML(float *paramValues, juce::AudioProcessorValueTreeState* apvts, int num_params)
 {
     float displayVal;
-//    const char* paramNames[] = { "Amp_0", "DelayBlend_0", "DelayBypass_0", "DelayTime_0", "CompressorAttack_0","CompressorBypass_0","CompressorInputGain_0","CompressorMakeupGain_0","CompressorRatio_0","CompressorRelease_0","CompressorThreshold_0", "GainValue_0","GainValue_1","NoiseGateAttack_0","NoiseGateBypass_0","NoiseGateRatio_0","NoiseGateRelease_0","NoiseGateThreshold_0","PhaserBlend_0","PhaserBypass_0","PhaserDepth_0","PhaserFc_0","PhaserFeedback_0","PhaserRate_0","ReverbBlend_0","ReverbBypass_0","ReverbDamping_0","ReverbRoomSize_0" "EqualizerBypass_0","EqualizerHMF_0","EqualizerHMGain_0","EqualizerHMQ_0","EqualizerHPFQ_0","EqualizerHPF_0","EqualizerLMF_0","EqualizerLMGain_0","EqualizerLMQ_0","EqualizerLPFQ_0","EqualizerLPF_0","EqualizerMF_0","EqualizerMGain_0","EqualizerMQ_0"};
-    const char* paramNames[] = { "Amp_0", "DelayBlend_0", "DelayBypass_0", "DelayTime_0", "CompressorAttack_0","CompressorBypass_0","CompressorInputGain_0","CompressorMakeupGain_0","CompressorRatio_0","CompressorRelease_0","CompressorThreshold_0", "GainValue_0","GainValue_1"};
-    
+    const char* paramNames[] = { "Amp_0", "DelayBlend_0", "DelayBypass_0", "DelayTime_0", "CompressorAttack_0","CompressorBypass_0","CompressorInputGain_0","CompressorMakeupGain_0","CompressorRatio_0","CompressorRelease_0","CompressorThreshold_0", "GainValue_0","GainValue_1","NoiseGateAttack_0","NoiseGateBypass_0","NoiseGateRatio_0","NoiseGateRelease_0","NoiseGateThreshold_0","PhaserBlend_0","PhaserBypass_0","PhaserDepth_0","PhaserFc_0","PhaserFeedback_0","PhaserRate_0","ReverbBlend_0","ReverbBypass_0","ReverbDamping_0","ReverbRoomSize_0" "EqualizerBypass_0","EqualizerHMF_0","EqualizerHMGain_0","EqualizerHMQ_0","EqualizerHPFQ_0","EqualizerHPF_0","EqualizerLMF_0","EqualizerLMGain_0","EqualizerLMQ_0","EqualizerLPFQ_0","EqualizerLPF_0","EqualizerMF_0","EqualizerMGain_0","EqualizerMQ_0"};
+//    const char* paramNames[] = { "Amp_0", "DelayBlend_0", "DelayBypass_0", "DelayTime_0", "CompressorAttack_0","CompressorBypass_0","CompressorInputGain_0","CompressorMakeupGain_0","CompressorRatio_0","CompressorRelease_0","CompressorThreshold_0", "GainValue_0","GainValue_1"};
+//
     for (int i = 0; i < num_params; i++) {
     
         juce::Value curVal = apvts->getParameterAsValue(paramNames[i]);
@@ -134,7 +136,7 @@ std::string PresetHandler::convertToFileNames(int presetInd)
 //        currName.append(".xml");
 //        presetNameArray[i] = currName;
 //    }
-    const char* fileNames[] = { "aggresive.xml", "airy.xml", "attack.xml", "bloom.xml", "boom.xml","bright.xml","chunky.xml","compressed.xml","creamy.xml","djent.xml","fat.xml", "fizz.xml","floppy.xml", "flutey.xml","growl.xml","hot.xml","icepick.xml","juicy.xml","muddy.xml","mushy.xml", "quack.xml","sizzle.xml", "twang.xml", "vintage.xml", "warm.xml", "woof.xml"};
+    const char* fileNames[] = { "aggressive.xml", "airy.xml", "attack.xml", "bloom.xml", "boom.xml","bright.xml","chunky.xml","compressed.xml","creamy.xml","djent.xml","fat.xml", "fizz.xml","floppy.xml", "flutey.xml","growl.xml","hot.xml","icepick.xml","juicy.xml","muddy.xml","mushy.xml", "quack.xml","sizzle.xml", "twang.xml", "vintage.xml", "warm.xml", "woof.xml"};
     return fileNames[presetInd];
 }
 
