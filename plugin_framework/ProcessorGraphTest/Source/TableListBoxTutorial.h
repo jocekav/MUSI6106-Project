@@ -45,6 +45,7 @@
 
 #pragma once
 
+
 //==============================================================================
 class TableTutorialComponent    : public juce::Component,
                                   public juce::TableListBoxModel
@@ -52,13 +53,16 @@ class TableTutorialComponent    : public juce::Component,
 public:
     TableTutorialComponent()
     {
-        auto dir = juce::File::getCurrentWorkingDirectory();
+        //auto dir = juce::File::getCurrentWorkingDirectory();
+        
+        auto dir2 = juce::File::getSpecialLocation(juce::File::currentApplicationFile);
+
         int numTries = 0;
-        while (!dir.getChildFile("Resources").exists() && numTries++ < 15)
-            dir = dir.getParentDirectory();
+        while (!dir2.getChildFile("Resources").exists() && numTries++ < 15)
+            dir2 = dir2.getParentDirectory();
 
   
-        loadData (dir.getChildFile("Resources").getChildFile("TableData.xml"));                                             // [1]
+        loadData (dir2.getChildFile("Resources").getChildFile("TableData.xml"));                                             // [1]
 
         addAndMakeVisible (table);                                                  // [1]
 
