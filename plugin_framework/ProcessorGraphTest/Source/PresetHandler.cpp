@@ -13,12 +13,12 @@ using namespace rapidxml;
 PresetHandler::PresetHandler(juce::AudioProcessorValueTreeState *apvts)
 {
     m_pAPVTS = apvts;
-    NUM_PARAMS = 13;
+    NUM_PARAMS = 41;
 }
 
 PresetHandler::PresetHandler()
 {
-    NUM_PARAMS = 13;
+    NUM_PARAMS = 41;
 }
 
 PresetHandler::~PresetHandler( void )
@@ -28,42 +28,60 @@ PresetHandler::~PresetHandler( void )
 
 void PresetHandler::parseXML(float *paramValues, string fileName)
 {
-    float aggresive[13] = {0.0, 1.0, 0.0, 1000.0, 21.31999969482422, 0.0, 19.16999816894531, 0.4200000762939453, 21.03999900817871, 14.38999938964844, -11.25, 10.59000015258789, 30.0};
-    for (int i = 0; i < 13; i++)
-    {
-        paramValues[i] = aggresive[i];
-    }
+//    float aggresive[13] = {0.0, 1.0, 0.0, 1000.0, 21.31999969482422, 0.0, 19.16999816894531, 0.4200000762939453, 21.03999900817871, 14.38999938964844, -11.25, 10.59000015258789, 30.0};
+//    for (int i = 0; i < 13; i++)
+//    {
+//        paramValues[i] = aggresive[i];
+//    }
+
+    auto dir2 = juce::File::getSpecialLocation(juce::File::currentApplicationFile);
+    int numTries = 0;
+    while (!dir2.getChildFile("Resources").exists() && numTries++ < 15)
+        dir2 = dir2.getParentDirectory();
+
+    juce::File file = dir2.getChildFile("Resources").getChildFile("XMLpresets").getChildFile(fileName);
+
+    std::string filePath = file.getFullPathName().toStdString();
+
 //    float new paramValues[41];
     // Read the sample.xml file
 //    xml_document<> doc;
 //    xml_node<> * root_node;
-//
-//    fileName = "/Users/jocekav/Documents/GitHub/MUSI6106-Project/plugin_framework/ProcessorGraphTest/Resources/XMLPresets/" + fileName;
-//
-//    juce::File file = juce::File(fileName);
-//
-//    juce::XmlDocument doc(file);
+
+    // fileName = "/Users/jocekav/Documents/GitHub/MUSI6106-Project/plugin_framework/ProcessorGraphTest/Resources/XMLPresets/" + fileName;
+
+    // juce::File file = juce::File(fileName);
+
+    juce::XmlDocument doc(file);
 //    std::unique_ptr<juce::XmlElement> mainElement = doc.getDocumentElement();
-//
-//    if (mainElement == 0)
-//        {
-//            std::cout <<(doc.getLastParseError());
-//        }
-//    else
-//    {
-//        if( mainElement->hasTagName( "PARAM" ) )
-//        {
-//            int count = 0;
-//            forEachXmlChildElement(*mainElement, child)
-//            {
-//                if( child->hasTagName( "value" ) )
-//                {
-//                    float value = (child->getAllSubText()).getFloatValue();
-//                    paramValues[count] = value;
-//                }
-//            }
-//        }
-//    }
+    auto mainElement = doc.getDocumentElement();
+
+    if (mainElement == 0)
+        {
+            std::cout <<(doc.getLastParseError());
+        }
+    else
+    {
+        if( mainElement->hasTagName( "Parameters" ) )
+        {
+            int count = 0;
+            forEachXmlChildElement(*mainElement, child)
+            {
+                if( child->hasTagName( "PARAM" ) )
+                {
+                    //child.attributes.item.nextListItem.item.value.text
+                    float value1 = child->getAttributeValue(1).getFloatValue();
+
+                    paramValues[count] = value1;
+                }
+                count++;
+                if (count == 40)
+                {
+                    return;
+                }
+            }
+        }
+    }
     
 //    ifstream xmlFile;
 //    xmlFile.open(fileName);
@@ -86,8 +104,50 @@ void PresetHandler::parseXML(float *paramValues, string fileName)
 void PresetHandler::setParamsFromXML(float *paramValues, juce::AudioProcessorValueTreeState* apvts, int num_params)
 {
     float displayVal;
-//    const char* paramNames[] = { "Amp_0", "DelayBlend_0", "DelayBypass_0", "DelayTime_0", "CompressorAttack_0","CompressorBypass_0","CompressorInputGain_0","CompressorMakeupGain_0","CompressorRatio_0","CompressorRelease_0","CompressorThreshold_0", "GainValue_0","GainValue_1","NoiseGateAttack_0","NoiseGateBypass_0","NoiseGateRatio_0","NoiseGateRelease_0","NoiseGateThreshold_0","PhaserBlend_0","PhaserBypass_0","PhaserDepth_0","PhaserFc_0","PhaserFeedback_0","PhaserRate_0","ReverbBlend_0","ReverbBypass_0","ReverbDamping_0","ReverbRoomSize_0" "EqualizerBypass_0","EqualizerHMF_0","EqualizerHMGain_0","EqualizerHMQ_0","EqualizerHPFQ_0","EqualizerHPF_0","EqualizerLMF_0","EqualizerLMGain_0","EqualizerLMQ_0","EqualizerLPFQ_0","EqualizerLPF_0","EqualizerMF_0","EqualizerMGain_0","EqualizerMQ_0"};
-    const char* paramNames[] = { "Amp_0", "DelayBlend_0", "DelayBypass_0", "DelayTime_0", "CompressorAttack_0","CompressorBypass_0","CompressorInputGain_0","CompressorMakeupGain_0","CompressorRatio_0","CompressorRelease_0","CompressorThreshold_0", "GainValue_0","GainValue_1"};
+    const char* paramNames[] = { 
+        "Amp_0",
+        "DelayBlend_0",
+        "DelayBypass_0",
+        "DelayTime_0",
+        "CompressorAttack_0",
+        "CompressorBypass_0",
+        "CompressorInputGain_0",
+        "CompressorMakeupGain_0",
+        "CompressorRatio_0",
+        "CompressorRelease_0",
+        "CompressorThreshold_0",
+        "EqualizerBypass_0",
+        "EqualizerHMF_0",
+        "EqualizerHMGain_0",
+        "EqualizerHMQ_0",
+        "EqualizerHPFQ_0",
+        "EqualizerHPF_0",
+        "EqualizerLMF_0",
+        "EqualizerLMGain_0",
+        "EqualizerLMQ_0",
+        "EqualizerLPFQ_0",
+        "EqualizerLPF_0",
+        "EqualizerMF_0",
+        "EqualizerMGain_0",
+        "EqualizerMQ_0",
+        "GainValue_0",
+        "GainValue_1",
+        "NoiseGateAttack_0",
+        "NoiseGateBypass_0",
+        "NoiseGateRatio_0",
+        "NoiseGateRelease_0",
+        "NoiseGateThreshold_0",
+        "PhaserBlend_0",
+        "PhaserBypass_0",
+        "PhaserDepth_0",
+        "PhaserFc_0",
+        "PhaserFeedback_0",
+        "PhaserRate_0",
+        "ReverbBlend_0",
+        "ReverbBypass_0",
+        "ReverbDamping_0",
+        "ReverbRoomSize_0"};
+//const char* paramNames[] = { "Amp_0", "DelayBlend_0", "DelayBypass_0", "DelayTime_0", "CompressorAttack_0","CompressorBypass_0","CompressorInputGain_0","CompressorMakeupGain_0","CompressorRatio_0","CompressorRelease_0","CompressorThreshold_0", "GainValue_0","GainValue_1"};
     
     for (int i = 0; i < num_params; i++) {
     
@@ -102,12 +162,11 @@ void PresetHandler::averageMultiArray(float **paramValues, float *avgValues, int
 {
     float currValue;
     float prevValue;
-    int count = 0;
     for (int i = 0; i < numParams; i++)
     {
-        prevValue = paramValues[count][i];
-        avgValues[i] = paramValues[count][i];
-        for (int j = 0; j < numChoices - 1; j++){
+        prevValue = paramValues[0][i];
+        avgValues[i] = paramValues[0][i];
+        for (int j = 1; j < numChoices - 1; j++){
             // check bypassed
             currValue = paramValues[j][i];
             if ((currValue == 0.0 && prevValue == 1.0) || (prevValue == 0.0 && currValue == 1.0))
@@ -120,25 +179,26 @@ void PresetHandler::averageMultiArray(float **paramValues, float *avgValues, int
                 avgValues[i] += currValue;
             }
             prevValue = currValue;
-            count++;
         }
         // get average through division
         avgValues[i] /= numChoices;
     }
 }
 
-void PresetHandler::convertToFileNames(string* presetNameArray, int numPresetsToSet)
+std::string PresetHandler::convertToFileNames(int presetInd)
 {
-    for (int i = 0; i < numPresetsToSet; i++)
-    {
-        string currName = presetNameArray[i];
-        transform(currName.begin(), currName.end(), currName.begin(), ::tolower);
-        currName.append(".xml");
-        presetNameArray[i] = currName;
-    }
+//    for (int i = 0; i < numPresetsToSet; i++)
+//    {
+//        string currName = presetNameArray[i];
+//        transform(currName.begin(), currName.end(), currName.begin(), ::tolower);
+//        currName.append(".xml");
+//        presetNameArray[i] = currName;
+//    }
+    const char* fileNames[] = { "aggressive.xml", "airy.xml", "attack.xml", "bloom.xml", "boom.xml","bright.xml","chunky.xml","compressed.xml","creamy.xml","djent.xml","fat.xml", "fizz.xml","floppy.xml", "flutey.xml","growl.xml","hot.xml","icepick.xml","juicy.xml","muddy.xml","mushy.xml", "quack.xml","sizzle.xml", "twang.xml", "vintage.xml", "warm.xml", "woof.xml"};
+    return fileNames[presetInd];
 }
 
-void PresetHandler::setParamsFromPopUp(string* presetNameArray, int numPresetsToSet)
+void PresetHandler::setParamsFromPopUp(int* presetIndArray, int numPresetsToSet)
 {
     // how many choices selected
     // create a multi-dimensional array with 41xlength(choice_Names)
@@ -149,13 +209,13 @@ void PresetHandler::setParamsFromPopUp(string* presetNameArray, int numPresetsTo
         ppf_paramValues[i] = new float[unsigned(NUM_PARAMS)]();
     }
     
-    convertToFileNames(presetNameArray, numPresetsToSet);
+//    convertToFileNames(presetNameArray, numPresetsToSet);
     string fileName;
     
     // in iteratition, instantiate file names and parseXML
     for (int i = 0; i < numPresetsToSet; i++)
     {
-        fileName = presetNameArray[i];
+        fileName = convertToFileNames(presetIndArray[i]);
         parseXML(ppf_paramValues[i], fileName);
     }
     
@@ -164,10 +224,10 @@ void PresetHandler::setParamsFromPopUp(string* presetNameArray, int numPresetsTo
     averageMultiArray(ppf_paramValues, avgValues, NUM_PARAMS, numPresetsToSet);
     
     // set values to averages in a loop
-//    setParamsFromXML(avgValues, m_pAPVTS, NUM_PARAMS);
+    setParamsFromXML(avgValues, m_pAPVTS, NUM_PARAMS);
     
     // delete everything
-    for (int i = 0; i < NUM_PARAMS; i++)
+    for (int i = 0; i < numPresetsToSet; i++)
     {
         delete ppf_paramValues[i];
     }

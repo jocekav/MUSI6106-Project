@@ -292,7 +292,7 @@ void ProcessorGraphTestAudioProcessor::initialiseAudioNodes(juce::ReferenceCount
     outputGainNode = mainProcessor->addNode(std::make_unique<CGainProcessor>(&apvts,1));
     audioNodeList.add(outputGainNode);
     
-//    presetHandler = PresetHandler(&apvts);
+    presetHandler = PresetHandler(&apvts);
     
 }
 
