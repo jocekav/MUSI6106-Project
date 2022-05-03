@@ -75,6 +75,10 @@ void PresetHandler::parseXML(float *paramValues, string fileName)
                     paramValues[count] = value1;
                 }
                 count++;
+                if (count == 40)
+                {
+                    return;
+                }
             }
         }
     }
@@ -220,7 +224,7 @@ void PresetHandler::setParamsFromPopUp(int* presetIndArray, int numPresetsToSet)
     averageMultiArray(ppf_paramValues, avgValues, NUM_PARAMS, numPresetsToSet);
     
     // set values to averages in a loop
-//    setParamsFromXML(avgValues, m_pAPVTS, NUM_PARAMS);
+    setParamsFromXML(avgValues, m_pAPVTS, NUM_PARAMS);
     
     // delete everything
     for (int i = 0; i < numPresetsToSet; i++)

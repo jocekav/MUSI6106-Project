@@ -542,9 +542,7 @@ void ProcessorGraphTestAudioProcessorEditor::buttonClicked (juce::Button* button
         else
         {
             button->setButtonText("Select A Preset");
-//            inputGainSlider.setValue(4.0);
             
-            std::cout << presetTable.getSelection(0);
             int setPreset;
             std::string currPreset;
             int numPresetsToSet = 0;
@@ -560,9 +558,6 @@ void ProcessorGraphTestAudioProcessorEditor::buttonClicked (juce::Button* button
 
             if (numPresetsToSet > 0)
             {
-//                std::string *presetNameArray;
-//                presetNameArray = new std::string [unsigned(numPresetsToSet)];
-//                std::vector<std::string> presetNameArray;
                 
                 int *fileInd = new int [unsigned(numPresetsToSet)];
 
@@ -572,7 +567,6 @@ void ProcessorGraphTestAudioProcessorEditor::buttonClicked (juce::Button* button
                     setPreset = presetTable.getSelection(i);
                     if (setPreset)
                     {
-//                        currPreset = (presetTable.getText(1, i)).toStdString();
                         fileInd[numPresetsToSet] = i;
                         numPresetsToSet++;
                     }
