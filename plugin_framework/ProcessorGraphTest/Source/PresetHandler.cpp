@@ -69,8 +69,10 @@ void PresetHandler::parseXML(float *paramValues, string fileName)
             {
                 if( child->hasTagName( "PARAM" ) )
                 {
-                    float value = (child->getAllSubText()).getFloatValue();
-                    paramValues[count] = value;
+                    //child.attributes.item.nextListItem.item.value.text
+                    float value1 = child->getAttributeValue(1).getFloatValue();
+
+                    paramValues[count] = value1;
                 }
                 count++;
             }
