@@ -21,7 +21,7 @@ b. Run the following code from within the eigen folder (cd eigen first)
 c. `brew install superlu`  (or equivalent for windows/linux)  
 d. `brew install clang-format`  
 
-
+# Project Goals
 We are making a JUCE amp simulator plugin with tone control and other basic effects in a signal chain. The plugin’s idea was based on the work from SmartGuitarAmp by GuitarML on GitHub (https://github.com/GuitarML/SmartGuitarAmp), and we are modifying it by introducing the idea of using our own linear regression model to decide the percentage of the output tone, gain, or amp within our amp simulator plugin. We are keeping the idea of using a machine-trained model of an amp simulator as in SmartGuitarAmp, and using waveshaping as a valve simulator, PedalNetRT, and other basic guitar amp simulation algorithms to create the amp tone control. 
 Our end goal is to have an amp simulator with a few built-in amps and 4-5 effects (could include reverb, LPF, HPF, comb filters, flanger, chorus, and distortion effects) that are easy to control similarly to a real guitar amp, and as a stretch goal we hope to implement a linear regression model for tone control where the user can upload an audio file of what they want their amp to sound like and the machine learning model will adjust the tone control and gain knobs to be close to the amount of wet/dry tone and would decide which of our default amp models to use to sound the closest.
 The plugin will have an intuitive GUI where users can upload an audio file to determine the tone of the amp as well as manually adjust parameters and effects. If we have time, we will incorporate a modular “drag and drop” signal chain within the GUI that will contain reverb, EQ, and compression. 
